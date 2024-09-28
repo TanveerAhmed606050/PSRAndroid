@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">PSP_Android</string>
+    <string name="enter_lang">Enter Language</string>
+    <string name="enter_city">Enter City</string>
+    <string name="password">Password</string>
+    <string name="forgot_pass">Forgot Password</string>
+    <string name="login_in">Login</string>
+    <string name="dont_acc">Don’t Have Account? </string>
+    <string name="already_acc">Already Have an Account? </string>
+    <string name="enter_num">Enter your Number</string>
+    <string name="signup">Sign up</string>
+    <string name="number">Number</string>
+    <string name="enter_verify">Enter your Verification</string>
+    <string name="enter_pin">Enter your Pin</string>
+    <string name="name">Name</string>
+    <string name="full_name">Full Name</string>
+    <string name="search">Search</string>
+    <string name="language">Language</string>
+    <string name="city">City</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone</string>
+    <string name="address">Address</string>
+    <string name="profile">Profile</string>
+    <string name="add">Add</string>
+    <string name="add_profile">Add Profile</string>
+    <string name="dashboard">Your Dashboard</string>
+    <string name="product">Product</string>
+    <string name="price_kg">Price Per KG</string>
+    <string name="scrap_name">Scrap Product Name</string>
+    <string name="congratulation">Congratulation</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+</resources>
