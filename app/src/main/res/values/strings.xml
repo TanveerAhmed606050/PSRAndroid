@@ -3,6 +3,7 @@
     <string name="enter_lang">Enter Language</string>
     <string name="enter_city">Enter City</string>
     <string name="password">Password</string>
+    <string name="confirm_pass">Confirm Password</string>
     <string name="forgot_pass">Forgot Password</string>
     <string name="login_in">Login</string>
     <string name="dont_acc">Don’t Have Account? </string>
@@ -13,6 +14,7 @@
     <string name="enter_verify">Enter your Verification</string>
     <string name="enter_pin">Enter your Pin</string>
     <string name="name">Name</string>
+    <string name="confirm_pass_err">Password and confirm password don\'t match</string>
     <string name="full_name">Full Name</string>
     <string name="search">Search</string>
     <string name="language">Language</string>
@@ -30,4 +32,7 @@
     <string name="congratulation">Congratulation</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="date">Date</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

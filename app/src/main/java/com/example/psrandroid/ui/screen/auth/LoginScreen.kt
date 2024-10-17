@@ -1,19 +1,17 @@
 package com.example.psrandroid.ui.screen.auth
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +39,12 @@ import com.example.psp_android.R
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.commonViews.AppButton
-import com.example.psrandroid.ui.commonViews.MyTextFieldWithoutBorder
-import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.commonViews.PasswordTextFields
+import com.example.psrandroid.ui.commonViews.PhoneTextField
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
 import com.example.psrandroid.utils.Utils.showToast
 import com.example.psrandroid.utils.isVisible
@@ -63,7 +61,7 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
     if (authData != null) {
         showToast(context, authData.message)
         if (authData.status) {
-            navController.navigate(Screen.OTPScreen.route)
+            navController.navigate(Screen.DashBoardScreen.route)
 //            {
 //                popUpTo(navController.graph.id)
 //            }
@@ -71,23 +69,29 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
         authVM.loginData = null
     }
 
-    LoginScreen(onLoginButtonClick = {phoneNumber->
-        if (isValidPhone(phoneNumber).isNotEmpty())
+    LoginScreen(onLoginButtonClick = { phoneNumber, password ->
+        if (isValidPhone("+92$phoneNumber").isNotEmpty())
             showToast(context, isValidPhone("+92$phoneNumber"))
+        else if (isValidPassword(password).isNotEmpty())
+            showToast(context, isValidPassword(password))
         else
-            authVM.login(UserCredential(phone = "+92$phoneNumber"))
+            authVM.login(UserCredential(phone = "+92$phoneNumber", password = password))
     },
         onSignup = {
             navController.navigate(Screen.RegisterScreen.route)
-        })
+        },
+        onForgotPasswordClick = {})
 }
 
 @Composable
 fun LoginScreen(
-    onLoginButtonClick: (String) -> Unit,
-    onSignup: () -> Unit
+    onLoginButtonClick: (String, String) -> Unit,
+    onSignup: () -> Unit,
+    onForgotPasswordClick: () -> Unit
 ) {
     var phoneNumber by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -105,79 +109,49 @@ fun LoginScreen(
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(120.dp))
+            Spacer(modifier = Modifier.height(80.dp))
 
-            Column(
-                modifier = Modifier.padding(0.dp),
-                horizontalAlignment = CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                HorizontalDivider(color = Color.White, thickness = 2.dp)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .background(Color.White)
-                            .fillMaxHeight()
-                    ) {
-                        Text(
-                            text = "+92", color = DarkBlue, modifier = Modifier
-                                .padding(8.dp)
-                                .align(Alignment.CenterVertically),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                    MyTextFieldWithoutBorder(
-                        value = phoneNumber,
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next,
-                        placeholder = stringResource(id = R.string.number),
-                        onValueChange = { value ->
-                            phoneNumber = value
-                        },
-                        imageId = null
-                    )
-
-                }
-                HorizontalDivider(color = Color.White, thickness = 2.dp)
-            }
-//            Spacer(modifier = Modifier.padding(top = 30.dp))
-//            HorizontalDivider(color = Color.White, thickness = 2.dp)
-//            PasswordTextFields(
-//                value = password,
-//                KeyboardType.Password,
-//                ImeAction.Done,
-//                placeholder = stringResource(id = R.string.password),
-//                onValueChange = { newText ->
-//                    password = newText
-//                }
-//            )
-//            HorizontalDivider(color = Color.White, thickness = 2.dp)
-//            Spacer(modifier = Modifier.padding(top = 15.dp))
-//            Row(modifier = Modifier.fillMaxWidth()) {
-//                Spacer(modifier = Modifier.weight(1f))
-//                Text(
-//                    text = stringResource(id = R.string.forgot_pass),
-//                    modifier = Modifier
-//                        .clickable(indication = null, // Remove the ripple effect
-//                            interactionSource = remember { MutableInteractionSource() } // Add this line to handle interactions without the ripple effect
-//                        ) {
-////                            onForgotPasswordClick()
-//                        },
-//                    color = Color.White,
-//                    fontSize = 12.sp,
-//                    fontFamily = mediumFont,
-//                    textAlign = TextAlign.End
-//                )
-//            }
+            PhoneTextField(
+                value = phoneNumber,
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next,
+                placeholder = stringResource(id = R.string.phone),
+                onValueChange = { phoneNumber = it },
+                imageId = R.drawable.baseline_phone_24
+            )
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            AppButton(text = stringResource(id = R.string.login_in), DarkBlue, Color.White) {
-                onLoginButtonClick(phoneNumber)
+            PasswordTextFields(
+                value = password,
+                KeyboardType.Password,
+                ImeAction.Done,
+                placeholder = stringResource(id = R.string.password),
+                onValueChange = { newText ->
+                    password = newText
+                }
+            )
+            Spacer(modifier = Modifier.padding(top = 15.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = stringResource(id = R.string.forgot_pass),
+                    modifier = Modifier
+                        .clickable {
+                            onForgotPasswordClick()
+                        },
+                    color = Color.White,
+                    fontSize = 12.sp,
+                    fontFamily = mediumFont,
+                    textAlign = TextAlign.End
+                )
+            }
+            Spacer(modifier = Modifier.padding(top = 20.dp))
+            AppButton(
+                modifier = Modifier
+                    .widthIn(min = 300.dp, max = 600.dp)
+                    .padding(bottom = 30.dp),
+                text = stringResource(id = R.string.login_in)
+            ) {
+                onLoginButtonClick(phoneNumber, password)
             }
             Row(
                 modifier = Modifier
@@ -204,7 +178,7 @@ fun LoginScreen(
                 )
             }
         }
-        BottomNavigationButtons()
+//        BottomNavigationButtons()
     }
 }
 
@@ -232,6 +206,7 @@ fun BottomNavigationButtons() {
 @Composable
 fun PreviewLoginScreen() {
     PSP_AndroidTheme {
-        LoginScreen( onLoginButtonClick = {}, onSignup = {})
+        LoginScreen(onLoginButtonClick = { _, _ -> }, onSignup = {},
+            onForgotPasswordClick = {})
     }
 }

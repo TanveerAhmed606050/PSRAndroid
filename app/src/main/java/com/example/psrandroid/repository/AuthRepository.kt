@@ -15,4 +15,10 @@ class AuthRepository @Inject constructor(
     suspend fun register(userCredential: UserCredential) = loadResource {
         apiInterface.register(userCredential)
     }
+    suspend fun getLocation() = loadResource {
+        apiInterface.getLocation()
+    }
+    suspend fun getDealerList() = loadResource {
+        apiInterface.getDealerList()
+    }
 }

@@ -1,7 +1,11 @@
 package com.example.psrandroid.ui.screen.dashboard
 
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,15 +22,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,7 +48,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,15 +58,41 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
+import com.example.psrandroid.response.DashboardData
+import com.example.psrandroid.response.LocationData
+import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
+import com.example.psrandroid.ui.theme.LightGray
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
+import com.example.psrandroid.ui.theme.PurpleGrey40
+import com.example.psrandroid.ui.theme.mediumFont
+import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.convertMillisToDate
+import com.example.psrandroid.utils.Utils.isValidDate
+import com.example.psrandroid.utils.Utils.showToast
+import com.example.psrandroid.utils.isVisible
+import com.example.psrandroid.utils.progressBar
+import com.example.psrandroid.utils.showToast
+import io.github.rupinderjeet.kprogresshud.KProgressHUD
+import java.util.Calendar
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM) {
+    val context = LocalContext.current
+    val progressBar: KProgressHUD = remember { context.progressBar() }
+    progressBar.isVisible(dashboardVM.isLoading)
+    val error = dashboardVM.error
+    if (error.isNotEmpty()) context.showToast(error)
+    val locationList = dashboardVM.userPreferences.getLocationList()?.data ?: listOf()
+
     var search by rememberSaveable { mutableStateOf("") }
     val sharedPreferences = dashboardVM.userPreferences
     val name by remember { mutableStateOf(sharedPreferences.getUserPreference()?.name ?: "Ahmed") }
@@ -59,30 +101,39 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM) {
             sharedPreferences.getUserPreference()?.email ?: "jahanshah43@gmail.com"
         )
     }
-    val address by remember {
-        mutableStateOf("Lalpur, Lahore"
-        )
-    }
+    val address by remember { mutableStateOf("Lalpur, Lahore") }
     val phone by remember {
         mutableStateOf(
             sharedPreferences.getUserPreference()?.phone ?: "+92 30515151"
         )
     }
-
-    DashBoardScreen(search, name, email, address, phone, onSearch = {
-        search = it
-    }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) })
+    val dashboardData = dashboardVM.dashboardData
+//    if (dashboardData != null){
+//        dashboardVM.dashboardData = null
+//    }
+    DashBoardScreen(locationList, search, name, email, address, phone,
+        dashboardData?.data,
+        onSearch = {
+            search = it
+        }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
+        onFilterText = { date, locationId ->
+            dashboardVM.getDashboardData(locationId, date)
+        })
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DashBoardScreen(
+    locationList: List<LocationData>,
     search: String,
     name: String,
     email: String,
     address: String,
     phone: String,
+    dashboardData: DashboardData?,
     onSearch: (String) -> Unit,
-    addProfileClick: () -> Unit
+    addProfileClick: () -> Unit,
+    onFilterText: (String, String) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -99,7 +150,10 @@ fun DashBoardScreen(
 
             Spacer(modifier = Modifier.height(0.dp))
             // Search bar
-            SearchBar(search, onSearch = { onSearch(it) })
+            SearchBar(locationList, search, onSearch = { onSearch(it) },
+                onFilterText = { selectedDate, location ->
+                    onFilterText(selectedDate, location)
+                })
 
             Spacer(modifier = Modifier.height(0.dp))
             Row(
@@ -121,7 +175,7 @@ fun DashBoardScreen(
                 )
             }
             // List of scrap products
-            ProductList()
+            ProductList(dashboardData)
         }
         // Bottom action button
         Box(
@@ -248,8 +302,27 @@ fun UserDetailItem(imageId: Int, text: String) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SearchBar(search: String, onSearch: (String) -> Unit) {
+fun SearchBar(
+    locationList: List<LocationData>,
+    search: String,
+    onSearch: (String) -> Unit,
+    onFilterText: (String, String) -> Unit
+) {
+    var showFilterDialog by remember { mutableStateOf(false) }
+
+    if (showFilterDialog) {
+        FilterDialog(
+            locationList,
+            onDismissRequest = {
+                showFilterDialog = false
+            },
+            onDateSelected = { date, location ->
+                onFilterText(date, location)
+                showFilterDialog = false
+            })
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -261,7 +334,7 @@ fun SearchBar(search: String, onSearch: (String) -> Unit) {
         }, leadingIcon = {
             Icon(
                 painterResource(id = R.drawable.search_ic),
-                contentDescription = "Search Icon",
+                contentDescription = "",
                 modifier = Modifier.size(30.dp)
             )
         }, placeholder = {
@@ -284,7 +357,11 @@ fun SearchBar(search: String, onSearch: (String) -> Unit) {
         Image(
             painter = painterResource(id = R.drawable.filter_ic),
             contentDescription = "",
-            Modifier.size(40.dp)
+            Modifier
+                .size(40.dp)
+                .clickable {
+                    showFilterDialog = true
+                }
         )
         Image(
             painter = painterResource(id = R.drawable.bottom_up_list),
@@ -295,7 +372,7 @@ fun SearchBar(search: String, onSearch: (String) -> Unit) {
 }
 
 @Composable
-fun ProductList() {
+fun ProductList(dashboardData: DashboardData?) {
     val products = listOf(
         "Battery Scrap Rate",
         "Steel Scrap Rate",
@@ -339,9 +416,11 @@ fun ProductItem(productName: String, index: Int) {
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(brush = Brush.verticalGradient(
-                        colors = listOf(LightBlue, DarkBlue)
-                    ), shape = RoundedCornerShape(6.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(LightBlue, DarkBlue)
+                        ), shape = RoundedCornerShape(6.dp)
+                    )
                     .weight(0.5f),
                 contentAlignment = Alignment.Center
             ) {
@@ -376,11 +455,255 @@ fun ProductItem(productName: String, index: Int) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun FilterDialog(
+    locationData: List<LocationData>,
+    onDismissRequest: () -> Unit,
+    onDateSelected: (String, String) -> Unit
+) {
+    val locationList = locationData.map { it.name }
+    var isClicked by rememberSaveable { mutableStateOf(false) }
+    val iconColor by rememberUpdatedState(if (isClicked) LightBlue else PurpleGrey40)
+    var selectedDate by rememberSaveable { mutableStateOf("Date") }
+    var selectedLocation by rememberSaveable { mutableStateOf("Location") }
+    var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
+    var expandedLocation by remember { mutableStateOf(false) }
+
+    if (expandedLocation) {
+        ListDialog(dataList = locationList, onDismiss = { expandedLocation = false },
+            onConfirm = { locationName ->
+                val locationId = locationData.find { it.name == locationName }?.id ?: 0
+                selectedLocation = "$locationId"
+                expandedLocation = false
+            })
+    }
+
+    val context = LocalContext.current
+    if (isDatePickerVisible) {
+        MyDatePickerDialog(
+            context,
+            onDateSelected = { date ->
+                selectedDate = date
+                isDatePickerVisible = false
+            },
+            onDismissRequest = { isDatePickerVisible = false }
+        )
+    }
+
+    Dialog(
+        onDismissRequest = { onDismissRequest() },
+        properties = DialogProperties(dismissOnClickOutside = true)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+                .padding(20.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(id = R.string.app_name),
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    fontFamily = mediumFont,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+                HorizontalDivider(thickness = 0.3.dp, color = Color.Gray)
+
+                Spacer(modifier = Modifier.padding(top = 20.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp)
+                        .background(
+                            color = LightGray, // Blue for selected, transparent otherwise
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            if (isClicked) LightBlue else LightGray,
+                        )
+                ) {
+                    Text(
+                        text = selectedLocation,
+                        color = if (isClicked) LightBlue else PurpleGrey40,
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))  // Add a Spacer to fill remaining space
+
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_arrow_drop_down_24),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .clickable {
+                                expandedLocation = true
+                            },
+                        colorFilter = ColorFilter.tint(iconColor),
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.padding(top = 20.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp)
+                        .background(
+                            color = LightGray, // Blue for selected, transparent otherwise
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            if (isClicked) LightBlue else LightGray,
+                        )
+                ) {
+                    Text(
+                        text = selectedDate,
+                        color = if (isClicked) LightBlue else PurpleGrey40,
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))  // Add a Spacer to fill remaining space
+
+                    Image(
+                        painter = painterResource(id = R.drawable.calendar_ic),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .clickable {
+                                isDatePickerVisible = true
+                                isClicked = !isClicked
+                            },
+                        colorFilter = ColorFilter.tint(iconColor),
+                    )
+
+                }
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    TextButton(
+                        onClick = { onDismissRequest() },
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.cancel),
+                            color = Color.LightGray,
+                            fontSize = 17.sp,
+                            fontFamily = regularFont
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = { onDateSelected(selectedDate, selectedLocation) },
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.ok),
+                            color = LightBlue,
+                            fontSize = 17.sp,
+                            fontFamily = regularFont
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyDatePickerDialog(
+    context: Context,
+    onDateSelected: (String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val calendar = Calendar.getInstance().apply { add(Calendar.YEAR, 0) }
+    val timeInMillis = calendar.timeInMillis
+
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = timeInMillis,
+        initialDisplayedMonthMillis = timeInMillis,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                // Check if the date is 18 years ago or earlier
+                return utcTimeMillis <= timeInMillis
+            }
+        }
+    )
+
+    val selectedDate = datePickerState.selectedDateMillis?.let {
+        convertMillisToDate(it)
+    }
+        ?: ""
+//        ?: "convertMillisToDate(eighteenYearsAgoInMillis)"// Default to 18 years ago if no date is selected
+
+    DatePickerDialog(
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            Button(
+                modifier = Modifier
+                    .padding(end = 16.dp, bottom = 8.dp, top = 8.dp)
+                    .width(100.dp),
+                onClick = {
+                    if (isValidDate(selectedDate)) {
+                        onDateSelected(selectedDate)
+                        onDismissRequest()
+                    } else
+                        showToast(context = context, "You have entered Invalid date")
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = LightBlue,
+                    contentColor = Color.White
+                )
+
+            ) {
+                Text(text = stringResource(id = R.string.ok), fontFamily = regularFont)
+            }
+        },
+        dismissButton = {
+            Button(
+                modifier = Modifier
+                    .padding(end = 8.dp, bottom = 8.dp, top = 8.dp)
+                    .width(100.dp),
+                onClick = {
+                    onDismissRequest()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Gray,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(text = stringResource(id = R.string.cancel), fontFamily = regularFont)
+            }
+        }
+    ) {
+        DatePicker(
+            state = datePickerState,
+            modifier = Modifier,
+            colors = DatePickerDefaults.colors(
+                selectedDayContainerColor = LightBlue, // Set your desired color here
+                selectedDayContentColor = Color.White // Set content color for the selected day
+            )
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun PreviewDashboardScreen() {
     PSP_AndroidTheme {
-        DashBoardScreen("", "", "", "", "", onSearch = {},
-            addProfileClick = {})
+        DashBoardScreen(
+            listOf(LocationData.mockup), "", "", "", "", "",
+            null,
+            onSearch = {},
+            addProfileClick = {},
+            onFilterText = { _, _ ->
+            })
     }
 }

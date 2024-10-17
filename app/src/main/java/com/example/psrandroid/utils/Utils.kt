@@ -12,6 +12,9 @@ import com.google.gson.Gson
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 object Utils {
     // Function to load cities from JSON file in assets
@@ -20,11 +23,33 @@ object Utils {
         return if (phoneNumberPattern.matches(phoneNumber)) "" else "Enter valid number"
     }
 
-    fun isValidEmail(email: String): Boolean {
-        val emailRegex = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+".toRegex()
-        return email.matches(emailRegex)
-    }
-
+//    fun isValidEmail(email: String): Boolean {
+//        val emailRegex = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+".toRegex()
+//        return email.matches(emailRegex)
+//    }
+fun isValidPassword(password: String): String {
+    return if (password.isEmpty())
+        "Password fields must not be empty."
+    else if (password.trim().length < 8)
+        "Password must be at least 8 characters long."
+    else ""
+//    val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")
+//    val result = passwordPattern.matches(password)
+//    return when (!result) {
+//        true -> {
+//            when {
+//                !password.contains("[A-Z]".toRegex()) -> "Password must contain at least one uppercase letter (A-Z)."
+//                !password.contains("[a-z]".toRegex()) -> "Password must contain at least one lowercase letter (A-Z)."
+//                !password.contains("\\d".toRegex()) -> "Password must contain at least one digit (0â€“9)."
+//                !password.contains("[@#$%^&+=!]".toRegex()) -> "Password must contain at least one special character (@#$%^&+=!)."
+//                else ->
+//                    "Password must be at least 8 characters long."
+//            }
+//        }
+//
+//        else -> ""
+//    }
+}
     fun isValidText(text: String): String {
         return if (text.trim().replace("\n", "").matches(Regex("^[^0-9]+$"))
             && text.length >= 3
@@ -52,6 +77,20 @@ object Utils {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
+    }
+    fun isValidDate(date: String): Boolean {
+        return try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            sdf.isLenient = false
+            sdf.parse(date)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    fun convertMillisToDate(millis: Long): String {
+        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) // Fix: "MM" for month, "dd" for day
+        return formatter.format(Date(millis))
     }
 
 }

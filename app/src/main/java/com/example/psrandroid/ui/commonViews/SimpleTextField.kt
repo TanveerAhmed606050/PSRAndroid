@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -17,11 +18,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -29,10 +32,16 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.psp_android.R
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
+import com.example.psrandroid.ui.theme.mediumFont
+import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isValidPassword
+import com.example.psrandroid.utils.Utils.isValidPhone
+import com.example.psrandroid.utils.Utils.isValidText
 
 @Composable
 fun ProfileInputField(
@@ -86,27 +95,30 @@ fun ProfileInputField(
 }
 
 @Composable
-fun MyTextFieldWithoutBorder(
+fun MyTextFieldWithBorder(
     value: String,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     placeholder: String,
     onValueChange: (String) -> Unit,
-    imageId: Int?,
+    imageId: Int,
 ) {
+    var isValid by remember { mutableStateOf(true) }
+    val textColor = if (isValid) Color.White else Color.Red
+    isValid = isValidText(value).isEmpty()
     OutlinedTextField(
         value = value,
         onValueChange = {
             onValueChange(it)
         },
-        placeholder = {
-            Text(text = placeholder, color = Color.White)
+        label = {
+            Text(text = placeholder, fontFamily = mediumFont)
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Transparent, // Change focused border color
-            unfocusedBorderColor = Color.Transparent, // Change unfocused border color
-            focusedLabelColor = Color.Transparent,
-            unfocusedLabelColor = Color.Transparent,
+            focusedBorderColor = Color.White, // Change focused border color
+            unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
+            focusedLabelColor = textColor,
+            unfocusedLabelColor = if (value.isEmpty())Color.White else textColor,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White
         ),
@@ -116,16 +128,16 @@ fun MyTextFieldWithoutBorder(
             imeAction = imeAction,
         ),
         trailingIcon = {
-            if (imageId!= null)
-                Image(
-                    painter = painterResource(id = imageId), // Using the provided icon
-                    contentDescription = null, // Add appropriate content description
-                )
+            Image(
+                painter = painterResource(
+                    id = imageId
+                ), // Using the provided icon
+                contentDescription = null, // Add appropriate content description
+            )
         },
+        shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-//            .fillMaxHeight()
             .background(Color.Transparent)
     )
 }
@@ -139,40 +151,41 @@ fun PasswordTextFields(
     onValueChange: (String) -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    var isValid by remember { mutableStateOf(true) }
     var passwordVisible by remember { mutableStateOf(false) }
+    val textColor = if (isValid) Color.White else Color.Red
     val passwordIcon =
         if (passwordVisible && isFocused) painterResource(id = R.drawable.s_eye_close)
         else if (!passwordVisible && isFocused) painterResource(id = R.drawable.s_eye_ic)
         else if (passwordVisible) painterResource(id = R.drawable.eye_close_ic)
         else painterResource(id = R.drawable.eye_ic)
+    isValid = isValidPassword(value).isEmpty()
 
     OutlinedTextField(
         value = value,
         onValueChange = {
             onValueChange(it)
         },
-        placeholder = {
+        label = {
             Text(
                 placeholder,
-//                fontFamily = regularFont,
-                color = Color.White
+                fontFamily = mediumFont,
             )
         },
-        textStyle = TextStyle(
-            color = Color.White // Use the appropriate color based on focus
-        ),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Transparent, // Change focused border color
-            unfocusedBorderColor = Color.Transparent, // Change unfocused border color
-            focusedLabelColor = Color.Transparent,
-            unfocusedLabelColor = Color.Transparent
+            focusedBorderColor = Color.White, // Change focused border color
+            unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
+            focusedLabelColor = textColor,
+            unfocusedLabelColor = if (value.isEmpty())Color.White else textColor,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction
         ),
-        leadingIcon = {
+        trailingIcon = {
             Image(
                 painter = passwordIcon, // Using the provided icon
                 contentDescription = null, // Add appropriate content description
@@ -182,18 +195,74 @@ fun PasswordTextFields(
                     }
             )
         },
-//        shape = RectangleShape, // Set corner radius here
+        shape = RoundedCornerShape(12.dp), // Set corner radius here
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
             .background(
                 color = Color.Transparent,
-//                shape = RectangleShape
             )
-//            .border(width = 2.dp, shape = RectangleShape, color = Color.White)
             .onFocusChanged {
-//                isFocused = it.isFocused
+                isFocused = it.isFocused
             },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+    )
+}
+
+@Composable
+fun PhoneTextField(
+    value: String,
+    keyboardType: KeyboardType,
+    imeAction: ImeAction,
+    placeholder: String,
+    onValueChange: (String) -> Unit,
+    imageId: Int,
+) {
+    val prefix = "+92 "
+    var isValid by remember { mutableStateOf(true) }
+    var isFocused by remember { mutableStateOf(false) }
+    val textColor = if (isValid) Color.White else Color.Red
+    isValid = isValidPhone(value).isEmpty()
+    OutlinedTextField(
+        value = value,
+        onValueChange = {
+            onValueChange(it)
+        },
+        label = {
+            Text(text = placeholder, fontFamily = mediumFont)
+        },
+        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+        leadingIcon = {
+            Text(
+                text = prefix,
+                color = Color.White,
+                fontFamily = mediumFont
+            )
+        },
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.White, // Change focused border color
+            unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
+            focusedLabelColor = textColor,
+            unfocusedLabelColor = if (value.isEmpty())Color.White else textColor,
+            focusedTextColor = Color.White,
+            unfocusedTextColor = Color.White
+        ),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+        ),
+        trailingIcon = {
+            Image(
+                painter = painterResource(id = imageId),
+                contentDescription = null, // Add appropriate content description
+            )
+        },
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Transparent)
+            .onFocusChanged {
+                isFocused = it.isFocused
+            },
     )
 }

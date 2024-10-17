@@ -3,9 +3,6 @@ package com.example.psrandroid.utils
 
 object Constant {
     const val BASE_URL = "https://maket-rate.developera.io/api/"
-//    const val MEDIA_URL = "https://www.fitmeplanner.com/public/api/profile/"
-//    const val RECIPES_BASE_URL = "https://www.fitmeplanner.com/public/api/recipe/"
-    const val MEDIA_BASE_URL = "https://www.fitmeplanner.com/public/storage/"
     const val EMAIL = "email"
     const val PASSWORD = "password"
     const val DEVICE_ID = "device_id"
@@ -26,4 +23,5 @@ object Constant {
     const val USER_EMAIL = "user_Email"
     const val OLD_PASSWORD = "old_password"
     const val NEW_PASSWORD = "new_password"
-    const val PROFILE_PIC = "profile_pic"}
+    const val PROFILE_PIC = "profile_pic"
+}
