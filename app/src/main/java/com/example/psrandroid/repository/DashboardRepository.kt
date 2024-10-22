@@ -8,4 +8,5 @@ class DashboardRepository @Inject constructor(private val apiInterface: ApiInter
     suspend fun getDashboardData(locationId: String, date: String) = loadResource {
         apiInterface.getDashboardData(locationId, date)
     }
+
 }

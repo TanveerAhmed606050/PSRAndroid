@@ -46,8 +46,7 @@ fun AppButton(modifier: Modifier, text: String, onButtonClick: () -> Unit) {
         ) {
             Text(
                 text = text,
-                fontSize = 17.62.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
                 color = LightBlue,
                 fontFamily = mediumFont,
                 textAlign = TextAlign.Center,

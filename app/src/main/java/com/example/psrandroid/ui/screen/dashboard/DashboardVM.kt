@@ -33,5 +33,4 @@ class DashboardVM @Inject constructor(
             error = result.exception.message ?: "Failure"
         }
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,13 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -38,6 +39,8 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.navigation.Screen
+import com.example.psrandroid.network.isNetworkAvailable
+import com.example.psrandroid.response.User
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.commonViews.PhoneTextField
@@ -46,9 +49,9 @@ import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
-import com.example.psrandroid.utils.Utils.showToast
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
+import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
@@ -59,23 +62,39 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
     //login api response
     val authData = authVM.loginData
     if (authData != null) {
-        showToast(context, authData.message)
         if (authData.status) {
+            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
+            authVM.userPreferences.isFirstLaunch = false
+            authVM.userPreferences.saveUserPreference(
+                User(
+                    userId = authData.data.id,
+                    name = authData.data.name, phone = authData.data.phone,
+                    location = authData.data.location
+                )
+            )
             navController.navigate(Screen.DashBoardScreen.route)
-//            {
-//                popUpTo(navController.graph.id)
-//            }
-        }
+        } else
+            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
     }
 
     LoginScreen(onLoginButtonClick = { phoneNumber, password ->
-        if (isValidPhone("+92$phoneNumber").isNotEmpty())
-            showToast(context, isValidPhone("+92$phoneNumber"))
-        else if (isValidPassword(password).isNotEmpty())
-            showToast(context, isValidPassword(password))
-        else
-            authVM.login(UserCredential(phone = "+92$phoneNumber", password = password))
+        if (isNetworkAvailable(context)) {
+            if (isValidPhone("+92$phoneNumber").isNotEmpty())
+                Toasty.error(context, isValidPhone("+92$phoneNumber"), Toast.LENGTH_SHORT, true)
+                    .show()
+            else if (isValidPassword(password).isNotEmpty())
+                Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true).show()
+            else
+                authVM.login(UserCredential(phone = "+92$phoneNumber", password = password))
+        } else
+            Toasty.error(
+                context,
+                "No internet connection. Please check your network settings.",
+                Toast.LENGTH_SHORT,
+                true
+            )
+                .show()
     },
         onSignup = {
             navController.navigate(Screen.RegisterScreen.route)
@@ -89,8 +108,8 @@ fun LoginScreen(
     onSignup: () -> Unit,
     onForgotPasswordClick: () -> Unit
 ) {
-    var phoneNumber by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -102,10 +121,10 @@ fun LoginScreen(
             contentScale = ContentScale.Crop, // Adjust this as needed
             modifier = Modifier.fillMaxSize(),
         )
-        Column(modifier = Modifier.padding(horizontal = 30.dp)) {
-            Spacer(modifier = Modifier.height(50.dp))
+        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+            Spacer(modifier = Modifier.statusBarsPadding())
             Text(
-                text = stringResource(id = R.string.enter_num), color = Color.White,
+                text = stringResource(id = R.string.login_in), color = Color.White,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
                 fontWeight = FontWeight.Bold
             )

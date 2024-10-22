@@ -30,9 +30,7 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
     private val gson = Gson()
 
     fun saveUserPreference(loginData: User) {
-        sharedPreferences.edit {
-            putString(USER_DATA, gson.toJson(loginData))
-        }
+        sharedPreferences.edit { putString(USER_DATA, gson.toJson(loginData)) }
     }
 
     fun getUserPreference(): User? {

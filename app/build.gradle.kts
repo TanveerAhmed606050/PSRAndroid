@@ -98,6 +98,9 @@ dependencies {
     implementation (libs.guava)
     // multidex
     implementation(libs.androidx.multidex)
-    //country code picker
-//    implementation(libs.komposecountrycodepicker)
+    //custom toast
+    implementation(libs.toast)
+    //compose adaptive layout
+    implementation(libs.accompanist.adaptive)
+
 }

@@ -1,6 +1,7 @@
 package com.example.psrandroid.ui.screen.auth
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.dto.UserCredential
-import com.example.psrandroid.navigation.Screen
+import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
@@ -57,9 +59,9 @@ import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
 import com.example.psrandroid.utils.Utils.isValidText
-import com.example.psrandroid.utils.Utils.showToast
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
+import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -74,11 +76,12 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     var selectedCity by rememberSaveable { mutableStateOf("") }
 
     if (authData != null) {
-        showToast(context, authData.message)
         if (authData.status) {
+            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
             navController.popBackStack()
-            navController.navigate(Screen.OTPScreen.route)
-        }
+//            navController.navigate(Screen.OTPScreen.route)
+        } else
+            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
     }
 
@@ -89,18 +92,43 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
             navController.popBackStack()
         },
         onRegisterButtonClick = { phone, name, password, confirmPass ->
-            if (isValidText(name).isNotEmpty())
-                showToast(context, isValidText(name))
-            else if (isValidPhone(phone).isNotEmpty())
-                showToast(context, isValidPhone("+92$phone"))
-            else if (isValidPassword(password).isNotEmpty())
-                showToast(context, isValidPassword(password))
-            else if (isValidPassword(confirmPass).isNotEmpty())
-                showToast(context, isValidPassword(confirmPass))
-            else if (password != confirmPass)
-                showToast(context, "Password and confirm password don't match")
-            else
-                authVM.register(UserCredential(phone = "+92$phone", name = name))
+            if (isNetworkAvailable(context)) {
+                if (isValidText(name).isNotEmpty())
+                    Toasty.error(context, isValidText(name), Toast.LENGTH_SHORT, true).show()
+                else if (isValidPhone(phone).isNotEmpty())
+                    Toasty.error(context, isValidPhone("+92$phone"), Toast.LENGTH_SHORT, true)
+                        .show()
+                else if (selectedCity.isEmpty() || selectedCity == "City")
+                    Toasty.error(context, "Please select a city", Toast.LENGTH_SHORT, true).show()
+                else if (isValidPassword(password).isNotEmpty())
+                    Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true)
+                        .show()
+                else if (isValidPassword(confirmPass).isNotEmpty())
+                    Toasty.error(context, isValidPassword(confirmPass), Toast.LENGTH_SHORT, true)
+                        .show()
+                else if (password != confirmPass)
+                    Toasty.error(
+                        context,
+                        context.getString(R.string.confirm_pass_err),
+                        Toast.LENGTH_SHORT,
+                        true
+                    ).show()
+                else
+                    authVM.register(
+                        UserCredential(
+                            phone = "+92$phone", name = name, password = password,
+                            location = selectedCity
+                        )
+                    )
+            } else
+                Toasty.error(
+                    context,
+                    "No internet connection. Please check your network settings.",
+                    Toast.LENGTH_SHORT,
+                    true
+                )
+                    .show()
+
         },
         onCitySelect = { selectedLocation ->
             selectedCity = selectedLocation
@@ -121,14 +149,13 @@ fun SignupScreen(
     var confirmPassword by rememberSaveable { mutableStateOf("") }
     var city by rememberSaveable { mutableStateOf("City") }
     var expandedCity by remember { mutableStateOf(false) }
-//    val state = rememberKomposeCountryCodePickerState()
     val locationData = locationList.map { it.name }
 
     if (expandedCity) {
         ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
             onConfirm = { locationName ->
-                val locationId = locationList.find { it.name == locationName }?.id ?: 0
-                onCitySelect("$locationId")
+                val locationId = locationList.find { it.name == locationName }?.name ?: ""
+                onCitySelect(locationId)
                 city = locationName
                 expandedCity = false
             })
@@ -144,15 +171,15 @@ fun SignupScreen(
             contentScale = ContentScale.Crop, // Adjust this as needed
             modifier = Modifier.fillMaxSize(),
         )
-        Column(modifier = Modifier.padding(horizontal = 30.dp)) {
-            Spacer(modifier = Modifier.height(40.dp))
+        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+            Spacer(modifier = Modifier.statusBarsPadding())
             Header(
                 modifier = null,
                 stringResource(id = R.string.signup),
                 backClick = { backClick() })
             Spacer(modifier = Modifier.height(50.dp))
 
-            Column(modifier = Modifier.padding(0.dp)) {
+            Column {
                 MyTextFieldWithBorder(
                     value = fullName,
                     keyboardType = KeyboardType.Text,

@@ -16,4 +16,5 @@ class ProfileVM @Inject constructor(
 ) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
+
 }

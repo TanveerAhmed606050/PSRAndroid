@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
+import com.example.psrandroid.ui.theme.mediumFont
 
 @Composable
 fun Header(modifier: Modifier?,headerText:String, backClick: () -> Unit) {
@@ -44,10 +45,10 @@ fun Header(modifier: Modifier?,headerText:String, backClick: () -> Unit) {
         Text(
             text = headerText, color = Color.White,
             textAlign = TextAlign.Center,
-            fontSize = 18.sp,
+            fontSize = 16.sp,
             modifier = Modifier
                 .align(Alignment.Center),
-            fontWeight = FontWeight.Bold
+            fontFamily = mediumFont
         )
     }
 }

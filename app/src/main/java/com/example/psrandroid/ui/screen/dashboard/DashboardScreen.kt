@@ -2,6 +2,7 @@ package com.example.psrandroid.ui.screen.dashboard
 
 import android.content.Context
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -62,10 +63,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.psp_android.R
+import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.navigation.Screen
-import com.example.psrandroid.response.DashboardData
+import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
+import com.example.psrandroid.response.MetalType
 import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -75,49 +79,84 @@ import com.example.psrandroid.ui.theme.PurpleGrey40
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.convertMillisToDate
+import com.example.psrandroid.utils.Utils.getCurrentDate
 import com.example.psrandroid.utils.Utils.isValidDate
-import com.example.psrandroid.utils.Utils.showToast
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
-import com.example.psrandroid.utils.showToast
+import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
 import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM) {
+fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, authVM: AuthVM) {
     val context = LocalContext.current
     val progressBar: KProgressHUD = remember { context.progressBar() }
+
+    val locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
+        it.name == dashboardVM.userPreferences.getUserPreference()?.location
+    }?.id ?: 0 // get location id
+    val date = getCurrentDate() // current date
+
     progressBar.isVisible(dashboardVM.isLoading)
     val error = dashboardVM.error
-    if (error.isNotEmpty()) context.showToast(error)
+//    if (error.isNotEmpty())
+//        Toasty.error(context, error, Toast.LENGTH_SHORT, true).show()
     val locationList = dashboardVM.userPreferences.getLocationList()?.data ?: listOf()
-
+    var metalTypeList: List<MetalType> = listOf()
     var search by rememberSaveable { mutableStateOf("") }
     val sharedPreferences = dashboardVM.userPreferences
     val name by remember { mutableStateOf(sharedPreferences.getUserPreference()?.name ?: "Ahmed") }
-    val email by remember {
+
+    var location by remember {
         mutableStateOf(
-            sharedPreferences.getUserPreference()?.email ?: "jahanshah43@gmail.com"
+            sharedPreferences.getUserPreference()?.location ?: "Lahore"
         )
     }
-    val address by remember { mutableStateOf("Lalpur, Lahore") }
     val phone by remember {
         mutableStateOf(
             sharedPreferences.getUserPreference()?.phone ?: "+92 30515151"
         )
     }
+    var expandedCity by remember { mutableStateOf(false) }
+    val locationData = locationList.map { it.name }
+    if (expandedCity) {
+        ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
+            onConfirm = { locationName ->
+                location = locationName
+                expandedCity = false
+                authVM.updateUserLocation(
+                    UpdateLocation(
+                        userId = sharedPreferences.getUserPreference()?.userId ?: 0,
+                        location = locationName
+                    )
+                )
+            })
+    }
+
     val dashboardData = dashboardVM.dashboardData
-//    if (dashboardData != null){
-//        dashboardVM.dashboardData = null
+//    LaunchedEffect(Unit) {
+    if (isNetworkAvailable(context)) {
+        if (dashboardData == null)
+            dashboardVM.getDashboardData("1", "14-10-2024")
+    } else
+        Toasty.error(context, stringResource(id = R.string.network_error), Toast.LENGTH_SHORT, true)
+            .show()
 //    }
-    DashBoardScreen(locationList, search, name, email, address, phone,
-        dashboardData?.data,
-        onSearch = {
-            search = it
+//    if (search == "")
+    val filteredList = dashboardData?.data?.filter { it.name.contains(search, ignoreCase = true) }
+        ?.map { it.metalType }?.flatten() ?: listOf()
+
+    DashBoardScreen(locationList, search, name, location, phone,
+        filteredList,
+        onSearch = { query ->
+            search = query
         }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
         onFilterText = { date, locationId ->
             dashboardVM.getDashboardData(locationId, date)
+        },
+        onLocationClick = {
+            expandedCity = true
         })
 }
 
@@ -127,12 +166,12 @@ fun DashBoardScreen(
     locationList: List<LocationData>,
     search: String,
     name: String,
-    email: String,
     address: String,
     phone: String,
-    dashboardData: DashboardData?,
+    productList: List<MetalType>,
     onSearch: (String) -> Unit,
     addProfileClick: () -> Unit,
+    onLocationClick: () -> Unit,
     onFilterText: (String, String) -> Unit,
 ) {
     Box(
@@ -146,7 +185,10 @@ fun DashBoardScreen(
                 .padding(bottom = 100.dp)
         ) {
             // Header section
-            HeaderSection(name, email, address, phone)
+            HeaderSection(name, address, phone, addProfileClick = {
+                addProfileClick()
+            },
+                onLocationClick = { onLocationClick() })
 
             Spacer(modifier = Modifier.height(0.dp))
             // Search bar
@@ -159,45 +201,52 @@ fun DashBoardScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .padding(horizontal = 20.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.scrap_name),
                     color = LightBlue,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 14.sp,
+                    fontFamily = mediumFont
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = stringResource(id = R.string.price_kg),
                     color = LightBlue,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(end = 12.dp)
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(end = 0.dp)
                 )
             }
-            // List of scrap products
-            ProductList(dashboardData)
+            if (productList.isEmpty())
+                NoProductView()
+            else
+                ProductList(productList)
         }
         // Bottom action button
-        Box(
-            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
-        ) {
-            Text(
-                text = "Add Profile",
-                modifier = Modifier.padding(bottom = 72.dp),
-                color = LightBlue,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal
-            )
-            Image(painter = painterResource(id = R.drawable.plus_bottom),
-                contentDescription = null,
-                modifier = Modifier.clickable { addProfileClick() })
-        }
+//        Box(
+//            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
+//        ) {
+//            Text(
+//                text = "Add Profile",
+//                modifier = Modifier.padding(bottom = 72.dp),
+//                color = LightBlue,
+//                fontSize = 14.sp,
+//                fontWeight = FontWeight.Normal
+//            )
+//            Image(painter = painterResource(id = R.drawable.plus_bottom),
+//                contentDescription = null,
+//                modifier = Modifier.clickable { addProfileClick() })
+//        }
     }
-
 }
 
 @Composable
-fun HeaderSection(name: String, email: String, address: String, phone: String) {
+fun HeaderSection(
+    name: String, address: String, phone: String,
+    addProfileClick: () -> Unit,
+    onLocationClick: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -205,27 +254,29 @@ fun HeaderSection(name: String, email: String, address: String, phone: String) {
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(horizontal = 20.dp, vertical = 10.dp)
                 .align(Alignment.CenterStart)
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(id = R.string.dashboard),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Image(
                     painter = painterResource(id = R.drawable.location_ic),
                     contentDescription = "",
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable { onLocationClick() }
                 )
                 Text(
-                    text = " | Lahore", color = Color.White, fontSize = 16.sp,
+                    text = " | $address", color = Color.White, fontSize = 16.sp,
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -235,7 +286,7 @@ fun HeaderSection(name: String, email: String, address: String, phone: String) {
                         color = LightBlue, shape = RoundedCornerShape(12.dp)
                     )
                     .fillMaxWidth()
-                    .height(150.dp)
+                    .height(100.dp)
                     .padding(start = 0.dp)
             ) {
                 Image(
@@ -249,24 +300,8 @@ fun HeaderSection(name: String, email: String, address: String, phone: String) {
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.baseline_settings_24),
-                            contentDescription = "",
-                            modifier = Modifier
-                                .size(20.dp)
-                                .align(Alignment.TopEnd)
-                        )
-                    }
+
                     UserDetailItem(imageId = R.drawable.profile_ic, text = name)
-                    HorizontalDivider(color = Color.White)
-                    UserDetailItem(
-                        imageId = R.drawable.message_ic, text = email
-                    )
                     HorizontalDivider(color = Color.White)
                     UserDetailItem(imageId = R.drawable.location_ic, text = address)
                     HorizontalDivider(color = Color.White)
@@ -283,7 +318,7 @@ fun UserDetailItem(imageId: Int, text: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -326,7 +361,7 @@ fun SearchBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(value = search, onValueChange = { value ->
@@ -335,75 +370,64 @@ fun SearchBar(
             Icon(
                 painterResource(id = R.drawable.search_ic),
                 contentDescription = "",
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(24.dp)
             )
         }, placeholder = {
-            Text(text = stringResource(id = R.string.search), color = Color.Gray)
-        }, colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = DarkBlue, // Change focused border color
-            unfocusedBorderColor = Color.Transparent, // Change unfocused border color
-            focusedLabelColor = Color.Transparent,
-            unfocusedLabelColor = Color.Transparent,
-            focusedTextColor = DarkBlue,
-            unfocusedTextColor = Color.Gray
-        ), modifier = Modifier
-            .background(
-                color = Color.White, shape = RoundedCornerShape(12)
-            )
-            .clip(RoundedCornerShape(12.dp))
-            .padding(2.dp)
+            Text(text = stringResource(id = R.string.search), color = Color.Gray, fontSize = 12.sp)
+        },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = DarkBlue, // Change focused border color
+                unfocusedBorderColor = Color.Transparent, // Change unfocused border color
+                focusedLabelColor = Color.Transparent,
+                unfocusedLabelColor = Color.Transparent,
+                focusedTextColor = DarkBlue,
+                unfocusedTextColor = Color.Gray
+            ), modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White, shape = RoundedCornerShape(12)
+                )
+                .clip(RoundedCornerShape(12.dp))
+                .padding(2.dp)
         )
 
-        Image(
-            painter = painterResource(id = R.drawable.filter_ic),
-            contentDescription = "",
-            Modifier
-                .size(40.dp)
-                .clickable {
-                    showFilterDialog = true
-                }
-        )
-        Image(
-            painter = painterResource(id = R.drawable.bottom_up_list),
-            contentDescription = "",
-            Modifier.size(40.dp)
-        )
+//        Image(
+//            painter = painterResource(id = R.drawable.filter_ic),
+//            contentDescription = "",
+//            Modifier
+//                .size(40.dp)
+//                .clickable {
+////                    showFilterDialog = true
+//                }
+//        )
+//        Image(
+//            painter = painterResource(id = R.drawable.bottom_up_list),
+//            contentDescription = "",
+//            Modifier.size(40.dp)
+//        )
     }
 }
 
 @Composable
-fun ProductList(dashboardData: DashboardData?) {
-    val products = listOf(
-        "Battery Scrap Rate",
-        "Steel Scrap Rate",
-        "Brass Scrap Rate",
-        "Aluminium Scrap Price",
-        "Silver Scrap Price",
-        "Nigar Scrap Ratesv",
-        "Battery Scrap Rate",
-        "Steel Scrap Rate",
-        "Brass Scrap Rate",
-        "Aluminium Scrap Price",
-        "Silver Scrap Price",
-        "Nigar Scrap Ratesv"
-    )
+fun ProductList(dashboardData: List<MetalType>) {
 
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 0.dp)
     ) {
-        items(products.size) { index ->
-            ProductItem(productName = products[index], index = index + 1)
+        items(dashboardData.size ?: 0) { index ->
+            ProductItem(metalDetail = dashboardData[index], index = index + 1)
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-fun ProductItem(productName: String, index: Int) {
+fun ProductItem(metalDetail: MetalType, index: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 16.dp)
+            .padding(vertical = 10.dp, horizontal = 20.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
             .clip(RoundedCornerShape(8.dp)),
 
@@ -427,15 +451,17 @@ fun ProductItem(productName: String, index: Int) {
                 Text(
                     text = String.format("%02d", index),
                     color = Color.White,
-                    fontWeight = FontWeight.Medium
+                    fontFamily = regularFont,
+                    fontSize = 12.sp
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = productName,
-                fontSize = 16.sp,
+                text = metalDetail.name,
+                fontSize = 12.sp,
                 color = Color.Gray,
                 maxLines = 1,
+                fontFamily = regularFont,
                 modifier = Modifier.weight(2f),
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
@@ -446,9 +472,10 @@ fun ProductItem(productName: String, index: Int) {
                 .padding(8.dp), contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Rs. 420 to Rs. 445",
+                text = "Rs. ${metalDetail.price}",
                 modifier = Modifier.padding(horizontal = 8.dp),
                 fontSize = 12.sp,
+                fontFamily = regularFont,
                 color = Color.White,
             )
         }
@@ -654,7 +681,12 @@ fun MyDatePickerDialog(
                         onDateSelected(selectedDate)
                         onDismissRequest()
                     } else
-                        showToast(context = context, "You have entered Invalid date")
+                        Toasty.error(
+                            context,
+                            "You have entered Invalid date",
+                            Toast.LENGTH_SHORT,
+                            true
+                        ).show()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = LightBlue,
@@ -693,17 +725,34 @@ fun MyDatePickerDialog(
     }
 }
 
+@Composable
+fun NoProductView() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "No metal found", color = LightBlue, fontFamily = mediumFont,
+            fontSize = 16.sp
+        )
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun PreviewDashboardScreen() {
     PSP_AndroidTheme {
         DashBoardScreen(
-            listOf(LocationData.mockup), "", "", "", "", "",
-            null,
+            listOf(LocationData.mockup), "", "", "", "",
+            listOf(),
             onSearch = {},
             addProfileClick = {},
             onFilterText = { _, _ ->
-            })
+            },
+            onLocationClick = {})
     }
 }

@@ -5,26 +5,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.psrandroid.dto.ImageUpdate
+import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.repository.AuthRepository
+import com.example.psrandroid.response.AuthResponse
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
-import com.example.psrandroid.response.LoginResponse
+import com.example.psrandroid.response.User
 import com.example.psrandroid.storage.UserPreferences
+import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import com.example.psrandroid.utils.Result
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthVM @Inject constructor(
     private val authRepository: AuthRepository,
     val userPreferences: UserPreferences
-) : ViewModel(){
+) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
-//    fun isAlreadyLogin(): Boolean = userPreferences.getUserPreference()?.name != null
-    var loginData by mutableStateOf<LoginResponse?>(null)
+
+    //    fun isAlreadyLogin(): Boolean = userPreferences.getUserPreference()?.name != null
+    var loginData by mutableStateOf<AuthResponse?>(null)
     var locationData by mutableStateOf<LocationResponse?>(null)
     var dealersList by mutableStateOf<DealerResponse?>(null)
 
@@ -34,7 +38,6 @@ class AuthVM @Inject constructor(
         if (result is Result.Success) {
             isLoading = false
             loginData = result.data
-            userPreferences.isFirstLaunch = false
         } else if (result is Result.Failure) {
             isLoading = false
             error = result.exception.message ?: "Failure"
@@ -54,13 +57,13 @@ class AuthVM @Inject constructor(
     }
 
     fun getLocation() = viewModelScope.launch {
-        isLoading = true
+//        isLoading = true
         val result = authRepository.getLocation()
         if (result is Result.Success) {
-            isLoading = false
+//            isLoading = false
             locationData = result.data
         } else if (result is Result.Failure) {
-            isLoading = false
+//            isLoading = false
             error = result.exception.message ?: "Failure"
         }
     }
@@ -76,4 +79,68 @@ class AuthVM @Inject constructor(
             error = result.exception.message ?: "Failure"
         }
     }
+
+    fun updateUserLocation(updateLocation: UpdateLocation) = viewModelScope.launch {
+        isLoading = true
+        val result = authRepository.updateUserLocation(updateLocation)
+        if (result is Result.Success) {
+            isLoading = false
+            loginData = result.data
+            userPreferences.saveUserPreference(
+                User(
+                    userId = loginData?.data?.id ?: 0,
+                    name = loginData?.data?.name ?: "",
+                    phone = loginData?.data?.phone ?: "",
+                    location = loginData?.data?.location ?: "",
+                    profilePic = loginData?.data?.name?:""
+                )
+            )
+        } else if (result is Result.Failure) {
+            isLoading = false
+            error = result.exception.message ?: "Failure"
+        }
+    }
+
+    fun updateUserImage(imageUpdate: ImageUpdate) = viewModelScope.launch {
+        isLoading = true
+        val result = authRepository.updateUserImage(imageUpdate)
+        if (result is Result.Success) {
+            isLoading = false
+            loginData = result.data
+            userPreferences.saveUserPreference(
+                User(
+                    userId = loginData?.data?.id ?: 0,
+                    name = loginData?.data?.name ?: "",
+                    phone = loginData?.data?.phone ?: "",
+                    location = loginData?.data?.location ?: "",
+                    profilePic = loginData?.data?.profilePic?:""
+                )
+            )
+        } else if (result is Result.Failure) {
+            isLoading = false
+            error = result.exception.message ?: "Failure"
+        }
+    }
+
+    fun updateUserData(userCredential: UserCredential) = viewModelScope.launch {
+        isLoading = true
+        val result = authRepository.updateUserData(userCredential)
+        if (result is Result.Success) {
+            isLoading = false
+            loginData = result.data
+//            userPreferences.saveUserPreference(
+//                User(
+//                    userId = loginData?.data?.id ?: 0,
+//                    name = loginData?.data?.name ?: "",
+//                    phone = loginData?.data?.phone ?: "",
+//                    location = loginData?.data?.location ?: "",
+//                    profilePic = loginData?.data?.profilePic?:""
+//                )
+//            )
+        } else if (result is Result.Failure) {
+            isLoading = false
+            error = result.exception.message ?: "Failure"
+        }
+    }
+
 }

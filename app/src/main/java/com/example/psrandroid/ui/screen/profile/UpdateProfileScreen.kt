@@ -4,37 +4,35 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,110 +53,139 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.psp_android.R
-import com.example.psrandroid.response.User
+import com.example.psrandroid.dto.UserCredential
+import com.example.psrandroid.network.isNetworkAvailable
+import com.example.psrandroid.response.LocationData
+import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.commonViews.AppButton
+import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.ProfileInputField
+import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
-import com.example.psrandroid.utils.Utils.convertImageFileToBase64
+import com.example.psrandroid.utils.isVisible
+import com.example.psrandroid.utils.progressBar
+import es.dmoral.toasty.Toasty
+import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
-fun AddProfileScreen(navController: NavController, profileVM: ProfileVM) {
+fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
+    val sharedPreferences = authVM.userPreferences
     val context = LocalContext.current
-    val sharedPreferences = profileVM.userPreferences
+    val progressBar: KProgressHUD = remember { context.progressBar() }
+    progressBar.isVisible(authVM.isLoading)
+    val userData = authVM.loginData
+    if (userData != null) {
+        if (userData.status) {
+            navController.popBackStack()
+        }
+        authVM.loginData = null
+    }
 
-    var name by rememberSaveable {
+    var name by remember {
         mutableStateOf(
             sharedPreferences.getUserPreference()?.name ?: ""
         )
     }
-    var email by rememberSaveable {
-        mutableStateOf(
-            sharedPreferences.getUserPreference()?.email ?: ""
-        )
-    }
-    var phone by rememberSaveable {
+    var phone by remember {
         mutableStateOf(
             sharedPreferences.getUserPreference()?.phone ?: ""
         )
     }
-    var address by rememberSaveable {
-        mutableStateOf(""
+    var address by remember {
+        mutableStateOf(
+            sharedPreferences.getUserPreference()?.location ?: ""
         )
     }
-    var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var base64String by remember { mutableStateOf<String?>(null) }
+    val userId = sharedPreferences.getUserPreference()?.userId ?: 0
+    val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
 
-    val galleryLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.GetContent()
-        ) { uri: Uri? ->
-            capturedImageUri = uri
-        }
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        capturedImageUri = uri
-        base64String =
-            capturedImageUri?.let {
-                convertImageFileToBase64(
-                    it,
-                    contentResolver = context.contentResolver
-                )
-            }
-        //call update api
-        if (base64String != null) {
-//            val updateProfilePicture =
-//                UpdateProfilePicture("${userData?.id}", base64String ?: "")
-//            profileViewModel.editProfilePicture(updateProfilePicture)
-        }
+    val capturedImageUri by remember {
+        mutableStateOf(
+            sharedPreferences.getUserPreference()?.profilePic ?: ""
+        )
     }
 
-    AddProfileScreen(name, email, address, phone, capturedImageUri,
+    UpdateProfileScreen(locationList, name, address, phone, capturedImageUri,
         onAddress = {
             address = it
         }, onName = {
             name = it
-        }, onEmail = {
-            email = it
         }, onPhone = {
             phone = it
         },
-        backClick = { navController.popBackStack() }, addButtonClick = {
-            val loginData = User(name = name, email = email, phone = phone)
-            sharedPreferences.saveUserPreference(loginData)
-            navController.popBackStack()
+        backClick = { navController.popBackStack() },
+        updateButtonClick = {
+            if (address.isEmpty())
+                address = sharedPreferences.getUserPreference()?.location ?: ""
+            if (name.isEmpty())
+                name = sharedPreferences.getUserPreference()?.name ?: ""
+            if (phone.isEmpty())
+                phone = sharedPreferences.getUserPreference()?.phone ?: ""
+            if (isNetworkAvailable(context))
+                authVM.updateUserData(
+                    UserCredential(
+                        userId = "$userId",
+                        phone = phone, name = name,
+                        location = address
+                    )
+                )
+            else
+                Toasty.error(
+                    context,
+                    "No internet connection. Please check your network settings.",
+                    Toast.LENGTH_SHORT,
+                    true
+                )
+                    .show()
+//            val loginData = User(name = name, phone = phone, userId = userId)
+//            sharedPreferences.saveUserPreference(loginData)
+//            navController.popBackStack()
         },
-        onImageClick = {
-            openGallery(
-                context, galleryLauncher = galleryLauncher,
-                pickImageLauncher
-            )
+        onCitySelect = {
+            address = it
         })
 }
 
 @Composable
-fun AddProfileScreen(
-    name: String, email: String, address: String, phone: String, imageUri: Uri?,
-    onName: (String) -> Unit, onEmail: (String) -> Unit, onPhone: (String) -> Unit,
+fun UpdateProfileScreen(
+    locationList: List<LocationData>,
+    name: String, address: String, phone: String, imageUri: String,
+    onName: (String) -> Unit, onPhone: (String) -> Unit,
     onAddress: (String) -> Unit,
-    backClick: () -> Unit, addButtonClick: () -> Unit,
-    onImageClick: () -> Unit,
+    backClick: () -> Unit,
+    updateButtonClick: () -> Unit,
+    onCitySelect: (String) -> Unit,
 ) {
+    var expandedCity by remember { mutableStateOf(false) }
+    val locationData = locationList.map { it.name }
+//    var city by remember { mutableStateOf("City") }
+
+    if (expandedCity) {
+        ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
+            onConfirm = { locationName ->
+                val locationId = locationList.find { it.name == locationName }?.name ?: ""
+                onCitySelect(locationId)
+                onAddress(locationName)
+                expandedCity = false
+            })
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue)))
     ) {
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Spacer(modifier = Modifier.height(50.dp))
-            Text(
-                text = stringResource(id = R.string.add_profile),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(50.dp))
+
+            Spacer(modifier = Modifier.statusBarsPadding())
+            Header(
+                modifier = null,
+                stringResource(id = R.string.update_profile),
+                backClick = { backClick() })
+            Spacer(modifier = Modifier.height(30.dp))
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -175,9 +202,8 @@ fun AddProfileScreen(
                         .size(130.dp)
                         .clip(shape = CircleShape)
                         .border(1.dp, Color.LightGray, CircleShape)
-                        .clickable { onImageClick() }
                 )
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(30.dp))
                 ProfileInputField(
                     name,
                     KeyboardType.Text,
@@ -187,17 +213,6 @@ fun AddProfileScreen(
                     },
                     icon = Icons.Default.Person,
                     placeholder = stringResource(id = R.string.name)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                ProfileInputField(
-                    email,
-                    KeyboardType.Email,
-                    ImeAction.Next,
-                    onValueChange = { value ->
-                        onEmail(value)
-                    },
-                    icon = Icons.Default.Email,
-                    placeholder = stringResource(id = R.string.email)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 ProfileInputField(
@@ -211,34 +226,71 @@ fun AddProfileScreen(
                     placeholder = stringResource(id = R.string.phone)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                ProfileInputField(
-                    address,
-                    KeyboardType.Text,
-                    ImeAction.Done,
-                    onValueChange = { value ->
-                        onAddress(value)
-                    },
-                    icon = Icons.Default.LocationOn,
-                    placeholder = stringResource(id = R.string.address)
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-                // Add button
-                Button(
-                    onClick = { addButtonClick() },
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(48.dp)
-                        .padding(horizontal = 24.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                        .fillMaxWidth()
+                        .clickable { expandedCity = true }
+                        .height(50.dp)
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(LightBlue, Color.White)
+                            ),
+                            shape = RoundedCornerShape(50) // Rounded corners for background
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_location_pin_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                    )
                     Text(
-                        text = stringResource(id = R.string.add),
-                        color = LightBlue,
-                        style = MaterialTheme.typography.bodyLarge
+                        text = address,
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 12.dp)
                     )
                 }
-
+                //                ProfileInputField(
+//                    address,
+//                    KeyboardType.Text,
+//                    ImeAction.Done,
+//                    onValueChange = { value ->
+//                        onAddress(value)
+//                    },
+//                    icon = Icons.Default.LocationOn,
+//                    placeholder = stringResource(id = R.string.address)
+//                )
+                Spacer(modifier = Modifier.height(32.dp))
+                // Add button
+//                Button(
+//                    onClick = { updateButtonClick() },
+//                    modifier = Modifier
+//                        .fillMaxWidth(0.8f)
+//                        .height(48.dp)
+//                        .padding(horizontal = 24.dp),
+//                    shape = RoundedCornerShape(16.dp),
+//                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+//                ) {
+//                    Text(
+//                        text = stringResource(id = R.string.update_profile),
+//                        color = LightBlue,
+//                        style = MaterialTheme.typography.bodyLarge
+//                    )
+//                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .wrapContentHeight(Alignment.Bottom)
+                        .padding(bottom = 40.dp)
+                ) {
+                    AppButton(modifier = Modifier,
+                        text = stringResource(id = R.string.update_profile),
+                        onButtonClick = { updateButtonClick() })
+                }
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
@@ -345,7 +397,10 @@ fun openGallery(
     permissionLauncher: ManagedActivityResultLauncher<String, Uri?>
 ) {
     val permissionCheckResult =
-        ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
     if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
         galleryLauncher.launch("image/*")
     } else {
@@ -358,18 +413,17 @@ fun openGallery(
 @Composable
 fun PreviewAddProfileScreen() {
     PSP_AndroidTheme {
-        AddProfileScreen(
+        UpdateProfileScreen(
+            listOf(LocationData.mockup),
             "",
             "",
             "",
             "",
-            null,
             onPhone = {},
             onName = {},
-            onEmail = {},
             onAddress = {},
             backClick = {},
-            addButtonClick = {},
-            onImageClick = {})
+            updateButtonClick = {},
+            onCitySelect = {})
     }
 }

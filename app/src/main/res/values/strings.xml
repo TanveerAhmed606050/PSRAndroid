@@ -1,11 +1,22 @@
 <resources>
-    <string name="app_name">PSP_Android</string>
+    <string name="app_name">PSR</string>
     <string name="enter_lang">Enter Language</string>
     <string name="enter_city">Enter City</string>
     <string name="password">Password</string>
     <string name="confirm_pass">Confirm Password</string>
     <string name="forgot_pass">Forgot Password</string>
     <string name="login_in">Login</string>
+    <string name="logout">Logout</string>
+    <string name="password_change">Change Password</string>
+    <string name="privacy_policy">Privacy Policies</string>
+    <string name="terms_condition">Terms And Conditions</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="password_chg_detail">Modify your account password.</string>
+    <string name="privacy_detail">Learn about data protection.</string>
+    <string name="terms_detail">Review our terms and conditions</string>
+    <string name="contact_detail">We would love to hear from you</string>
+    <string name="my_profile">My Profile</string>
+    <string name="account_logout_warning">Are you sure?</string>
     <string name="dont_acc">Don’t Have Account? </string>
     <string name="already_acc">Already Have an Account? </string>
     <string name="enter_num">Enter your Number</string>
@@ -14,6 +25,7 @@
     <string name="enter_verify">Enter your Verification</string>
     <string name="enter_pin">Enter your Pin</string>
     <string name="name">Name</string>
+    <string name="prime_user">Prime User</string>
     <string name="confirm_pass_err">Password and confirm password don\'t match</string>
     <string name="full_name">Full Name</string>
     <string name="search">Search</string>
@@ -24,9 +36,15 @@
     <string name="address">Address</string>
     <string name="profile">Profile</string>
     <string name="add">Add</string>
+    <string name="update">Update</string>
     <string name="add_profile">Add Profile</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="update_pass">Update Password</string>
     <string name="dashboard">Your Dashboard</string>
+    <string name="network_error">No internet connection. Please check your network settings.</string>
+    <string name="change_pass_detail">Enter your new password it must be different from previously used password</string>
     <string name="product">Product</string>
+    <string name="old_pass">Old Password</string>
     <string name="price_kg">Price Per KG</string>
     <string name="scrap_name">Scrap Product Name</string>
     <string name="congratulation">Congratulation</string>

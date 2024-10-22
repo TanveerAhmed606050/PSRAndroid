@@ -2,7 +2,8 @@ package com.example.psrandroid.utils
 
 
 object Constant {
-    const val BASE_URL = "https://maket-rate.developera.io/api/"
+    const val BASE_URL = "https://backend.scraperate.com/api/"
+    const val MEDIA_BASE_URL = "https://www.fitmeplanner.com/public/storage/"
     const val EMAIL = "email"
     const val PASSWORD = "password"
     const val DEVICE_ID = "device_id"
