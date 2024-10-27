@@ -13,6 +13,7 @@ import com.example.psrandroid.response.AuthResponse
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.User
+import com.example.psrandroid.response.mockup
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,6 +63,8 @@ class AuthVM @Inject constructor(
         if (result is Result.Success) {
 //            isLoading = false
             locationData = result.data
+            if (locationData != null)
+                userPreferences.saveLocationList(locationData ?: LocationResponse.mockup)
         } else if (result is Result.Failure) {
 //            isLoading = false
             error = result.exception.message ?: "Failure"
@@ -92,7 +95,7 @@ class AuthVM @Inject constructor(
                     name = loginData?.data?.name ?: "",
                     phone = loginData?.data?.phone ?: "",
                     location = loginData?.data?.location ?: "",
-                    profilePic = loginData?.data?.name?:""
+                    profilePic = loginData?.data?.name ?: ""
                 )
             )
         } else if (result is Result.Failure) {
@@ -113,7 +116,7 @@ class AuthVM @Inject constructor(
                     name = loginData?.data?.name ?: "",
                     phone = loginData?.data?.phone ?: "",
                     location = loginData?.data?.location ?: "",
-                    profilePic = loginData?.data?.profilePic?:""
+                    profilePic = loginData?.data?.profilePic ?: ""
                 )
             )
         } else if (result is Result.Failure) {

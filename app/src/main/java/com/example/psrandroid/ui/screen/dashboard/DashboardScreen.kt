@@ -23,11 +23,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -47,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -54,7 +59,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,6 +89,8 @@ import com.example.psrandroid.utils.Utils.getCurrentDate
 import com.example.psrandroid.utils.Utils.isValidDate
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshState
 import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
 import java.util.Calendar
@@ -92,17 +100,22 @@ import java.util.Calendar
 fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, authVM: AuthVM) {
     val context = LocalContext.current
     val progressBar: KProgressHUD = remember { context.progressBar() }
+    var isRefreshing by remember { mutableStateOf(false) }
+    if (!dashboardVM.isLoading)
+        isRefreshing = false
 
     val locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
         it.name == dashboardVM.userPreferences.getUserPreference()?.location
     }?.id ?: 0 // get location id
-    val date = getCurrentDate() // current date
+    val currentDate = getCurrentDate() // current date
 
     progressBar.isVisible(dashboardVM.isLoading)
-    val error = dashboardVM.error
+//    val error = dashboardVM.error
 //    if (error.isNotEmpty())
 //        Toasty.error(context, error, Toast.LENGTH_SHORT, true).show()
     val locationList = dashboardVM.userPreferences.getLocationList()?.data ?: listOf()
+    val suggestedSearchList = dashboardVM.userPreferences.getSuggestedList()?: listOf()
+
     var metalTypeList: List<MetalType> = listOf()
     var search by rememberSaveable { mutableStateOf("") }
     val sharedPreferences = dashboardVM.userPreferences
@@ -135,28 +148,50 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
     }
 
     val dashboardData = dashboardVM.dashboardData
-//    LaunchedEffect(Unit) {
     if (isNetworkAvailable(context)) {
         if (dashboardData == null)
-            dashboardVM.getDashboardData("1", "14-10-2024")
+            dashboardVM.getDashboardData("$locationId", currentDate)
     } else
         Toasty.error(context, stringResource(id = R.string.network_error), Toast.LENGTH_SHORT, true)
             .show()
-//    }
-//    if (search == "")
+
     val filteredList = dashboardData?.data?.filter { it.name.contains(search, ignoreCase = true) }
         ?.map { it.metalType }?.flatten() ?: listOf()
 
     DashBoardScreen(locationList, search, name, location, phone,
-        filteredList,
+        filteredList, isRefreshing,
+        suggestedSearchList,
         onSearch = { query ->
             search = query
         }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
-        onFilterText = { date, locationId ->
-            dashboardVM.getDashboardData(locationId, date)
+        onFilterText = { date, placeId ->
+            dashboardVM.getDashboardData(placeId, date)
         },
         onLocationClick = {
             expandedCity = true
+        },
+        onPullDown = {
+            isRefreshing = true
+            if (isNetworkAvailable(context)) {
+                if (dashboardData == null)
+                    dashboardVM.getDashboardData("$locationId", getCurrentDate())
+            } else
+                Toasty.error(
+                    context,
+                    "No internet connection. Please check your network settings.",
+                    Toast.LENGTH_SHORT,
+                    true
+                )
+                    .show()
+
+        },
+        onSearchClick = {text->
+            val isFound = suggestedSearchList.find { it == text}
+            if (isFound == null){
+                val mutableList = suggestedSearchList.toMutableList()
+                mutableList.add(text)
+                dashboardVM.userPreferences.saveSuggestedList(mutableList)
+            }
         })
 }
 
@@ -169,76 +204,77 @@ fun DashBoardScreen(
     address: String,
     phone: String,
     productList: List<MetalType>,
+    isRefreshing: Boolean,
+    suggestedSearchList: List<String>,
+    onSearchClick: (String) -> Unit,
     onSearch: (String) -> Unit,
     addProfileClick: () -> Unit,
     onLocationClick: () -> Unit,
     onFilterText: (String, String) -> Unit,
+    onPullDown: () -> Unit,
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFEEF1F4)) // Background color
+    SwipeRefresh(
+        state = SwipeRefreshState(isRefreshing),
+        onRefresh = {
+            onPullDown()
+        },
+        modifier = Modifier.fillMaxSize()
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 100.dp)
+                .background(Color(0xFFEEF1F4)) // Background color
         ) {
-            // Header section
-            HeaderSection(name, address, phone, addProfileClick = {
-                addProfileClick()
-            },
-                onLocationClick = { onLocationClick() })
-
-            Spacer(modifier = Modifier.height(0.dp))
-            // Search bar
-            SearchBar(locationList, search, onSearch = { onSearch(it) },
-                onFilterText = { selectedDate, location ->
-                    onFilterText(selectedDate, location)
-                })
-
-            Spacer(modifier = Modifier.height(0.dp))
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 4.dp)
+                    .fillMaxSize()
+                    .padding(bottom = 100.dp)
             ) {
-                Text(
-                    text = stringResource(id = R.string.scrap_name),
-                    color = LightBlue,
-                    fontSize = 14.sp,
-                    fontFamily = mediumFont
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text = stringResource(id = R.string.price_kg),
-                    color = LightBlue,
-                    fontFamily = mediumFont,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(end = 0.dp)
-                )
+                // Header section
+                HeaderSection(name, address, phone, addProfileClick = {
+                    addProfileClick()
+                },
+                    onLocationClick = { onLocationClick() })
+
+                Spacer(modifier = Modifier.height(0.dp))
+                // Search bar
+                SearchBar(locationList, suggestedSearchList, search, onSearch = { onSearch(it) },
+                    onFilterText = { selectedDate, location ->
+                        onFilterText(selectedDate, location)
+                    },
+                    onSearchClick = { value ->
+                        onSearchClick(value)
+                    })
+
+                Spacer(modifier = Modifier.height(0.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.scrap_name),
+                        color = LightBlue,
+                        fontSize = 14.sp,
+                        fontFamily = mediumFont
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = stringResource(id = R.string.price_kg),
+                        color = LightBlue,
+                        fontFamily = mediumFont,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(end = 0.dp)
+                    )
+                }
+                if (productList.isEmpty())
+                    NoProductView()
+                else
+                    ProductList(productList)
             }
-            if (productList.isEmpty())
-                NoProductView()
-            else
-                ProductList(productList)
         }
-        // Bottom action button
-//        Box(
-//            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
-//        ) {
-//            Text(
-//                text = "Add Profile",
-//                modifier = Modifier.padding(bottom = 72.dp),
-//                color = LightBlue,
-//                fontSize = 14.sp,
-//                fontWeight = FontWeight.Normal
-//            )
-//            Image(painter = painterResource(id = R.drawable.plus_bottom),
-//                contentDescription = null,
-//                modifier = Modifier.clickable { addProfileClick() })
-//        }
     }
+
 }
 
 @Composable
@@ -341,11 +377,18 @@ fun UserDetailItem(imageId: Int, text: String) {
 @Composable
 fun SearchBar(
     locationList: List<LocationData>,
+    suggestedSearchList: List<String>,
     search: String,
+    onSearchClick: (String) -> Unit,
     onSearch: (String) -> Unit,
     onFilterText: (String, String) -> Unit
 ) {
     var showFilterDialog by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
+    var expandedDropDown by remember { mutableStateOf(false) }
+
+    if (isFocused)
+        expandedDropDown = true
 
     if (showFilterDialog) {
         FilterDialog(
@@ -373,7 +416,11 @@ fun SearchBar(
                 modifier = Modifier.size(24.dp)
             )
         }, placeholder = {
-            Text(text = stringResource(id = R.string.search), color = Color.Gray, fontSize = 12.sp)
+            Text(
+                text = stringResource(id = R.string.search),
+                color = Color.Gray,
+                fontSize = 12.sp
+            )
         },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
@@ -390,8 +437,33 @@ fun SearchBar(
                 )
                 .clip(RoundedCornerShape(12.dp))
                 .padding(2.dp)
+                .onFocusChanged { isFocused = it.isFocused },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onSearchClick(search)
+                }
+            )
         )
-
+        // Dropdown menu below the search bar
+        DropdownMenu(
+            expanded = expandedDropDown && suggestedSearchList.isNotEmpty(),
+            onDismissRequest = { expandedDropDown = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            suggestedSearchList.forEach { result ->
+                DropdownMenuItem(
+                    text = { Text(result) },
+                    onClick = {
+                        onSearch(result) // Update search bar with selected item
+                        expandedDropDown = false // Hide dropdown after selection
+                    }
+                )
+            }
+        }
 //        Image(
 //            painter = painterResource(id = R.drawable.filter_ic),
 //            contentDescription = "",
@@ -749,10 +821,14 @@ fun PreviewDashboardScreen() {
         DashBoardScreen(
             listOf(LocationData.mockup), "", "", "", "",
             listOf(),
+            suggestedSearchList = listOf(),
+            isRefreshing = false,
             onSearch = {},
             addProfileClick = {},
             onFilterText = { _, _ ->
             },
-            onLocationClick = {})
+            onLocationClick = {},
+            onPullDown = {},
+            onSearchClick = {})
     }
 }

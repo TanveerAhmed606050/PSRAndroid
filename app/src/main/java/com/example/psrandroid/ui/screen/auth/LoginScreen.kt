@@ -85,8 +85,10 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
                     .show()
             else if (isValidPassword(password).isNotEmpty())
                 Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true).show()
-            else
-                authVM.login(UserCredential(phone = "+92$phoneNumber", password = password))
+            else {
+                val phone = phoneNumber.takeLast(10)
+                authVM.login(UserCredential(phone = "+92$phone", password = password))
+            }
         } else
             Toasty.error(
                 context,

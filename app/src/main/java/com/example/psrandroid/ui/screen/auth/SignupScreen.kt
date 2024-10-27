@@ -73,13 +73,15 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     //register api response
     val authData = authVM.loginData
     val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
+    if (locationList.isEmpty())
+        authVM.getLocation()
+
     var selectedCity by rememberSaveable { mutableStateOf("") }
 
     if (authData != null) {
         if (authData.status) {
             Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
             navController.popBackStack()
-//            navController.navigate(Screen.OTPScreen.route)
         } else
             Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
@@ -113,13 +115,15 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                         Toast.LENGTH_SHORT,
                         true
                     ).show()
-                else
+                else {
+                    val phoneNumber = phone.takeLast(10)
                     authVM.register(
                         UserCredential(
-                            phone = "+92$phone", name = name, password = password,
+                            phone = "+92$phoneNumber", name = name, password = password,
                             location = selectedCity
                         )
                     )
+                }
             } else
                 Toasty.error(
                     context,

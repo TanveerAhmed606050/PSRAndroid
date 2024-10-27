@@ -6,7 +6,12 @@ data class LocationResponse(
     val data: List<LocationData>,
     val message: String,
     val status: Boolean
-)
+){
+    companion object
+}
+val LocationResponse.Companion.mockup by lazy { 
+    LocationResponse(data = listOf(), message = "", status = false)
+}
 data class LocationData(
     val id: Int,
     val name: String,

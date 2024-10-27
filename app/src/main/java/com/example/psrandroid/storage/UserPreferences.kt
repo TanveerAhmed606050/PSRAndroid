@@ -7,6 +7,7 @@ import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.User
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,6 +21,7 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         const val LOCATION_LIST = "location_list"
         const val DEALERS_LIST = "dealers_list"
         const val IS_FIRST_LAUNCH = "isFirstLaunch"
+        const val SUGGESTED_DATA = "suggested_data"
     }
 
     var isFirstLaunch: Boolean
@@ -52,6 +54,23 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         val json = sharedPreferences.getString(LOCATION_LIST, null)
         return try {
             gson.fromJson(json, LocationResponse::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun saveSuggestedList(suggestList: List<String>) {
+        sharedPreferences.edit {
+            putString(SUGGESTED_DATA, gson.toJson(suggestList))
+        }
+    }
+
+    fun getSuggestedList(): List<String>? {
+        val json = sharedPreferences.getString(SUGGESTED_DATA, null)
+        return try {
+            gson.fromJson(
+                json, object : TypeToken<List<String>>() {}.type
+            )
         } catch (e: Exception) {
             null
         }

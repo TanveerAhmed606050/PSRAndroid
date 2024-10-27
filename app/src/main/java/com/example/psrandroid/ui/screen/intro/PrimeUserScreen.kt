@@ -53,7 +53,6 @@ fun PrimeUserScreen() {
                 .padding(vertical = 8.dp, horizontal = 0.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-//            Spacer(modifier = Modifier.height(10.dp))
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
                 text = stringResource(id = R.string.prime_user), fontSize = 16.sp,
@@ -78,7 +77,7 @@ fun UserItemData() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+//            .height(200.dp)
             .padding(vertical = 8.dp, horizontal = 20.dp)
             .background(color = Color.White, shape = RoundedCornerShape(12.dp))
     ) {
@@ -125,8 +124,14 @@ fun UserItemData() {
                     color = Color.Black,
                     fontSize = 12.sp,
                 )
+                Text(
+                    text = "Metals",
+                    fontFamily = regularFont,
+                    color = Color.Black,
+                    fontSize = 12.sp,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            Spacer(modifier = Modifier.height(8.dp))
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -165,6 +170,15 @@ fun UserItemData() {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
+                Text(
+                    text = "Iron, Steel",
+                    color = Color.Black,
+                    fontFamily = mediumFont,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
             Spacer(modifier = Modifier.height(20.dp))
             Row(

@@ -26,6 +26,7 @@ material3WindowSizeClass = "1.3.0"
 komposecountrycodepicker = "1.1.2"
 kprogresshud = "1.0.0"
 accompanistAdaptive = "0.26.2-beta"
+swipe = "0.30.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -64,6 +65,7 @@ androidx-material3-window = { module = "androidx.compose.material3:material3-win
 komposecountrycodepicker = { module = "com.github.JoelKanyi:KomposeCountryCodePicker", version.ref = "komposecountrycodepicker" }
 kprogresshud = { module = "io.github.rupinderjeet:kprogresshud", version.ref = "kprogresshud" }
 accompanist-adaptive = { module = "com.google.accompanist:accompanist-adaptive", version.ref = "accompanistAdaptive" }
+swipe-refresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "swipe" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

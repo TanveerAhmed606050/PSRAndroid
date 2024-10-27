@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardVM @Inject constructor(
-    val dashboardRepository: DashboardRepository,
+    private val dashboardRepository: DashboardRepository,
     val userPreferences: UserPreferences
 ) : ViewModel() {
     var dashboardData by mutableStateOf<DashboardResponse?>(null)

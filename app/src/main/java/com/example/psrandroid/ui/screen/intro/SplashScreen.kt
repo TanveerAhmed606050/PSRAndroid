@@ -36,17 +36,17 @@ fun SplashScreen(
     authViewModel: AuthVM
 ) {
     //login api response
-    val locationData = authViewModel.locationData
+//    val locationData = authViewModel.locationData
 //    val dealersList = authViewModel.dealersList
     //call location & dealers List
     authViewModel.getLocation()
 //    authViewModel.getDealersList()
-    if (locationData?.status != false){
-        if (locationData != null) {
-            authViewModel.userPreferences.saveLocationList(locationData)
-        }
-        authViewModel.locationData = null
-    }
+//    if (locationData?.status != false){
+//        if (locationData != null) {
+//            authViewModel.userPreferences.saveLocationList(locationData)
+//        }
+//        authViewModel.locationData = null
+//    }
 
     SplashScreen()
     LaunchedEffect(key1 = true) {

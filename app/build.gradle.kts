@@ -102,5 +102,7 @@ dependencies {
     implementation(libs.toast)
     //compose adaptive layout
     implementation(libs.accompanist.adaptive)
+    //Swipe Refresh
+    implementation(libs.swipe.refresh)
 
 }
