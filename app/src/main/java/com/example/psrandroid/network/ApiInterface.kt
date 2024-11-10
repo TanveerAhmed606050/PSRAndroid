@@ -1,12 +1,15 @@
 package com.example.psrandroid.network
 
 import com.example.psrandroid.dto.ImageUpdate
-import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.dto.UpdateLocation
+import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.response.AuthResponse
+import com.example.psrandroid.response.DashboardMetal
 import com.example.psrandroid.response.DashboardResponse
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
+import com.example.psrandroid.response.PrimeUser
+import com.example.psrandroid.response.SearchSubMetal
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -50,5 +53,20 @@ interface ApiInterface {
     suspend fun updateUserData(
         @Body userCredential: UserCredential
     ): AuthResponse
+
+    @GET("getPremiumUsers")
+    suspend fun getPremiumUser(): PrimeUser
+
+    @GET("searchSuggestion")
+    suspend fun getSearchMetals(
+        @Query("location_id") locationId: String,
+        @Query("metal_name") metalName: String
+    ): DashboardMetal
+
+    @GET("search")
+    suspend fun getSubMetals(
+        @Query("location_id") locationId: String,
+        @Query("metal_name") metalName: String
+    ): SearchSubMetal
 
 }

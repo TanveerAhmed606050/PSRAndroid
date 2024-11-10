@@ -65,6 +65,7 @@ import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
+import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
 import es.dmoral.toasty.Toasty
@@ -190,9 +191,10 @@ fun UpdateProfileScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 20.dp)
             ) {
                 AsyncImage(
-                    model = imageUri,
+                    model = Constant.MEDIA_BASE_URL + imageUri,
                     placeholder = painterResource(id = R.drawable.user_placeholder),
                     error = painterResource(id = R.drawable.user_placeholder),
                     contentDescription = null,

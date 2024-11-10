@@ -85,7 +85,7 @@ fun UpdatePasswordScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp)
+                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Header(

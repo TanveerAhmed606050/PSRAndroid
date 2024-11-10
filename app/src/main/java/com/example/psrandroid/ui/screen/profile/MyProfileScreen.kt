@@ -48,6 +48,7 @@ import com.example.psp_android.R
 import com.example.psrandroid.dto.ImageUpdate
 import com.example.psrandroid.dto.ProfileOption
 import com.example.psrandroid.navigation.Screen
+import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.LogoutDialog
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.screen.auth.AuthVM
@@ -75,8 +76,10 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     // Display the auth data
     if (authData != null) {
         if (authData.status) {
+            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
             profilePic = authData.data.profilePic ?: ""
-        }
+        } else
+            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
     }
     //logout
@@ -93,19 +96,28 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         })
     val progressBar: KProgressHUD = remember { context.progressBar() }
     progressBar.isVisible(authVM.isLoading)
+    val noInternetMessage = stringResource(id = R.string.network_error)
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         capturedImageUri = uri
-        base64String =
-            capturedImageUri?.let {
-                convertImageFileToBase64(
-                    it,
-                    contentResolver = context.contentResolver
-                )
-            }
-//        authVM.updateUserImage(ImageUpdate(userId, image = base64String ?: ""))
+        if (capturedImageUri != null) {
+            base64String = convertImageFileToBase64(capturedImageUri!!, context.contentResolver)
+            authVM.updateUserImage(ImageUpdate(userId, image = base64String ?: ""))
+            if (isNetworkAvailable(context)) {
+                authVM.updateUserImage(ImageUpdate(userId, image = base64String ?: ""))
+            } else
+                Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+                    .show()
+        }
+//        base64String =
+//            capturedImageUri?.let {
+//                convertImageFileToBase64(
+//                    it,
+//                    contentResolver = context.contentResolver
+//                )
+//            }
     }
     val galleryLauncher =
         rememberLauncherForActivityResult(
@@ -213,7 +225,7 @@ fun ProfileOptions(
     )
     Column(
         modifier = Modifier
-            .padding(horizontal = 12.dp)
+            .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(color = Color.White)
     ) {

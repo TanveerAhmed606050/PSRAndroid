@@ -9,4 +9,13 @@ class DashboardRepository @Inject constructor(private val apiInterface: ApiInter
         apiInterface.getDashboardData(locationId, date)
     }
 
+    suspend fun getPremiumUser() = loadResource {
+        apiInterface.getPremiumUser()
+    }
+    suspend fun getSearchMetals(locationId: String, metalName: String) = loadResource {
+        apiInterface.getSearchMetals(locationId, metalName)
+    }
+    suspend fun getSubMetals(locationId: String, metalName: String) = loadResource {
+        apiInterface.getSubMetals(locationId, metalName)
+    }
 }

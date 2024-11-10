@@ -9,7 +9,7 @@
     <string name="logout">Logout</string>
     <string name="password_change">Change Password</string>
     <string name="privacy_policy">Privacy Policies</string>
-    <string name="terms_condition">Terms And Conditions</string>
+    <string name="terms_condition">Terms and Conditions</string>
     <string name="contact_us">Contact Us</string>
     <string name="password_chg_detail">Modify your account password.</string>
     <string name="privacy_detail">Learn about data protection.</string>
@@ -25,7 +25,8 @@
     <string name="enter_verify">Enter your Verification</string>
     <string name="enter_pin">Enter your Pin</string>
     <string name="name">Name</string>
-    <string name="prime_user">Prime User</string>
+    <string name="prime_user">Premium User</string>
+    <string name="lme">LME</string>
     <string name="confirm_pass_err">Password and confirm password don\'t match</string>
     <string name="full_name">Full Name</string>
     <string name="search">Search</string>

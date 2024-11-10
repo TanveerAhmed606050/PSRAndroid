@@ -16,10 +16,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,25 +30,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.psp_android.R
+import com.example.psrandroid.response.PrimeUser
+import com.example.psrandroid.response.PrimeUserData
+import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
+import com.example.psrandroid.ui.screen.dashboard.DashboardVM
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.isVisible
+import com.example.psrandroid.utils.progressBar
+import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
-fun PrimeUserScreen(navController: NavController) {
-    PrimeUserScreen()
+fun PrimeUserScreen(navController: NavController, dashboardVM: DashboardVM) {
+    val primeUserData = dashboardVM.premiumUserData
+
+    LaunchedEffect(Unit) {
+        dashboardVM.getPremiumUser()
+    }
+    PrimeUserScreen(primeUserData ?: PrimeUser.mockup)
 }
 
 @Composable
-fun PrimeUserScreen() {
+fun PrimeUserScreen(primeUserData: PrimeUser) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue)))
-            .padding(bottom = 90.dp)
+            .padding(bottom = 100.dp)
     ) {
         Column(
             modifier = Modifier
@@ -60,12 +76,13 @@ fun PrimeUserScreen() {
                 color = Color.White
             )
             Spacer(modifier = Modifier.padding(top = 10.dp))
+            LinearProgress(modifier = Modifier.padding(vertical = 5.dp))
+            Spacer(modifier = Modifier.padding(top = 10.dp))
             LazyColumn(
                 contentPadding = PaddingValues(horizontal = 0.dp)
             ) {
-                items(4) { index ->
-                    UserItemData()
-
+                items(primeUserData.data.size) { index ->
+                    UserItemData(primeUserData.data[index])
                 }
             }
         }
@@ -73,11 +90,10 @@ fun PrimeUserScreen() {
 }
 
 @Composable
-fun UserItemData() {
+fun UserItemData(primeUserData: PrimeUserData) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-//            .height(200.dp)
             .padding(vertical = 8.dp, horizontal = 20.dp)
             .background(color = Color.White, shape = RoundedCornerShape(12.dp))
     ) {
@@ -87,7 +103,7 @@ fun UserItemData() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            MyAsyncImage(imageUrl = "", 45.dp, true)
+            MyAsyncImage(imageUrl = primeUserData.profileImage?:"", 45.dp, true)
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(
@@ -139,7 +155,7 @@ fun UserItemData() {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Ali",
+                    text = primeUserData.name,
                     color = Color.Black,
                     fontSize = 14.sp,
                     maxLines = 1,
@@ -147,7 +163,7 @@ fun UserItemData() {
                     fontFamily = mediumFont,
                 )
                 Text(
-                    text = "Ali's Steel mill",
+                    text = primeUserData.businessName,
                     color = Color.Black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
@@ -155,7 +171,7 @@ fun UserItemData() {
                     fontFamily = mediumFont,
                 )
                 Text(
-                    text = "+923451234567",
+                    text = primeUserData.whatsapp,
                     color = Color.Black,
                     fontFamily = mediumFont,
                     maxLines = 1,
@@ -163,7 +179,7 @@ fun UserItemData() {
                     fontSize = 14.sp,
                 )
                 Text(
-                    text = "Abc Market, Lahore",
+                    text = primeUserData.location,
                     color = Color.Black,
                     fontFamily = mediumFont,
                     fontSize = 12.sp,
@@ -171,7 +187,7 @@ fun UserItemData() {
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
                 Text(
-                    text = "Iron, Steel",
+                    text = primeUserData.type,
                     color = Color.Black,
                     fontFamily = mediumFont,
                     fontSize = 12.sp,
@@ -194,6 +210,6 @@ fun UserItemData() {
 @Composable
 fun PrimeUserScreenPreview() {
     PSP_AndroidTheme {
-        PrimeUserScreen()
+        PrimeUserScreen(primeUserData = PrimeUser.mockup)
     }
 }

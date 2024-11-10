@@ -16,6 +16,7 @@ sealed class Screen(val route: String){
     data object UpdatePasswordScreen:Screen("updatePassword")
     data object MyProfileScreen:Screen("profileScreen")
     data object PrimeUserScreen:Screen("primeUserScreen")
+    data object LmeScreen:Screen("LmeScreen")
 }
 
 class PSRNavigationActions(private val navController: NavHostController) {

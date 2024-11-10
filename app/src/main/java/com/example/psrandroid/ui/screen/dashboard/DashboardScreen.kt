@@ -1,7 +1,7 @@
 package com.example.psrandroid.ui.screen.dashboard
 
-import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -21,32 +21,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,46 +45,41 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
-import com.example.psrandroid.response.MetalType
+import com.example.psrandroid.response.MetalData
+import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
-import com.example.psrandroid.ui.theme.LightGray
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
-import com.example.psrandroid.ui.theme.PurpleGrey40
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.Utils.convertMillisToDate
 import com.example.psrandroid.utils.Utils.getCurrentDate
-import com.example.psrandroid.utils.Utils.isValidDate
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
-import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -105,7 +91,7 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
         isRefreshing = false
 
     val locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
-        it.name == dashboardVM.userPreferences.getUserPreference()?.location
+        it.name.equals(dashboardVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
     }?.id ?: 0 // get location id
     val currentDate = getCurrentDate() // current date
 
@@ -114,10 +100,9 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
 //    if (error.isNotEmpty())
 //        Toasty.error(context, error, Toast.LENGTH_SHORT, true).show()
     val locationList = dashboardVM.userPreferences.getLocationList()?.data ?: listOf()
-    val suggestedSearchList = dashboardVM.userPreferences.getSuggestedList()?: listOf()
+//    val lastSearchMetal = dashboardVM.userPreferences.lastSearchMetal
 
-    var metalTypeList: List<MetalType> = listOf()
-    var search by rememberSaveable { mutableStateOf("") }
+    var search by remember { mutableStateOf(TextFieldValue(dashboardVM.userPreferences.lastSearchMetal)) }
     val sharedPreferences = dashboardVM.userPreferences
     val name by remember { mutableStateOf(sharedPreferences.getUserPreference()?.name ?: "Ahmed") }
 
@@ -131,6 +116,7 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
             sharedPreferences.getUserPreference()?.phone ?: "+92 30515151"
         )
     }
+    val noInternetMessage = stringResource(id = R.string.network_error)
     var expandedCity by remember { mutableStateOf(false) }
     val locationData = locationList.map { it.name }
     if (expandedCity) {
@@ -147,70 +133,74 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
             })
     }
 
-    val dashboardData = dashboardVM.dashboardData
+    val subMetalData = dashboardVM.subMetalData
+    val mainMetalsData = dashboardVM.mainMetalData
+    Log.d("lsdjag", "metals: ${mainMetalsData?.data}")
+
     if (isNetworkAvailable(context)) {
-        if (dashboardData == null)
-            dashboardVM.getDashboardData("$locationId", currentDate)
+        LaunchedEffect(key1 = Unit) {
+            dashboardVM.getSubMetals("$locationId", search.text)
+        }
     } else
-        Toasty.error(context, stringResource(id = R.string.network_error), Toast.LENGTH_SHORT, true)
+        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
             .show()
 
-    val filteredList = dashboardData?.data?.filter { it.name.contains(search, ignoreCase = true) }
-        ?.map { it.metalType }?.flatten() ?: listOf()
-
-    DashBoardScreen(locationList, search, name, location, phone,
-        filteredList, isRefreshing,
-        suggestedSearchList,
+    DashBoardScreen( search, name, location, phone,
+        subMetalData?.data, isRefreshing,
+        mainMetalsData?.data,
         onSearch = { query ->
             search = query
+            if (isNetworkAvailable(context)) {
+                dashboardVM.getMainMetals("$locationId", search.text)
+            } else
+                Toasty.error(
+                    context, noInternetMessage, Toast.LENGTH_SHORT, true
+                ).show()
         }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
-        onFilterText = { date, placeId ->
-            dashboardVM.getDashboardData(placeId, date)
-        },
         onLocationClick = {
             expandedCity = true
         },
         onPullDown = {
             isRefreshing = true
             if (isNetworkAvailable(context)) {
-                if (dashboardData == null)
-                    dashboardVM.getDashboardData("$locationId", getCurrentDate())
+                if (subMetalData == null)
+                    dashboardVM.getSubMetals("$locationId", search.text)
             } else
                 Toasty.error(
                     context,
-                    "No internet connection. Please check your network settings.",
+                    noInternetMessage,
                     Toast.LENGTH_SHORT,
                     true
                 )
                     .show()
 
         },
-        onSearchClick = {text->
-            val isFound = suggestedSearchList.find { it == text}
-            if (isFound == null){
-                val mutableList = suggestedSearchList.toMutableList()
-                mutableList.add(text)
-                dashboardVM.userPreferences.saveSuggestedList(mutableList)
-            }
+        onSearchClick = { searchText ->
+            search = searchText
+            dashboardVM.userPreferences.lastSearchMetal = searchText.text
+            if (isNetworkAvailable(context)) {
+                dashboardVM.getSubMetals("$locationId", searchText.text)
+            } else
+                Toasty.error(
+                    context, noInternetMessage, Toast.LENGTH_SHORT, true
+                ).show()
         })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DashBoardScreen(
-    locationList: List<LocationData>,
-    search: String,
+    search: TextFieldValue,
     name: String,
     address: String,
     phone: String,
-    productList: List<MetalType>,
+    productList: List<SubMetalData>?,
     isRefreshing: Boolean,
-    suggestedSearchList: List<String>,
-    onSearchClick: (String) -> Unit,
-    onSearch: (String) -> Unit,
+    suggestedSearchList: List<MetalData>?,
+    onSearchClick: (TextFieldValue) -> Unit,
+    onSearch: (TextFieldValue) -> Unit,
     addProfileClick: () -> Unit,
     onLocationClick: () -> Unit,
-    onFilterText: (String, String) -> Unit,
     onPullDown: () -> Unit,
 ) {
     SwipeRefresh(
@@ -238,9 +228,9 @@ fun DashBoardScreen(
 
                 Spacer(modifier = Modifier.height(0.dp))
                 // Search bar
-                SearchBar(locationList, suggestedSearchList, search, onSearch = { onSearch(it) },
-                    onFilterText = { selectedDate, location ->
-                        onFilterText(selectedDate, location)
+                SearchBar( suggestedSearchList, search,
+                    onSearch = {
+                        onSearch(it)
                     },
                     onSearchClick = { value ->
                         onSearchClick(value)
@@ -253,7 +243,7 @@ fun DashBoardScreen(
                         .padding(horizontal = 20.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = stringResource(id = R.string.scrap_name),
+                        text = "${search.text} Scrap",
                         color = LightBlue,
                         fontSize = 14.sp,
                         fontFamily = mediumFont
@@ -267,14 +257,13 @@ fun DashBoardScreen(
                         modifier = Modifier.padding(end = 0.dp)
                     )
                 }
-                if (productList.isEmpty())
+                if (productList?.isEmpty() != false)
                     NoProductView()
                 else
                     ProductList(productList)
             }
         }
     }
-
 }
 
 @Composable
@@ -376,126 +365,108 @@ fun UserDetailItem(imageId: Int, text: String) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SearchBar(
-    locationList: List<LocationData>,
-    suggestedSearchList: List<String>,
-    search: String,
-    onSearchClick: (String) -> Unit,
-    onSearch: (String) -> Unit,
-    onFilterText: (String, String) -> Unit
+    suggestedSearchList: List<MetalData>?,
+    search: TextFieldValue,
+    onSearchClick: (TextFieldValue) -> Unit,
+    onSearch: (TextFieldValue) -> Unit,
 ) {
-    var showFilterDialog by remember { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
     var expandedDropDown by remember { mutableStateOf(false) }
 
-    if (isFocused)
-        expandedDropDown = true
-
-    if (showFilterDialog) {
-        FilterDialog(
-            locationList,
-            onDismissRequest = {
-                showFilterDialog = false
-            },
-            onDateSelected = { date, location ->
-                onFilterText(date, location)
-                showFilterDialog = false
-            })
+    // Observe the search text and update dropdown state based on focus and list availability
+    LaunchedEffect(suggestedSearchList) {
+        expandedDropDown = suggestedSearchList?.isNotEmpty() == true
     }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedTextField(value = search, onValueChange = { value ->
-            onSearch(value)
-        }, leadingIcon = {
-            Icon(
-                painterResource(id = R.drawable.search_ic),
-                contentDescription = "",
-                modifier = Modifier.size(24.dp)
-            )
-        }, placeholder = {
-            Text(
-                text = stringResource(id = R.string.search),
-                color = Color.Gray,
-                fontSize = 12.sp
-            )
-        },
+        OutlinedTextField(
+            value = search,
+            onValueChange = { value ->
+                onSearch(value.copy(selection = TextRange(value.text.length)))
+            },
+            leadingIcon = {
+                Icon(
+                    painterResource(id = R.drawable.search_ic),
+                    contentDescription = "",
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            placeholder = {
+                Text(
+                    text = stringResource(id = R.string.search),
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+            },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = DarkBlue, // Change focused border color
-                unfocusedBorderColor = Color.Transparent, // Change unfocused border color
+                focusedBorderColor = DarkBlue,
+                unfocusedBorderColor = Color.Transparent,
                 focusedLabelColor = Color.Transparent,
                 unfocusedLabelColor = Color.Transparent,
                 focusedTextColor = DarkBlue,
                 unfocusedTextColor = Color.Gray
-            ), modifier = Modifier
+            ),
+            modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    color = Color.White, shape = RoundedCornerShape(12)
-                )
+                .background(color = Color.White, shape = RoundedCornerShape(12))
                 .clip(RoundedCornerShape(12.dp))
                 .padding(2.dp)
-                .onFocusChanged { isFocused = it.isFocused },
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Search
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    onSearchClick(search)
+                    onSearch(search)
                 }
             )
         )
+
         // Dropdown menu below the search bar
         DropdownMenu(
-            expanded = expandedDropDown && suggestedSearchList.isNotEmpty(),
+            expanded = expandedDropDown,
             onDismissRequest = { expandedDropDown = false },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .wrapContentWidth()
+                .border(width = 0.dp, shape = RoundedCornerShape(10.dp), color = Color.Gray)
         ) {
-            suggestedSearchList.forEach { result ->
+            suggestedSearchList?.forEach { mainMetal ->
                 DropdownMenuItem(
-                    text = { Text(result) },
+                    text = { Text(mainMetal.name) },
                     onClick = {
-                        onSearch(result) // Update search bar with selected item
+                        onSearchClick(TextFieldValue(text = mainMetal.name, selection = TextRange(mainMetal.name.length)))
                         expandedDropDown = false // Hide dropdown after selection
                     }
                 )
             }
         }
-//        Image(
-//            painter = painterResource(id = R.drawable.filter_ic),
-//            contentDescription = "",
-//            Modifier
-//                .size(40.dp)
-//                .clickable {
-////                    showFilterDialog = true
-//                }
-//        )
-//        Image(
-//            painter = painterResource(id = R.drawable.bottom_up_list),
-//            contentDescription = "",
-//            Modifier.size(40.dp)
-//        )
     }
 }
 
 @Composable
-fun ProductList(dashboardData: List<MetalType>) {
+fun ProductList(dashboardData: List<SubMetalData>?) {
 
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 0.dp)
     ) {
-        items(dashboardData.size ?: 0) { index ->
-            ProductItem(metalDetail = dashboardData[index], index = index + 1)
+        items(dashboardData?.size ?: 0) { index ->
+            ProductItem(metalDetail = dashboardData?.get(index), index = index + 1)
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-fun ProductItem(metalDetail: MetalType, index: Int) {
+fun ProductItem(metalDetail: SubMetalData?, index: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -529,7 +500,7 @@ fun ProductItem(metalDetail: MetalType, index: Int) {
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = metalDetail.name,
+                text = metalDetail?.name ?: "",
                 fontSize = 12.sp,
                 color = Color.Gray,
                 maxLines = 1,
@@ -544,256 +515,13 @@ fun ProductItem(metalDetail: MetalType, index: Int) {
                 .padding(8.dp), contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Rs. ${metalDetail.price}",
+                text = "Rs. ${metalDetail?.urduName}",
                 modifier = Modifier.padding(horizontal = 8.dp),
                 fontSize = 12.sp,
                 fontFamily = regularFont,
                 color = Color.White,
             )
         }
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun FilterDialog(
-    locationData: List<LocationData>,
-    onDismissRequest: () -> Unit,
-    onDateSelected: (String, String) -> Unit
-) {
-    val locationList = locationData.map { it.name }
-    var isClicked by rememberSaveable { mutableStateOf(false) }
-    val iconColor by rememberUpdatedState(if (isClicked) LightBlue else PurpleGrey40)
-    var selectedDate by rememberSaveable { mutableStateOf("Date") }
-    var selectedLocation by rememberSaveable { mutableStateOf("Location") }
-    var isDatePickerVisible by rememberSaveable { mutableStateOf(false) }
-    var expandedLocation by remember { mutableStateOf(false) }
-
-    if (expandedLocation) {
-        ListDialog(dataList = locationList, onDismiss = { expandedLocation = false },
-            onConfirm = { locationName ->
-                val locationId = locationData.find { it.name == locationName }?.id ?: 0
-                selectedLocation = "$locationId"
-                expandedLocation = false
-            })
-    }
-
-    val context = LocalContext.current
-    if (isDatePickerVisible) {
-        MyDatePickerDialog(
-            context,
-            onDateSelected = { date ->
-                selectedDate = date
-                isDatePickerVisible = false
-            },
-            onDismissRequest = { isDatePickerVisible = false }
-        )
-    }
-
-    Dialog(
-        onDismissRequest = { onDismissRequest() },
-        properties = DialogProperties(dismissOnClickOutside = true)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White, shape = RoundedCornerShape(16.dp))
-                .padding(20.dp)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    fontSize = 14.sp,
-                    color = Color.Black,
-                    fontFamily = mediumFont,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
-                HorizontalDivider(thickness = 0.3.dp, color = Color.Gray)
-
-                Spacer(modifier = Modifier.padding(top = 20.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(45.dp)
-                        .background(
-                            color = LightGray, // Blue for selected, transparent otherwise
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .border(
-                            width = 1.dp,
-                            if (isClicked) LightBlue else LightGray,
-                        )
-                ) {
-                    Text(
-                        text = selectedLocation,
-                        color = if (isClicked) LightBlue else PurpleGrey40,
-                        modifier = Modifier.padding(start = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))  // Add a Spacer to fill remaining space
-
-                    Image(
-                        painter = painterResource(id = R.drawable.baseline_arrow_drop_down_24),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .clickable {
-                                expandedLocation = true
-                            },
-                        colorFilter = ColorFilter.tint(iconColor),
-                    )
-
-                }
-
-                Spacer(modifier = Modifier.padding(top = 20.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(45.dp)
-                        .background(
-                            color = LightGray, // Blue for selected, transparent otherwise
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .border(
-                            width = 1.dp,
-                            if (isClicked) LightBlue else LightGray,
-                        )
-                ) {
-                    Text(
-                        text = selectedDate,
-                        color = if (isClicked) LightBlue else PurpleGrey40,
-                        modifier = Modifier.padding(start = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))  // Add a Spacer to fill remaining space
-
-                    Image(
-                        painter = painterResource(id = R.drawable.calendar_ic),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .clickable {
-                                isDatePickerVisible = true
-                                isClicked = !isClicked
-                            },
-                        colorFilter = ColorFilter.tint(iconColor),
-                    )
-
-                }
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    TextButton(
-                        onClick = { onDismissRequest() },
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.cancel),
-                            color = Color.LightGray,
-                            fontSize = 17.sp,
-                            fontFamily = regularFont
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    TextButton(
-                        onClick = { onDateSelected(selectedDate, selectedLocation) },
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.ok),
-                            color = LightBlue,
-                            fontSize = 17.sp,
-                            fontFamily = regularFont
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-}
-
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyDatePickerDialog(
-    context: Context,
-    onDateSelected: (String) -> Unit,
-    onDismissRequest: () -> Unit
-) {
-    val calendar = Calendar.getInstance().apply { add(Calendar.YEAR, 0) }
-    val timeInMillis = calendar.timeInMillis
-
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = timeInMillis,
-        initialDisplayedMonthMillis = timeInMillis,
-        selectableDates = object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                // Check if the date is 18 years ago or earlier
-                return utcTimeMillis <= timeInMillis
-            }
-        }
-    )
-
-    val selectedDate = datePickerState.selectedDateMillis?.let {
-        convertMillisToDate(it)
-    }
-        ?: ""
-//        ?: "convertMillisToDate(eighteenYearsAgoInMillis)"// Default to 18 years ago if no date is selected
-
-    DatePickerDialog(
-        onDismissRequest = { onDismissRequest() },
-        confirmButton = {
-            Button(
-                modifier = Modifier
-                    .padding(end = 16.dp, bottom = 8.dp, top = 8.dp)
-                    .width(100.dp),
-                onClick = {
-                    if (isValidDate(selectedDate)) {
-                        onDateSelected(selectedDate)
-                        onDismissRequest()
-                    } else
-                        Toasty.error(
-                            context,
-                            "You have entered Invalid date",
-                            Toast.LENGTH_SHORT,
-                            true
-                        ).show()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = LightBlue,
-                    contentColor = Color.White
-                )
-
-            ) {
-                Text(text = stringResource(id = R.string.ok), fontFamily = regularFont)
-            }
-        },
-        dismissButton = {
-            Button(
-                modifier = Modifier
-                    .padding(end = 8.dp, bottom = 8.dp, top = 8.dp)
-                    .width(100.dp),
-                onClick = {
-                    onDismissRequest()
-                },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Gray,
-                    contentColor = Color.White
-                )
-            ) {
-                Text(text = stringResource(id = R.string.cancel), fontFamily = regularFont)
-            }
-        }
-    ) {
-        DatePicker(
-            state = datePickerState,
-            modifier = Modifier,
-            colors = DatePickerDefaults.colors(
-                selectedDayContainerColor = LightBlue, // Set your desired color here
-                selectedDayContentColor = Color.White // Set content color for the selected day
-            )
-        )
     }
 }
 
@@ -819,14 +547,12 @@ fun NoProductView() {
 fun PreviewDashboardScreen() {
     PSP_AndroidTheme {
         DashBoardScreen(
-            listOf(LocationData.mockup), "", "", "", "",
+            TextFieldValue(""), "", "", "",
             listOf(),
             suggestedSearchList = listOf(),
             isRefreshing = false,
             onSearch = {},
             addProfileClick = {},
-            onFilterText = { _, _ ->
-            },
             onLocationClick = {},
             onPullDown = {},
             onSearchClick = {})

@@ -40,6 +40,7 @@ import com.example.psrandroid.ui.screen.dashboard.DashboardScreen
 import com.example.psrandroid.ui.screen.dashboard.DashboardVM
 import com.example.psrandroid.ui.screen.intro.PrimeUserScreen
 import com.example.psrandroid.ui.screen.intro.SplashScreen
+import com.example.psrandroid.ui.screen.lme.LmeScreen
 import com.example.psrandroid.ui.screen.profile.UpdateProfileScreen
 import com.example.psrandroid.ui.screen.profile.MyProfileScreen
 import com.example.psrandroid.ui.screen.profile.ProfileVM
@@ -126,6 +127,11 @@ fun PSRNavigation(
             stringResource(id = R.string.prime_user),
             Screen.PrimeUserScreen.route,
             R.drawable.baseline_phone_24
+        ),
+        BottomNavigationItem(
+            stringResource(id = R.string.lme),
+            Screen.LmeScreen.route,
+            R.drawable.baseline_location_pin_24
         ),
         BottomNavigationItem(
             stringResource(id = R.string.profile),
@@ -343,7 +349,7 @@ fun PSRNavHost(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            PrimeUserScreen(navController = navController)
+            PrimeUserScreen(navController = navController, dashboardVM)
         }
         composable(
             route = Screen.PasswordScreen.route,
@@ -365,6 +371,13 @@ fun PSRNavHost(
             exitTransition = { ExitTransition.None }
         ) {
             UpdatePasswordScreen(navController)
+        }
+        composable(
+            route = Screen.LmeScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            LmeScreen(navController)
         }
     }
 }

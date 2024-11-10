@@ -73,9 +73,10 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     //register api response
     val authData = authVM.loginData
     val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
-    if (locationList.isEmpty())
-        authVM.getLocation()
-
+    if (isNetworkAvailable(context)) {
+        if (locationList.isEmpty())
+            authVM.getLocation()
+    }
     var selectedCity by rememberSaveable { mutableStateOf("") }
 
     if (authData != null) {
@@ -135,7 +136,19 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
 
         },
         onCitySelect = { selectedLocation ->
-            selectedCity = selectedLocation
+            if (selectedLocation == "empty") {
+                if (isNetworkAvailable(context)) {
+                    authVM.getLocation()
+                } else
+                    Toasty.error(
+                        context,
+                        "No internet connection. Please check your network settings.",
+                        Toast.LENGTH_SHORT,
+                        true
+                    )
+                        .show()
+            } else
+                selectedCity = selectedLocation
         })
 }
 
@@ -210,7 +223,12 @@ fun SignupScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { expandedCity = true }
+                        .clickable {
+                            if (locationList.isNotEmpty())
+                                expandedCity = true
+                            else
+                                onCitySelect("empty")
+                        }
                         .height(50.dp)
                         .border(
                             width = 1.dp,
