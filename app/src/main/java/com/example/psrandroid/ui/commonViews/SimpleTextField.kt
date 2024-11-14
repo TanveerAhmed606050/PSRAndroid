@@ -49,7 +49,8 @@ fun ProfileInputField(
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     onValueChange: (String) -> Unit,
-    icon: ImageVector, placeholder: String
+    icon: ImageVector, placeholder: String,
+    enabled: Boolean = true // Add an enabled parameter with a default value of true
 ) {
     OutlinedTextField(
         value = value,
@@ -90,7 +91,8 @@ fun ProfileInputField(
                 ),
                 shape = RoundedCornerShape(50) // Rounded corners for background
             )
-            .padding(0.dp)
+            .padding(0.dp),
+        enabled = enabled // Use the enabled parameter to control the TextField's state
     )
 }
 

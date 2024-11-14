@@ -225,7 +225,8 @@ fun UpdateProfileScreen(
                         onPhone(value)
                     },
                     icon = Icons.Default.Phone,
-                    placeholder = stringResource(id = R.string.phone)
+                    placeholder = stringResource(id = R.string.phone),
+                    enabled = false
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(

@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.auth
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -127,7 +128,9 @@ class AuthVM @Inject constructor(
 
     fun updateUserData(userCredential: UserCredential) = viewModelScope.launch {
         isLoading = true
+        Log.d("lsdjag", "getProfile: ")
         val result = authRepository.updateUserData(userCredential)
+        Log.d("lsdjag", "getProfile: $result")
         if (result is Result.Success) {
             isLoading = false
             loginData = result.data

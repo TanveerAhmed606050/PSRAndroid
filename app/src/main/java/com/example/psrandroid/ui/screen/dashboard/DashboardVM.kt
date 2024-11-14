@@ -66,10 +66,11 @@ class DashboardVM @Inject constructor(
     }
 
     fun getMainMetals(locationId: String, metalName: String) = viewModelScope.launch {
+        Log.d("lsdjag", "Metal: $metalName")
         val result = dashboardRepository.getSearchMetals(locationId, metalName)
         if (result is Result.Success) {
             mainMetalData = result.data
-            Log.d("lsdjag", "VM: ${mainMetalData?.data}")
+            Log.d("lsdjag", "result: ${mainMetalData?.data?.size}")
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }

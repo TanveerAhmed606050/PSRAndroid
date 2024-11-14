@@ -1,7 +1,6 @@
 package com.example.psrandroid.ui.screen.dashboard
 
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -26,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -38,34 +38,36 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
-import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.SubMetalData
-import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -80,6 +82,9 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -89,6 +94,8 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
     var isRefreshing by remember { mutableStateOf(false) }
     if (!dashboardVM.isLoading)
         isRefreshing = false
+    var searchJob by remember { mutableStateOf<Job?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     val locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
         it.name.equals(dashboardVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
@@ -135,7 +142,7 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
 
     val subMetalData = dashboardVM.subMetalData
     val mainMetalsData = dashboardVM.mainMetalData
-    Log.d("lsdjag", "metals: ${mainMetalsData?.data}")
+//    Log.d("lsdjag", "metals: ${mainMetalsData?.data}")
 
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
@@ -145,13 +152,18 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
         Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
             .show()
 
-    DashBoardScreen( search, name, location, phone,
+    DashBoardScreen(search, name, location, phone,
         subMetalData?.data, isRefreshing,
         mainMetalsData?.data,
         onSearch = { query ->
             search = query
+            searchJob?.cancel()
             if (isNetworkAvailable(context)) {
-                dashboardVM.getMainMetals("$locationId", search.text)
+// Start a new debounced job for the search
+                searchJob = coroutineScope.launch {
+                    delay(500) // Debounce delay, e.g., 300ms
+                    dashboardVM.getMainMetals("$locationId", search.text)
+                }
             } else
                 Toasty.error(
                     context, noInternetMessage, Toast.LENGTH_SHORT, true
@@ -228,7 +240,7 @@ fun DashBoardScreen(
 
                 Spacer(modifier = Modifier.height(0.dp))
                 // Search bar
-                SearchBar( suggestedSearchList, search,
+                SearchBar(suggestedSearchList, search,
                     onSearch = {
                         onSearch(it)
                     },
@@ -372,10 +384,12 @@ fun SearchBar(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     var expandedDropDown by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     // Observe the search text and update dropdown state based on focus and list availability
-    LaunchedEffect(suggestedSearchList) {
-        expandedDropDown = suggestedSearchList?.isNotEmpty() == true
+    LaunchedEffect(suggestedSearchList, isFocused) {
+        expandedDropDown = isFocused && (suggestedSearchList?.isNotEmpty() == true)
     }
 
     Row(
@@ -387,6 +401,7 @@ fun SearchBar(
         OutlinedTextField(
             value = search,
             onValueChange = { value ->
+                // Update the search query with the new value and move cursor to the end
                 onSearch(value.copy(selection = TextRange(value.text.length)))
             },
             leadingIcon = {
@@ -417,36 +432,69 @@ fun SearchBar(
                 .background(color = Color.White, shape = RoundedCornerShape(12))
                 .clip(RoundedCornerShape(12.dp))
                 .padding(2.dp)
+                .focusRequester(focusRequester)
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
                 },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Search
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search // Set the IME action to 'Search'
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    onSearch(search)
+                    keyboardController?.hide()
+                    onSearchClick(search)
+                },
+                onDone = {
+                    keyboardController?.hide()
+                    onSearchClick(search)
+                },
+                onGo = {
+                    keyboardController?.hide()
+                    onSearchClick(search)
+                },
+                onNext = {
+                    keyboardController?.hide()
+                    onSearchClick(search)
                 }
             )
         )
 
         // Dropdown menu below the search bar
         DropdownMenu(
-            expanded = expandedDropDown,
+            properties = PopupProperties(focusable = false), expanded = expandedDropDown,
             onDismissRequest = { expandedDropDown = false },
             modifier = Modifier
                 .wrapContentWidth()
+                .background(DarkBlue)
                 .border(width = 0.dp, shape = RoundedCornerShape(10.dp), color = Color.Gray)
         ) {
-            suggestedSearchList?.forEach { mainMetal ->
+            suggestedSearchList?.forEachIndexed { index, mainMetal ->
                 DropdownMenuItem(
-                    text = { Text(mainMetal.name) },
+                    text = {
+                        Text(
+                            mainMetal.name,
+                            color = Color.White
+                        )
+                    },
                     onClick = {
-                        onSearchClick(TextFieldValue(text = mainMetal.name, selection = TextRange(mainMetal.name.length)))
+                        onSearchClick(
+                            TextFieldValue(
+                                text = mainMetal.name,
+                                selection = TextRange(mainMetal.name.length)
+                            )
+                        )
                         expandedDropDown = false // Hide dropdown after selection
-                    }
+                        focusRequester.requestFocus()
+                    },
                 )
+// Add a Divider after each item except the last one
+                if (index < suggestedSearchList.size - 1) {
+                    HorizontalDivider(
+                        color = Color.White,
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 0.dp)
+                    )
+                }
             }
         }
     }
@@ -500,7 +548,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = metalDetail?.name ?: "",
+                text = "${metalDetail?.submetal_name}",
                 fontSize = 12.sp,
                 color = Color.Gray,
                 maxLines = 1,
@@ -515,7 +563,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
                 .padding(8.dp), contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Rs. ${metalDetail?.urduName}",
+                text = "Rs.${metalDetail?.price}",
                 modifier = Modifier.padding(horizontal = 8.dp),
                 fontSize = 12.sp,
                 fontFamily = regularFont,
