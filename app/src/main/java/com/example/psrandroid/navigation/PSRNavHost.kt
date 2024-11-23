@@ -38,7 +38,7 @@ import com.example.psrandroid.ui.screen.auth.PasswordScreen
 import com.example.psrandroid.ui.screen.auth.SignupScreen
 import com.example.psrandroid.ui.screen.dashboard.DashboardScreen
 import com.example.psrandroid.ui.screen.dashboard.DashboardVM
-import com.example.psrandroid.ui.screen.intro.PrimeUserScreen
+import com.example.psrandroid.ui.screen.lme.PrimeUserScreen
 import com.example.psrandroid.ui.screen.intro.SplashScreen
 import com.example.psrandroid.ui.screen.lme.LmeScreen
 import com.example.psrandroid.ui.screen.profile.UpdateProfileScreen
@@ -377,7 +377,7 @@ fun PSRNavHost(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            LmeScreen(navController)
+            LmeScreen(navController, dashboardVM)
         }
     }
 }

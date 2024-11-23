@@ -21,7 +21,7 @@ fun LinearProgress(modifier: Modifier = Modifier){
     var showProgress by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(3000) // Delay for 6 seconds
+        delay(6000) // Delay for 6 seconds
         showProgress = false
     }
 

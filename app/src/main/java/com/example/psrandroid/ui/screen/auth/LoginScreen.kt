@@ -40,6 +40,7 @@ import com.example.psp_android.R
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
+import com.example.psrandroid.response.AuthData
 import com.example.psrandroid.response.User
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
@@ -59,20 +60,20 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
     val progressBar: KProgressHUD = remember { context.progressBar() }
     progressBar.isVisible(authVM.isLoading)
+    val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
+    if (isNetworkAvailable(context)) {
+        if (locationList.isEmpty())
+            authVM.getLocation()
+    }
     //login api response
     val authData = authVM.loginData
     if (authData != null) {
         if (authData.status) {
             Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
             authVM.userPreferences.isFirstLaunch = false
-            authVM.userPreferences.saveUserPreference(
-                User(
-                    userId = authData.data.id,
-                    name = authData.data.name, phone = authData.data.phone,
-                    location = authData.data.location
-                )
-            )
-            navController.navigate(Screen.DashBoardScreen.route)
+            navController.navigate(Screen.DashBoardScreen.route) {
+                popUpTo(navController.graph.id)
+            }
         } else
             Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
@@ -198,27 +199,6 @@ fun LoginScreen(
                     textAlign = TextAlign.Center
                 )
             }
-        }
-//        BottomNavigationButtons()
-    }
-}
-
-@Composable
-fun BottomNavigationButtons() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Spacer(modifier = Modifier.weight(1f))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.character_ic), contentDescription = "",
-            )
         }
     }
 }

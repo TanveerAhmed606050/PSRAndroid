@@ -80,8 +80,23 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
     val userData = authVM.loginData
     if (userData != null) {
         if (userData.status) {
+            Toasty.success(
+                context,
+                authVM.loginData?.message?:"",
+                Toast.LENGTH_SHORT,
+                true
+            )
+                .show()
             navController.popBackStack()
         }
+        else
+            Toasty.error(
+                context,
+                authVM.loginData?.message?:"",
+                Toast.LENGTH_SHORT,
+                true
+            )
+                .show()
         authVM.loginData = null
     }
 
@@ -100,7 +115,7 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
             sharedPreferences.getUserPreference()?.location ?: ""
         )
     }
-    val userId = sharedPreferences.getUserPreference()?.userId ?: 0
+    val userId = sharedPreferences.getUserPreference()?.id ?: 0
     val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
 
     val capturedImageUri by remember {
@@ -123,8 +138,8 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
                 address = sharedPreferences.getUserPreference()?.location ?: ""
             if (name.isEmpty())
                 name = sharedPreferences.getUserPreference()?.name ?: ""
-            if (phone.isEmpty())
-                phone = sharedPreferences.getUserPreference()?.phone ?: ""
+//            if (phone.isEmpty())
+//                phone = sharedPreferences.getUserPreference()?.phone ?: ""
             if (isNetworkAvailable(context))
                 authVM.updateUserData(
                     UserCredential(

@@ -1,4 +1,4 @@
-package com.example.psrandroid.ui.screen.intro
+package com.example.psrandroid.ui.screen.lme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,12 +17,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,9 +39,6 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
 fun PrimeUserScreen(navController: NavController, dashboardVM: DashboardVM) {
@@ -52,11 +47,11 @@ fun PrimeUserScreen(navController: NavController, dashboardVM: DashboardVM) {
     LaunchedEffect(Unit) {
         dashboardVM.getPremiumUser()
     }
-    PrimeUserScreen(primeUserData ?: PrimeUser.mockup)
+    PrimeUserScreen(primeUserData)
 }
 
 @Composable
-fun PrimeUserScreen(primeUserData: PrimeUser) {
+fun PrimeUserScreen(primeUserData: PrimeUser?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -75,14 +70,16 @@ fun PrimeUserScreen(primeUserData: PrimeUser) {
                 fontFamily = mediumFont,
                 color = Color.White
             )
-            Spacer(modifier = Modifier.padding(top = 10.dp))
-            LinearProgress(modifier = Modifier.padding(vertical = 5.dp))
-            Spacer(modifier = Modifier.padding(top = 10.dp))
+            if (primeUserData == null) {
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+                LinearProgress(modifier = Modifier.padding(vertical = 5.dp))
+            }
+            Spacer(modifier = Modifier.padding(top = 20.dp))
             LazyColumn(
                 contentPadding = PaddingValues(horizontal = 0.dp)
             ) {
-                items(primeUserData.data.size) { index ->
-                    UserItemData(primeUserData.data[index])
+                items(primeUserData?.data?.size ?: 0) { index ->
+                    UserItemData(primeUserData?.data?.get(index) ?: PrimeUserData.mockup)
                 }
             }
         }
@@ -103,7 +100,7 @@ fun UserItemData(primeUserData: PrimeUserData) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            MyAsyncImage(imageUrl = primeUserData.profileImage?:"", 45.dp, true)
+            MyAsyncImage(imageUrl = primeUserData.profileImage ?: "", 45.dp, true)
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(

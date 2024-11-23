@@ -70,7 +70,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
     var base64String by remember { mutableStateOf<String?>(null) }
     var isLogout by remember { mutableStateOf(false) }
-    val userId = authVM.userPreferences.getUserPreference()?.userId ?: 0
+    val userId = authVM.userPreferences.getUserPreference()?.id ?: 0
     val authData = authVM.loginData
     var profilePic = userData?.profilePic ?: ""
     // Display the auth data
@@ -86,10 +86,10 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     if (isLogout) LogoutDialog(onOkClick = {
         isLogout = false
         authVM.userPreferences.clearStorage()
-        navController.navigate(Screen.LoginScreen.route) {
-            popUpTo(navController.graph.id)
-        }
         LogoutSession.clearError()
+        navController.navigate(Screen.LoginScreen.route){
+            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+        }
     },
         onDismissRequest = {
             isLogout = false

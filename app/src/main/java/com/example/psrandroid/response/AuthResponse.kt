@@ -10,16 +10,30 @@ data class AuthResponse(
 
 data class AuthData(
     @SerializedName("created_at")
-    val createdAt: String,
+    val createdAt: String = "",
     val id: Int,
     val location: String,
     val name: String,
     val phone: String,
     @SerializedName("updated_at")
-    val updatedAt: String,
+    val updatedAt: String = "",
     @SerializedName("profile_pic")
     val profilePic: String
-)
+) {
+    companion object
+}
+
+val AuthData.Companion.mockup by lazy {
+    AuthData(
+        createdAt = "eam",
+        id = 2268,
+        location = "utamur",
+        name = "Luciano O'Neil",
+        phone = "(896) 723-3609",
+        updatedAt = "verterem",
+        profilePic = "partiendo"
+    )
+}
 
 data class User(
     val userId: Int, val name: String, val phone: String, val location: String = "",

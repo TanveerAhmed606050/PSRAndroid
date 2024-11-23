@@ -25,11 +25,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -38,13 +39,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -56,11 +54,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.dto.UpdateLocation
@@ -75,16 +73,13 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.Utils.getCurrentDate
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshState
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -94,20 +89,13 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
     var isRefreshing by remember { mutableStateOf(false) }
     if (!dashboardVM.isLoading)
         isRefreshing = false
-    var searchJob by remember { mutableStateOf<Job?>(null) }
-    val coroutineScope = rememberCoroutineScope()
 
-    val locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
+    var locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
         it.name.equals(dashboardVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
     }?.id ?: 0 // get location id
-    val currentDate = getCurrentDate() // current date
 
     progressBar.isVisible(dashboardVM.isLoading)
-//    val error = dashboardVM.error
-//    if (error.isNotEmpty())
-//        Toasty.error(context, error, Toast.LENGTH_SHORT, true).show()
     val locationList = dashboardVM.userPreferences.getLocationList()?.data ?: listOf()
-//    val lastSearchMetal = dashboardVM.userPreferences.lastSearchMetal
 
     var search by remember { mutableStateOf(TextFieldValue(dashboardVM.userPreferences.lastSearchMetal)) }
     val sharedPreferences = dashboardVM.userPreferences
@@ -133,16 +121,22 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
                 expandedCity = false
                 authVM.updateUserLocation(
                     UpdateLocation(
-                        userId = sharedPreferences.getUserPreference()?.userId ?: 0,
+                        userId = sharedPreferences.getUserPreference()?.id ?: 0,
                         location = locationName
                     )
                 )
+                locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
+                    it.name.equals(locationName, ignoreCase = true)
+                }?.id ?: 0
             })
     }
 
+    LaunchedEffect(locationId) {
+        dashboardVM.getSubMetals("$locationId", search.text)
+    }
     val subMetalData = dashboardVM.subMetalData
     val mainMetalsData = dashboardVM.mainMetalData
-//    Log.d("lsdjag", "metals: ${mainMetalsData?.data}")
+    val suggestedSearchList = dashboardVM.suggestMainMetals
 
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
@@ -152,22 +146,16 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
         Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
             .show()
 
+    if (mainMetalsData == null) {
+        dashboardVM.getMainMetals("$locationId", "")
+    }
+
     DashBoardScreen(search, name, location, phone,
         subMetalData?.data, isRefreshing,
-        mainMetalsData?.data,
+        suggestedSearchList,
         onSearch = { query ->
             search = query
-            searchJob?.cancel()
-            if (isNetworkAvailable(context)) {
-// Start a new debounced job for the search
-                searchJob = coroutineScope.launch {
-                    delay(500) // Debounce delay, e.g., 300ms
-                    dashboardVM.getMainMetals("$locationId", search.text)
-                }
-            } else
-                Toasty.error(
-                    context, noInternetMessage, Toast.LENGTH_SHORT, true
-                ).show()
+            dashboardVM.searchMainMetals(search.text)
         }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
         onLocationClick = {
             expandedCity = true
@@ -216,7 +204,7 @@ fun DashBoardScreen(
     onPullDown: () -> Unit,
 ) {
     SwipeRefresh(
-        state = SwipeRefreshState(isRefreshing),
+        state = rememberSwipeRefreshState(isRefreshing),
         onRefresh = {
             onPullDown()
         },
@@ -374,6 +362,7 @@ fun UserDetailItem(imageId: Int, text: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SearchBar(
@@ -384,116 +373,136 @@ fun SearchBar(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     var expandedDropDown by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Observe the search text and update dropdown state based on focus and list availability
-    LaunchedEffect(suggestedSearchList, isFocused) {
+    LaunchedEffect(isFocused, suggestedSearchList) {
         expandedDropDown = isFocused && (suggestedSearchList?.isNotEmpty() == true)
     }
-
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        OutlinedTextField(
-            value = search,
-            onValueChange = { value ->
-                // Update the search query with the new value and move cursor to the end
-                onSearch(value.copy(selection = TextRange(value.text.length)))
-            },
-            leadingIcon = {
-                Icon(
-                    painterResource(id = R.drawable.search_ic),
-                    contentDescription = "",
-                    modifier = Modifier.size(24.dp)
-                )
-            },
-            placeholder = {
-                Text(
-                    text = stringResource(id = R.string.search),
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
-            },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = DarkBlue,
-                unfocusedBorderColor = Color.Transparent,
-                focusedLabelColor = Color.Transparent,
-                unfocusedLabelColor = Color.Transparent,
-                focusedTextColor = DarkBlue,
-                unfocusedTextColor = Color.Gray
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(color = Color.White, shape = RoundedCornerShape(12))
-                .clip(RoundedCornerShape(12.dp))
-                .padding(2.dp)
-                .focusRequester(focusRequester)
-                .onFocusChanged { focusState ->
-                    isFocused = focusState.isFocused
+        ExposedDropdownMenuBox(
+            expanded = expandedDropDown,
+            onExpandedChange = {
+                expandedDropDown = !expandedDropDown
+            }) {
+            OutlinedTextField(
+                value = search,
+                onValueChange = { value ->
+                    // Update the search query with the new value and move cursor to the end
+                    onSearch(value.copy(selection = TextRange(value.text.length)))
+                    if (value.text.length < search.text.length && !expandedDropDown) {
+                        // Backspace detected
+                        expandedDropDown = true
+                    }
                 },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Search // Set the IME action to 'Search'
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    keyboardController?.hide()
-                    onSearchClick(search)
-                },
-                onDone = {
-                    keyboardController?.hide()
-                    onSearchClick(search)
-                },
-                onGo = {
-                    keyboardController?.hide()
-                    onSearchClick(search)
-                },
-                onNext = {
-                    keyboardController?.hide()
-                    onSearchClick(search)
-                }
-            )
-        )
-
-        // Dropdown menu below the search bar
-        DropdownMenu(
-            properties = PopupProperties(focusable = false), expanded = expandedDropDown,
-            onDismissRequest = { expandedDropDown = false },
-            modifier = Modifier
-                .wrapContentWidth()
-                .background(DarkBlue)
-                .border(width = 0.dp, shape = RoundedCornerShape(10.dp), color = Color.Gray)
-        ) {
-            suggestedSearchList?.forEachIndexed { index, mainMetal ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            mainMetal.name,
-                            color = Color.White
-                        )
-                    },
-                    onClick = {
-                        onSearchClick(
-                            TextFieldValue(
-                                text = mainMetal.name,
-                                selection = TextRange(mainMetal.name.length)
-                            )
-                        )
-                        expandedDropDown = false // Hide dropdown after selection
-                        focusRequester.requestFocus()
-                    },
-                )
-// Add a Divider after each item except the last one
-                if (index < suggestedSearchList.size - 1) {
-                    HorizontalDivider(
-                        color = Color.White,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(horizontal = 0.dp)
+                leadingIcon = {
+                    Icon(
+                        painterResource(id = R.drawable.search_ic),
+                        contentDescription = "",
+                        modifier = Modifier.size(24.dp)
                     )
+                },
+                placeholder = {
+                    Text(
+                        text = stringResource(id = R.string.search),
+                        color = Color.Gray,
+                        fontSize = 12.sp
+                    )
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = DarkBlue,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = Color.Transparent,
+                    unfocusedLabelColor = Color.Transparent,
+                    focusedTextColor = DarkBlue,
+                    unfocusedTextColor = Color.Gray
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Color.White, shape = RoundedCornerShape(12))
+                    .clip(RoundedCornerShape(12.dp))
+                    .padding(2.dp)
+                    .onFocusChanged { focusState ->
+                        isFocused = focusState.isFocused
+                    }
+                    .menuAnchor(type = MenuAnchorType.PrimaryEditable),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Search // Set the IME action to 'Search'
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        expandedDropDown = false
+                        keyboardController?.hide()
+                        onSearchClick(search)
+                    },
+                    onDone = {
+                        expandedDropDown = false
+                        keyboardController?.hide()
+                        onSearchClick(search)
+                    },
+                    onGo = {
+                        expandedDropDown = false
+                        keyboardController?.hide()
+                        onSearchClick(search)
+                    },
+                    onNext = {
+                        expandedDropDown = false
+                        keyboardController?.hide()
+                        onSearchClick(search)
+                    }
+                )
+            )
+
+            // Dropdown menu below the search bar
+            ExposedDropdownMenu(
+                expanded = expandedDropDown,
+                onDismissRequest = { expandedDropDown = false },
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .background(DarkBlue)
+                    .border(width = 0.dp, shape = RoundedCornerShape(10.dp), color = Color.Gray)
+            ) {
+                suggestedSearchList?.forEachIndexed { index, mainMetal ->
+                    DropdownMenuItem(
+                        text = {
+                            Row {
+                                Text(
+                                    mainMetal.name,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Start
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    mainMetal.urduName,
+                                    color = Color.White,
+                                    textAlign = TextAlign.End
+                                )
+                            }
+                        },
+                        onClick = {
+                            onSearchClick(
+                                TextFieldValue(
+                                    text = mainMetal.name,
+                                    selection = TextRange(mainMetal.name.length)
+                                )
+                            )
+                            expandedDropDown = false // Hide dropdown after selection
+                        },
+                    )
+// Add a Divider after each item except the last one
+                    if (index < suggestedSearchList.size - 1) {
+                        HorizontalDivider(
+                            color = Color.White,
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(horizontal = 0.dp)
+                        )
+                    }
                 }
             }
         }

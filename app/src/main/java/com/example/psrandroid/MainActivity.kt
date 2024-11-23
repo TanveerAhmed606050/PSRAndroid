@@ -72,10 +72,10 @@ class MainActivity : ComponentActivity() {
             }, onOkClick = {
                 isLogout = false
                 userPreference.clearStorage()
-                navController.navigate(Screen.LoginScreen.route){
-                    popUpTo(navController.graph.id)
-                }
                 LogoutSession.clearError()
+                navController.navigate(Screen.LoginScreen.route){
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                }
             })
 
             LaunchedEffect(LogoutSession.errorMessages) {

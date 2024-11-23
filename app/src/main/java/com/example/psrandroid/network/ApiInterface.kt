@@ -7,6 +7,7 @@ import com.example.psrandroid.response.AuthResponse
 import com.example.psrandroid.response.DashboardMetal
 import com.example.psrandroid.response.DashboardResponse
 import com.example.psrandroid.response.DealerResponse
+import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.SearchSubMetal
@@ -68,5 +69,9 @@ interface ApiInterface {
         @Query("location_id") locationId: String,
         @Query("metal_name") metalName: String
     ): SearchSubMetal
+
+    @GET("LMEMetals")
+    suspend fun getLMEMetals(
+    ): LmeResponse
 
 }

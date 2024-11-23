@@ -3,6 +3,7 @@ package com.example.psrandroid.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.example.psrandroid.response.AuthData
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.User
@@ -31,21 +32,21 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
     private val gson = Gson()
 
-    fun saveUserPreference(loginData: User) {
+    fun saveUserPreference(loginData: AuthData) {
         sharedPreferences.edit { putString(USER_DATA, gson.toJson(loginData)) }
     }
 
-    fun getUserPreference(): User? {
+    fun getUserPreference(): AuthData? {
         val json = sharedPreferences.getString(USER_DATA, null)
         return try {
-            gson.fromJson(json, User::class.java)
+            gson.fromJson(json, AuthData::class.java)
         } catch (e: Exception) {
             null
         }
     }
 
     var lastSearchMetal: String
-        get() = sharedPreferences.getString(LATEST_SEARCH, "")?:""
+        get() = sharedPreferences.getString(LATEST_SEARCH, "iron")?:""
         set(value) = sharedPreferences.edit { putString(LATEST_SEARCH, value) }
 
     fun saveLocationList(locationData: LocationResponse) {

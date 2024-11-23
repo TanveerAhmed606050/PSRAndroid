@@ -32,4 +32,19 @@ data class PrimeUserData(
     @SerializedName("updated_at")
     val updatedAt: String,
     val whatsapp: String
-)
+){companion object}
+val PrimeUserData.Companion.mockup by lazy { 
+    PrimeUserData(
+        businessName = "Susana Hinton",
+        createdAt = "facilisis",
+        email = "nadine.walton@example.com",
+        emailVerifiedAt = null,
+        id = 4947,
+        location = "solum",
+        name = "Elaine Benton",
+        profileImage = null,
+        type = "curabitur",
+        updatedAt = "neglegentur",
+        whatsapp = "periculis"
+    )
+}

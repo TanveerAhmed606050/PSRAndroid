@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.repository.DashboardRepository
 import com.example.psrandroid.response.DashboardMetal
+import com.example.psrandroid.response.LmeResponse
+import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.storage.UserPreferences
@@ -21,26 +23,14 @@ class DashboardVM @Inject constructor(
     private val dashboardRepository: DashboardRepository,
     val userPreferences: UserPreferences
 ) : ViewModel() {
-    //    var dashboardData by mutableStateOf<DashboardResponse?>(null)
     var error by mutableStateOf("")
     var isLoading by mutableStateOf(false)
     var premiumUserData by mutableStateOf<PrimeUser?>(null)
     var subMetalData by mutableStateOf<SearchSubMetal?>(null)
     var mainMetalData by mutableStateOf<DashboardMetal?>(null)
+    var lmeMetalData by mutableStateOf<LmeResponse?>(null)
+    var suggestMainMetals by mutableStateOf<List<MetalData>?>(null)
 
-//    fun getDashboardData(locationId: String, date: String) = viewModelScope.launch {
-//        if (dashboardData == null) {
-//            isLoading = true
-//            val result = dashboardRepository.getDashboardData(locationId, date)
-//            if (result is Result.Success) {
-//                isLoading = false
-//                dashboardData = result.data
-//            } else if (result is Result.Failure) {
-//                isLoading = false
-//                error = result.exception.message ?: "Failure"
-//            }
-//        }
-//    }
 
     fun getPremiumUser() = viewModelScope.launch {
         if (premiumUserData == null) {
@@ -66,14 +56,32 @@ class DashboardVM @Inject constructor(
     }
 
     fun getMainMetals(locationId: String, metalName: String) = viewModelScope.launch {
-        Log.d("lsdjag", "Metal: $metalName")
+        Log.d("lsdjag", "Metal: $metalName location: $locationId")
         val result = dashboardRepository.getSearchMetals(locationId, metalName)
         if (result is Result.Success) {
             mainMetalData = result.data
+            suggestMainMetals = result.data.data
             Log.d("lsdjag", "result: ${mainMetalData?.data?.size}")
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
     }
 
+    fun getLMEMetals() = viewModelScope.launch {
+        if (lmeMetalData == null) {
+            val result = dashboardRepository.getLMEMetals()
+            if (result is Result.Success) {
+                lmeMetalData = result.data
+            } else if (result is Result.Failure) {
+                error = result.exception.message ?: "Failure"
+            }
+        }
+    }
+
+    fun searchMainMetals(searchText: String) {
+        suggestMainMetals = mainMetalData?.data?.filter {
+            it.name.contains(searchText, ignoreCase = true) ||
+                    it.urduName.contains(searchText)
+        } ?: listOf()
+    }
 }

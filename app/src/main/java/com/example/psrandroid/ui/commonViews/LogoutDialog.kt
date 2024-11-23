@@ -2,14 +2,21 @@ package com.example.psrandroid.ui.commonViews
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.psp_android.R
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.mediumFont
@@ -28,59 +36,74 @@ import com.example.psrandroid.ui.theme.regularFont
 
 @Composable
 fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick :()->Unit) {
-    Dialog(onDismissRequest = { onDismissRequest() }) {
-        Column(
+    Dialog(
+        onDismissRequest = onDismissRequest, properties = DialogProperties(
+            dismissOnBackPress = true, dismissOnClickOutside = true
+        )
+    ) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .wrapContentHeight()
                 .padding(16.dp)
-                .background(color = DarkBlue, shape = RoundedCornerShape(20.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(DarkBlue, shape = RoundedCornerShape(16.dp))
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = stringResource(id = R.string.logout),
-                fontSize = 16.sp,
-                fontFamily = mediumFont,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                lineHeight = 20.sp,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = stringResource(id = R.string.account_logout_warning),
-                fontSize = 16.sp,
-                fontFamily = regularFont,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                lineHeight = 16.sp,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            Box(
-                modifier = Modifier
-                    .height(35.dp)
-                    .background(
-                        color = Color.White,
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .clickable { onOkClick() },
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(id = R.string.ok),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = DarkBlue,
+                    text = stringResource(id = R.string.logout),
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = 8.dp
+                    ),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = Color.White,
                 )
+                Text(
+                    text = stringResource(id = R.string.account_logout_warning),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    fontSize = 14.sp,
+                    fontFamily = regularFont,
+                    color = Color.White,
+                )
+                HorizontalDivider(thickness = 0.5.dp, color = Color.White)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = onDismissRequest, modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            stringResource(id = R.string.cancel),
+                            fontSize = 14.sp,
+                            fontFamily = regularFont,
+                            color = colorResource(id = R.color.white)
+                        )
+                    }
+                    VerticalDivider(
+                        modifier = Modifier
+                            .width(0.5.dp)
+                            .height(50.dp)
+                            .background(Color.White)
+                    )
+                    TextButton(
+                        onClick = onOkClick, modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            stringResource(id = R.string.logout), color = Color.White, fontSize = 16.sp, fontFamily = mediumFont
+                        )
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

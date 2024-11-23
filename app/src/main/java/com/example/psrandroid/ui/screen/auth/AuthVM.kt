@@ -10,6 +10,7 @@ import com.example.psrandroid.dto.ImageUpdate
 import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.repository.AuthRepository
+import com.example.psrandroid.response.AuthData
 import com.example.psrandroid.response.AuthResponse
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
@@ -40,6 +41,9 @@ class AuthVM @Inject constructor(
         if (result is Result.Success) {
             isLoading = false
             loginData = result.data
+            userPreferences.saveUserPreference(
+                loginData?.data?:AuthData.mockup
+            )
         } else if (result is Result.Failure) {
             isLoading = false
             error = result.exception.message ?: "Failure"
@@ -91,13 +95,7 @@ class AuthVM @Inject constructor(
             isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
-                User(
-                    userId = loginData?.data?.id ?: 0,
-                    name = loginData?.data?.name ?: "",
-                    phone = loginData?.data?.phone ?: "",
-                    location = loginData?.data?.location ?: "",
-                    profilePic = loginData?.data?.name ?: ""
-                )
+                loginData?.data?:AuthData.mockup
             )
         } else if (result is Result.Failure) {
             isLoading = false
@@ -112,13 +110,7 @@ class AuthVM @Inject constructor(
             isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
-                User(
-                    userId = loginData?.data?.id ?: 0,
-                    name = loginData?.data?.name ?: "",
-                    phone = loginData?.data?.phone ?: "",
-                    location = loginData?.data?.location ?: "",
-                    profilePic = loginData?.data?.profilePic ?: ""
-                )
+                loginData?.data?:AuthData.mockup
             )
         } else if (result is Result.Failure) {
             isLoading = false
@@ -130,19 +122,13 @@ class AuthVM @Inject constructor(
         isLoading = true
         Log.d("lsdjag", "getProfile: ")
         val result = authRepository.updateUserData(userCredential)
-        Log.d("lsdjag", "getProfile: $result")
+//        Log.d("lsdjag", "getProfile: $result")
         if (result is Result.Success) {
             isLoading = false
             loginData = result.data
-//            userPreferences.saveUserPreference(
-//                User(
-//                    userId = loginData?.data?.id ?: 0,
-//                    name = loginData?.data?.name ?: "",
-//                    phone = loginData?.data?.phone ?: "",
-//                    location = loginData?.data?.location ?: "",
-//                    profilePic = loginData?.data?.profilePic?:""
-//                )
-//            )
+            userPreferences.saveUserPreference(
+                loginData?.data?:AuthData.mockup
+            )
         } else if (result is Result.Failure) {
             isLoading = false
             error = result.exception.message ?: "Failure"

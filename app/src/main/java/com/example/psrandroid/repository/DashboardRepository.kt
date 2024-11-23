@@ -18,4 +18,7 @@ class DashboardRepository @Inject constructor(private val apiInterface: ApiInter
     suspend fun getSubMetals(locationId: String, metalName: String) = loadResource {
         apiInterface.getSubMetals(locationId, metalName)
     }
+    suspend fun getLMEMetals() = loadResource {
+        apiInterface.getLMEMetals()
+    }
 }

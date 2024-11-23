@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.util.Base64
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
@@ -63,10 +62,6 @@ object Utils {
         else "Enter valid name"
     }
 
-    fun showToast(context: Context, message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
-
     fun loadCitiesFromAssets(context: Context): List<String> {
         val inputStream = context.assets.open("cities.json")
         val reader = InputStreamReader(inputStream)
@@ -106,5 +101,13 @@ object Utils {
         val today = LocalDate.now()
         val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
         return today.format(formatter)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun formatDateDisplay(dateString: String):String {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+        val outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)
+        val date = LocalDate.parse(dateString, inputFormatter)
+        return date.format(outputFormatter)
     }
 }
