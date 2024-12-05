@@ -33,7 +33,7 @@ import com.example.psrandroid.response.PrimeUserData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
-import com.example.psrandroid.ui.screen.dashboard.DashboardVM
+import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -41,7 +41,7 @@ import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 
 @Composable
-fun PrimeUserScreen(navController: NavController, dashboardVM: DashboardVM) {
+fun PrimeUserScreen(navController: NavController, dashboardVM: RateVM) {
     val primeUserData = dashboardVM.premiumUserData
 
     LaunchedEffect(Unit) {

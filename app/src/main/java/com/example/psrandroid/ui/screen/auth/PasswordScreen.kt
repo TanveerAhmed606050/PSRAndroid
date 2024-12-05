@@ -52,7 +52,7 @@ fun PasswordScreen(navController: NavController) {
         navController.popBackStack()
     },
         onNextClick = {
-            navController.navigate(Screen.DashBoardScreen.route)
+            navController.navigate(Screen.RateScreen.route)
         })
 }
 

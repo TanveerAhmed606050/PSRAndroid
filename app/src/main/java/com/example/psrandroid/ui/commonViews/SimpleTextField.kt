@@ -3,10 +3,14 @@ package com.example.psrandroid.ui.commonViews
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
@@ -23,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -33,7 +38,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -98,6 +105,7 @@ fun ProfileInputField(
 
 @Composable
 fun MyTextFieldWithBorder(
+    modifier: Modifier = Modifier,
     value: String,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
@@ -114,13 +122,17 @@ fun MyTextFieldWithBorder(
             onValueChange(it)
         },
         label = {
-            Text(text = placeholder, fontFamily = mediumFont)
+            Text(
+                text = placeholder, fontFamily = mediumFont,
+                letterSpacing = 2.sp,
+                color = Color.White
+            )
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color.White, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
-            unfocusedLabelColor = if (value.isEmpty())Color.White else textColor,
+            unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White
         ),
@@ -138,7 +150,7 @@ fun MyTextFieldWithBorder(
             )
         },
         shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(Color.Transparent)
     )
@@ -172,13 +184,15 @@ fun PasswordTextFields(
             Text(
                 placeholder,
                 fontFamily = mediumFont,
+                letterSpacing = 2.sp,
+                color = Color.White
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color.White, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
-            unfocusedLabelColor = if (value.isEmpty())Color.White else textColor,
+            unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White
         ),
@@ -230,21 +244,26 @@ fun PhoneTextField(
             onValueChange(it)
         },
         label = {
-            Text(text = placeholder, fontFamily = mediumFont)
+            Text(
+                text = placeholder, fontFamily = mediumFont,
+                letterSpacing = 2.sp,
+                color = Color.White
+            )
         },
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
         leadingIcon = {
             Text(
                 text = prefix,
                 color = Color.White,
-                fontFamily = mediumFont
+                fontFamily = mediumFont,
+                letterSpacing = 2.sp,
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color.White, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
-            unfocusedLabelColor = if (value.isEmpty())Color.White else textColor,
+            unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
             focusedTextColor = Color.White,
             unfocusedTextColor = Color.White
         ),
@@ -267,4 +286,76 @@ fun PhoneTextField(
                 isFocused = it.isFocused
             },
     )
+}
+
+@Composable
+fun CustomTextField(
+    modifier: Modifier,
+    value: String,
+    keyboardType: KeyboardType,
+    imeAction: ImeAction,
+    placeholder: String,
+    onValueChange: (String) -> Unit,
+    imageId: Int,
+    enable: Boolean = true,
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(
+                Color.White,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(horizontal = 10.dp, vertical = 12.dp),
+    ) {
+        // Placeholder Text
+        if (value.isEmpty()) {
+            Text(
+                text = placeholder,
+                fontFamily = regularFont,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 40.dp, start = 8.dp),
+                color = DarkBlue,
+                letterSpacing = 2.sp,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        // TextField
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                fontFamily = regularFont,
+                textAlign = TextAlign.Start, // Align input text as well
+                color = DarkBlue,
+                letterSpacing = 2.sp,
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                }
+                .padding(start = 8.dp, top = 0.dp, end = 30.dp), // Space for the leading icon
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType,
+                imeAction = imeAction,
+            ),
+            enabled = enable,
+        )
+
+        Image(
+            painter = painterResource(id = imageId),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopEnd) // Align icon vertically center
+                .padding(horizontal = 8.dp, vertical = 4.dp) // Consistent padding
+                .size(16.dp),
+            colorFilter = ColorFilter.tint(DarkBlue)
+        )
+    }
 }

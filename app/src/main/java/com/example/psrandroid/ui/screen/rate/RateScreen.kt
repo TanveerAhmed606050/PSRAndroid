@@ -1,4 +1,4 @@
-package com.example.psrandroid.ui.screen.dashboard
+package com.example.psrandroid.ui.screen.rate
 
 import android.os.Build
 import android.widget.Toast
@@ -76,29 +76,28 @@ import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, authVM: AuthVM) {
+fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
     val context = LocalContext.current
     val progressBar: KProgressHUD = remember { context.progressBar() }
     var isRefreshing by remember { mutableStateOf(false) }
-    if (!dashboardVM.isLoading)
+    if (!rateVM.isLoading)
         isRefreshing = false
 
-    var locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
-        it.name.equals(dashboardVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
+    var locationId = rateVM.userPreferences.getLocationList()?.data?.find {
+        it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
     }?.id ?: 0 // get location id
 
-    progressBar.isVisible(dashboardVM.isLoading)
-    val locationList = dashboardVM.userPreferences.getLocationList()?.data ?: listOf()
+    progressBar.isVisible(rateVM.isLoading)
+    val locationList = rateVM.userPreferences.getLocationList()?.data ?: listOf()
 
-    var search by remember { mutableStateOf(TextFieldValue(dashboardVM.userPreferences.lastSearchMetal)) }
-    val sharedPreferences = dashboardVM.userPreferences
+    var search by remember { mutableStateOf(TextFieldValue(rateVM.userPreferences.lastSearchMetal)) }
+    val sharedPreferences = rateVM.userPreferences
     val name by remember { mutableStateOf(sharedPreferences.getUserPreference()?.name ?: "Ahmed") }
 
     var location by remember {
@@ -125,37 +124,33 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
                         location = locationName
                     )
                 )
-                locationId = dashboardVM.userPreferences.getLocationList()?.data?.find {
+                locationId = rateVM.userPreferences.getLocationList()?.data?.find {
                     it.name.equals(locationName, ignoreCase = true)
                 }?.id ?: 0
             })
     }
 
     LaunchedEffect(locationId) {
-        dashboardVM.getSubMetals("$locationId", search.text)
+        rateVM.getSubMetals("$locationId", search.text)
     }
-    val subMetalData = dashboardVM.subMetalData
-    val mainMetalsData = dashboardVM.mainMetalData
-    val suggestedSearchList = dashboardVM.suggestMainMetals
+    val subMetalData = rateVM.subMetalData
+    val suggestedSearchList = rateVM.suggestMainMetals
 
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
-            dashboardVM.getSubMetals("$locationId", search.text)
+            rateVM.getMainMetals("$locationId", "")
+            rateVM.getSubMetals("$locationId", search.text)
         }
     } else
         Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
             .show()
-
-    if (mainMetalsData == null) {
-        dashboardVM.getMainMetals("$locationId", "")
-    }
 
     DashBoardScreen(search, name, location, phone,
         subMetalData?.data, isRefreshing,
         suggestedSearchList,
         onSearch = { query ->
             search = query
-            dashboardVM.searchMainMetals(search.text)
+            rateVM.searchMainMetals(search.text)
         }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
         onLocationClick = {
             expandedCity = true
@@ -164,7 +159,7 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
             isRefreshing = true
             if (isNetworkAvailable(context)) {
                 if (subMetalData == null)
-                    dashboardVM.getSubMetals("$locationId", search.text)
+                    rateVM.getSubMetals("$locationId", search.text)
             } else
                 Toasty.error(
                     context,
@@ -177,9 +172,9 @@ fun DashboardScreen(navController: NavController, dashboardVM: DashboardVM, auth
         },
         onSearchClick = { searchText ->
             search = searchText
-            dashboardVM.userPreferences.lastSearchMetal = searchText.text
+            rateVM.userPreferences.lastSearchMetal = searchText.text
             if (isNetworkAvailable(context)) {
-                dashboardVM.getSubMetals("$locationId", searchText.text)
+                rateVM.getSubMetals("$locationId", searchText.text)
             } else
                 Toasty.error(
                     context, noInternetMessage, Toast.LENGTH_SHORT, true
@@ -410,8 +405,9 @@ fun SearchBar(
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.search),
-                        color = Color.Gray,
-                        fontSize = 12.sp
+                        color = DarkBlue,
+                        letterSpacing = 2.sp,
+                        fontSize = 12.sp,
                     )
                 },
                 singleLine = true,

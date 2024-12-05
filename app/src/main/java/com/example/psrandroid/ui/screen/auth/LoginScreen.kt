@@ -3,7 +3,6 @@ package com.example.psrandroid.ui.screen.auth
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,8 +39,6 @@ import com.example.psp_android.R
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
-import com.example.psrandroid.response.AuthData
-import com.example.psrandroid.response.User
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.commonViews.PhoneTextField
@@ -71,7 +68,7 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
         if (authData.status) {
             Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
             authVM.userPreferences.isFirstLaunch = false
-            navController.navigate(Screen.DashBoardScreen.route) {
+            navController.navigate(Screen.HomeScreen.route) {
                 popUpTo(navController.graph.id)
             }
         } else

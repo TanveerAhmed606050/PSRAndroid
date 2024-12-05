@@ -1,4 +1,4 @@
-package com.example.psrandroid.ui.screen.dashboard
+package com.example.psrandroid.ui.screen.rate
 
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.psrandroid.repository.DashboardRepository
+import com.example.psrandroid.repository.RateRepository
 import com.example.psrandroid.response.DashboardMetal
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.MetalData
@@ -19,8 +19,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DashboardVM @Inject constructor(
-    private val dashboardRepository: DashboardRepository,
+class RateVM @Inject constructor(
+    private val dashboardRepository: RateRepository,
     val userPreferences: UserPreferences
 ) : ViewModel() {
     var error by mutableStateOf("")
@@ -56,14 +56,15 @@ class DashboardVM @Inject constructor(
     }
 
     fun getMainMetals(locationId: String, metalName: String) = viewModelScope.launch {
-        Log.d("lsdjag", "Metal: $metalName location: $locationId")
-        val result = dashboardRepository.getSearchMetals(locationId, metalName)
-        if (result is Result.Success) {
-            mainMetalData = result.data
-            suggestMainMetals = result.data.data
-            Log.d("lsdjag", "result: ${mainMetalData?.data?.size}")
-        } else if (result is Result.Failure) {
-            error = result.exception.message ?: "Failure"
+        if (mainMetalData == null) {
+            val result = dashboardRepository.getSearchMetals(locationId, metalName)
+            if (result is Result.Success) {
+                mainMetalData = result.data
+                suggestMainMetals = result.data.data
+                Log.d("lsdjag", "result: ${mainMetalData?.data?.size}")
+            } else if (result is Result.Failure) {
+                error = result.exception.message ?: "Failure"
+            }
         }
     }
 

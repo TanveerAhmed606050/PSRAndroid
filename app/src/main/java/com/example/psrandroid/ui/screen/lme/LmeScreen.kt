@@ -2,7 +2,6 @@ package com.example.psrandroid.ui.screen.lme
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,8 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,7 +38,7 @@ import com.example.psp_android.R
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.LinearProgress
-import com.example.psrandroid.ui.screen.dashboard.DashboardVM
+import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -52,7 +49,7 @@ import com.example.psrandroid.utils.Utils.formatDateDisplay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun LmeScreen(navController: NavController, dashboardVM: DashboardVM) {
+fun LmeScreen(navController: NavController, dashboardVM: RateVM) {
     var isRefreshing by remember { mutableStateOf(false) }
     if (!dashboardVM.isLoading)
         isRefreshing = false

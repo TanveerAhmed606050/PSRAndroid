@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
+import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.mediumFont
 
@@ -38,11 +39,11 @@ fun AppButton(modifier: Modifier, text: String, onButtonClick: () -> Unit) {
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(id = R.color.white)
         ),
-        shape = RoundedCornerShape(246.dp)
+        shape = RoundedCornerShape(246.dp),
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = text,
@@ -50,7 +51,6 @@ fun AppButton(modifier: Modifier, text: String, onButtonClick: () -> Unit) {
                 color = LightBlue,
                 fontFamily = mediumFont,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(10.dp)
             )
         }
     }

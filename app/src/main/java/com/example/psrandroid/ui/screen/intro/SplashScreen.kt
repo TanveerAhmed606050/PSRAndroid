@@ -56,7 +56,7 @@ fun SplashScreen(
             navController.navigate(Screen.LoginScreen.route)
         } else {
             navController.popBackStack(Screen.SplashScreen.route, true)
-            navController.navigate(Screen.DashBoardScreen.route)
+            navController.navigate(Screen.HomeScreen.route)
         }
     }
 }

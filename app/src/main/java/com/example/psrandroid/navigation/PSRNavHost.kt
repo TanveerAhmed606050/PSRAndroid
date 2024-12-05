@@ -36,15 +36,18 @@ import com.example.psrandroid.ui.screen.auth.LoginScreen
 import com.example.psrandroid.ui.screen.auth.OTPScreen
 import com.example.psrandroid.ui.screen.auth.PasswordScreen
 import com.example.psrandroid.ui.screen.auth.SignupScreen
-import com.example.psrandroid.ui.screen.dashboard.DashboardScreen
-import com.example.psrandroid.ui.screen.dashboard.DashboardVM
-import com.example.psrandroid.ui.screen.lme.PrimeUserScreen
+import com.example.psrandroid.ui.screen.home.AdScreen
+import com.example.psrandroid.ui.screen.home.HomeScreen
+import com.example.psrandroid.ui.screen.home.HomeVM
 import com.example.psrandroid.ui.screen.intro.SplashScreen
 import com.example.psrandroid.ui.screen.lme.LmeScreen
-import com.example.psrandroid.ui.screen.profile.UpdateProfileScreen
+import com.example.psrandroid.ui.screen.lme.PrimeUserScreen
 import com.example.psrandroid.ui.screen.profile.MyProfileScreen
 import com.example.psrandroid.ui.screen.profile.ProfileVM
 import com.example.psrandroid.ui.screen.profile.UpdatePasswordScreen
+import com.example.psrandroid.ui.screen.profile.UpdateProfileScreen
+import com.example.psrandroid.ui.screen.rate.RateScreen
+import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.utils.DevicePosture
 import com.example.psrandroid.utils.PSRContentType
 import com.example.psrandroid.utils.PSRNavigationContentPosition
@@ -119,8 +122,13 @@ fun PSRNavigation(
 
     val bottomMenuList = listOf(
         BottomNavigationItem(
-            "Dashboard",
-            Screen.DashBoardScreen.route,
+            "Home",
+            Screen.HomeScreen.route,
+            R.drawable.home_ic
+        ),
+        BottomNavigationItem(
+            "Rate",
+            Screen.RateScreen.route,
             R.drawable.calendar_ic
         ),
         BottomNavigationItem(
@@ -169,7 +177,7 @@ fun PSRNavigationWrapper(
         PSRNavigationActions(navController)
     }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val selectedDestination = navBackStackEntry?.destination?.route ?: Screen.DashBoardScreen.route
+    val selectedDestination = navBackStackEntry?.destination?.route ?: Screen.HomeScreen.route
     if (navigationType == PSRNavigationType.PERMANENT_NAVIGATION_DRAWER) {
         // TODO check on custom width of PermanentNavigationDrawer: b/232495216
         PermanentNavigationDrawer(drawerContent = {
@@ -193,8 +201,7 @@ fun PSRNavigationWrapper(
                 onLogOut = { onLogOut() }
             )
         }
-    }
-    else {
+    } else {
 //        ModalNavigationDrawer(
 //            drawerState = drawerState,
 //            drawerContent = {
@@ -212,16 +219,16 @@ fun PSRNavigationWrapper(
 //                )
 //            },
 //        ) {
-            PSRAppContent(
-                bottomMenuList = bottomMenuList,
-                navigationType = navigationType,
-                contentType = contentType,
-                displayFeatures = displayFeatures,
-                navigationContentPosition = navigationContentPosition,
-                navController = navController,
-                selectedDestination = selectedDestination,
-                navigateToTopLevelDestination = navigationActions::navigateTo
-            ) {}
+        PSRAppContent(
+            bottomMenuList = bottomMenuList,
+            navigationType = navigationType,
+            contentType = contentType,
+            displayFeatures = displayFeatures,
+            navigationContentPosition = navigationContentPosition,
+            navController = navController,
+            selectedDestination = selectedDestination,
+            navigateToTopLevelDestination = navigationActions::navigateTo
+        ) {}
 //        }
     }
 }
@@ -285,7 +292,8 @@ fun PSRNavHost(
 ) {
     val authViewModel: AuthVM = hiltViewModel()
     val profileVM: ProfileVM = hiltViewModel()
-    val dashboardVM: DashboardVM = hiltViewModel()
+    val rateVM: RateVM = hiltViewModel()
+    val homeVM: HomeVM = hiltViewModel()
     NavHost(navController, startDestination = Screen.SplashScreen.route) {
         composable(
             route = Screen.SplashScreen.route,
@@ -338,18 +346,18 @@ fun PSRNavHost(
             UpdateProfileScreen(navController, authViewModel)
         }
         composable(
-            route = Screen.DashBoardScreen.route,
+            route = Screen.RateScreen.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            DashboardScreen(navController, dashboardVM, authViewModel)
+            RateScreen(navController, rateVM, authViewModel)
         }
         composable(
             route = Screen.PrimeUserScreen.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            PrimeUserScreen(navController = navController, dashboardVM)
+            PrimeUserScreen(navController = navController, rateVM)
         }
         composable(
             route = Screen.PasswordScreen.route,
@@ -377,7 +385,21 @@ fun PSRNavHost(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            LmeScreen(navController, dashboardVM)
+            LmeScreen(navController, rateVM)
+        }
+        composable(
+            route = Screen.HomeScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            HomeScreen(navController, homeVM)
+        }
+        composable(
+            route = Screen.AdScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            AdScreen(navController, homeVM, rateVM = rateVM)
         }
     }
 }
