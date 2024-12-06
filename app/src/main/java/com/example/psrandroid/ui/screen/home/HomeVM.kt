@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,11 +27,10 @@ class HomeVM @Inject constructor(
         if (adsData == null) {
             isLoading = true
             val result = homeRepository.getAllAds()
+            isLoading = false
             if (result is Result.Success) {
-                isLoading = false
                 adsData = result.data
             } else if (result is Result.Failure) {
-                isLoading = false
                 error = result.exception.message ?: "Failure"
             }
         }

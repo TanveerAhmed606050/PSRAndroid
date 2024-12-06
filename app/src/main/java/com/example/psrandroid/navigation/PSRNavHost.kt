@@ -37,6 +37,7 @@ import com.example.psrandroid.ui.screen.auth.OTPScreen
 import com.example.psrandroid.ui.screen.auth.PasswordScreen
 import com.example.psrandroid.ui.screen.auth.SignupScreen
 import com.example.psrandroid.ui.screen.home.AdScreen
+import com.example.psrandroid.ui.screen.home.DetailAdScreen
 import com.example.psrandroid.ui.screen.home.HomeScreen
 import com.example.psrandroid.ui.screen.home.HomeVM
 import com.example.psrandroid.ui.screen.intro.SplashScreen
@@ -400,6 +401,13 @@ fun PSRNavHost(
             exitTransition = { ExitTransition.None }
         ) {
             AdScreen(navController, homeVM, rateVM = rateVM)
+        }
+        composable(
+            route = Screen.AdDetailScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            DetailAdScreen(navController, homeVM)
         }
     }
 }

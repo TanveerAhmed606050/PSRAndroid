@@ -19,6 +19,7 @@ sealed class Screen(val route: String) {
     data object LmeScreen : Screen("LmeScreen")
     data object HomeScreen : Screen("HomeScreen")
     data object AdScreen : Screen("AdScreen")
+    data object AdDetailScreen : Screen("AdDetailScreen")
 }
 
 class PSRNavigationActions(private val navController: NavHostController) {

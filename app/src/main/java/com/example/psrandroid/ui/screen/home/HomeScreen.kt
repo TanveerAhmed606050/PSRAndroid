@@ -4,7 +4,6 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,11 +36,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
@@ -52,7 +53,6 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
-import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
 import es.dmoral.toasty.Toasty
@@ -106,18 +106,10 @@ fun HomeScreenView(
             ) {
                 items(adsData?.size ?: 0) { index ->
                     AdsItems(adsData?.get(index) ?: AdData.mockup)
-                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
 
-//            val imageList = listOf(
-//                R.drawable.character_ic,
-//                R.drawable.ic_launcher_background,
-//                R.drawable.splash_ic,
-//                R.drawable.user_placeholder,
-//                R.drawable.ic_launcher_background
-//            )
-//            ImageSlider(images = imageList)
         }
         ExtendedFloatingActionButton(
             modifier = Modifier
@@ -152,60 +144,70 @@ fun HomeScreenView(
 fun AdsItems(adData: AdData) {
     // State to hold the current image index
 //    if (adData.photos.isNotEmpty()) {
-        var currentIndex by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableStateOf(0) }
 
-        // Timer to switch images every 5 seconds
+    // Timer to switch images every 5 seconds
 //        LaunchedEffect(currentIndex) {
 //            kotlinx.coroutines.delay(5000) // 5 seconds delay
 //            currentIndex = (currentIndex + 1) % adData.photos // Loop through images
 //        }
-        // Display the current image
-        Box(
+    // Display the current image
+    Box(
+        modifier = Modifier
+            .height(250.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(Color.Black),
+    ) {
+        AsyncImage(
+            model = adData.photos, contentDescription = "",
+            error = painterResource(id = R.drawable.splash_ic),
+            contentScale = ContentScale.Crop,
+        )
+
+        Row(
             modifier = Modifier
-                .height(200.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color.Black),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .background(Color.White.copy(0.9f))
+                .align(Alignment.BottomStart) // Align the Row at the bottom of the Box
+                .padding(8.dp), // Add some padding for better spacing
+            verticalAlignment = Alignment.Bottom
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = R.drawable.home_ic),
-                contentDescription = "Image Slider",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
             Column(
-                verticalArrangement = Arrangement.Bottom
+                modifier = Modifier.weight(1f), // Take up equal horizontal space
+                horizontalAlignment = Alignment.Start
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.metal_name), fontSize = 16.sp,
-                        fontFamily = regularFont,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.sub_metal), fontSize = 16.sp,
-                        fontFamily = regularFont,
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.metal_name), fontSize = 16.sp,
-                        fontFamily = regularFont,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.sub_metal), fontSize = 16.sp,
-                        fontFamily = regularFont,
-                    )
-                }
+                Text(
+                    text = "${stringResource(id = R.string.metal_name)}: ${adData.metalName}",
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = Color.Black,
+                )
+                Text(
+                    text = "${stringResource(id = R.string.sub_metal)}: ${adData.submetal}",
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = Color.Black,
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f), // Take up equal horizontal space
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "${stringResource(id = R.string.city)}: ${adData.city}",
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = Color.Black,
+                )
+                Text(
+                    text = "${stringResource(id = R.string.price)}: ${adData.price}",
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = Color.Black,
+                )
             }
         }
-//    }
-
+    }
 }
 
 @Composable
