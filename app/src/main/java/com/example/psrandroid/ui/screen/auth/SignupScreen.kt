@@ -305,7 +305,6 @@ fun SignupScreen(
             }
         }
 //        BottomNavigationButtons()
-
     }
 }
 

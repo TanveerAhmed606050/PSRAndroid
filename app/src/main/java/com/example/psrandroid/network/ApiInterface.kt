@@ -12,6 +12,7 @@ import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.ui.screen.home.models.AllAds
+import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -78,4 +79,12 @@ interface ApiInterface {
     @GET("Ads/getAds")
     suspend fun getAllAds(
     ): AllAds
+
+    @GET("Ads/getAdsByLocation")
+    suspend fun getAdsByLocation(
+        @Query("location") location: String,
+    ): AllAds
+
+    @GET("Ads/getSubmetals")
+    suspend fun getAllSubMetals(): AllSubMetalData
 }

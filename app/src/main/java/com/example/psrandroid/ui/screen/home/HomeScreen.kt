@@ -4,6 +4,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,8 +50,10 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
+import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.home.models.AdData
 import com.example.psrandroid.ui.screen.home.models.mockup
+import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -65,6 +70,19 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     val progressBar: KProgressHUD = remember { context.progressBar() }
     progressBar.isVisible(homeVM.isLoading)
     val noInternetMessage = stringResource(id = R.string.network_error)
+    var expandedCity by remember { mutableStateOf(false) }
+    val locationList = homeVM.userPreferences.getLocationList()?.data ?: listOf()
+    val locationData = locationList.map { it.name }
+//    if (adsData != null) {
+//        homeVM.adsData = null
+//    }
+    if (expandedCity) {
+        ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
+            onConfirm = { locationName ->
+                homeVM.getAdsByLocation(locationName)
+                expandedCity = false
+            })
+    }
     LaunchedEffect(Unit) {
         if (isNetworkAvailable(context))
             homeVM.getAllAds()
@@ -74,14 +92,19 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     }
     HomeScreenView(adsData?.data, onAdClick = {
         navController.navigate(Screen.AdScreen.route)
-    })
+    },
+        onFilter = {
+            expandedCity = true
+        })
 }
 
 @Composable
 fun HomeScreenView(
     adsData: List<AdData>?,
-    onAdClick: () -> Unit
+    onAdClick: () -> Unit,
+    onFilter: () -> Unit,
 ) {
+    var expanded by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -94,22 +117,72 @@ fun HomeScreenView(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
-            Text(
-                text = stringResource(id = R.string.home), fontSize = 16.sp,
-                fontFamily = mediumFont,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 0.dp),
-                modifier = Modifier.fillMaxHeight()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(adsData?.size ?: 0) { index ->
-                    AdsItems(adsData?.get(index) ?: AdData.mockup)
-                    Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.home),
+                        fontSize = 16.sp,
+                        fontFamily = mediumFont,
+                        color = Color.White
+                    )
+                }
+                Box(modifier = Modifier) {
+                    Image(
+                        painter = painterResource(id = R.drawable.filter_ic),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onFilter() },
+                        colorFilter = ColorFilter.tint(Color.White)
+                    )
+//                    DropdownMenu(
+//                        expanded = expanded,
+//                        onDismissRequest = { expanded = false },
+//                        modifier = Modifier
+//                            .background(Color.White, RoundedCornerShape(8.dp))
+//                            .padding(8.dp)
+//                            .wrapContentWidth()
+//                            .align(Alignment.TopStart), // Position relative to Box
+//                    ) {
+//                        DropdownMenuItem(text = {
+//                            Text(
+//                                text = "Lahore",
+//                                fontSize = 16.sp, fontFamily = regularFont
+//                            )
+//                        }, onClick = { expanded = false })
+//                        Spacer(modifier = Modifier.height(8.dp))
+//                        DropdownMenuItem(text = {
+//                            Text(
+//                                text = "Karachi",
+//                                fontSize = 16.sp, fontFamily = regularFont
+//                            )
+//                        }, onClick = { expanded = false })
+//                    }
                 }
             }
-
+            Spacer(modifier = Modifier.height(20.dp))
+            if (adsData?.isEmpty() == true)
+                NoProductView(msg = "No Ads", Color.White)
+            else {
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 0.dp),
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    items(adsData?.size ?: 0) { index ->
+                        AdsItemsView(adsData?.get(index) ?: AdData.mockup)
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+                }
+            }
         }
         ExtendedFloatingActionButton(
             modifier = Modifier
@@ -141,7 +214,7 @@ fun HomeScreenView(
 }
 
 @Composable
-fun AdsItems(adData: AdData) {
+fun AdsItemsView(adData: AdData) {
     // State to hold the current image index
 //    if (adData.photos.isNotEmpty()) {
     var currentIndex by remember { mutableStateOf(0) }
@@ -214,7 +287,7 @@ fun AdsItems(adData: AdData) {
 fun ImageSlider(images: List<Uri>) {
     // State to hold the current image index
     if (images.isNotEmpty()) {
-        var currentIndex by remember { mutableStateOf(0) }
+        var currentIndex by remember { mutableIntStateOf(0) }
 
         // Timer to switch images every 5 seconds
         LaunchedEffect(currentIndex) {
@@ -244,6 +317,7 @@ fun ImageSlider(images: List<Uri>) {
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        HomeScreenView(adsData = null, onAdClick = {})
+        HomeScreenView(adsData = null, onAdClick = {},
+            onFilter = {})
     }
 }

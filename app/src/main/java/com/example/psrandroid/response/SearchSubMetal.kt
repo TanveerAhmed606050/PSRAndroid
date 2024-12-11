@@ -16,12 +16,16 @@ val SearchSubMetal.Companion.mockup by lazy {
 
 data class SubMetalData(
     val id: Int,
-    val submetal_name: String,
+    @SerializedName("submetal_name")
+    val submetalName: String,
     val submetals: String,
     @SerializedName("submetal_urdu_name")
-    val submetal_urdu_name: String,
+    val submetalUrduName: String,
     val price: String,
-){companion object}
+) {
+    companion object
+}
+
 val SubMetalData.Companion.mockup by lazy {
     SearchSubMetal(data = listOf(), message = "suscipit", status = false)
 }

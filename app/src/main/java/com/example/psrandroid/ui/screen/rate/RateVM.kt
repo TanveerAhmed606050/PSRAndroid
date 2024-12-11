@@ -12,6 +12,7 @@ import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.SearchSubMetal
+import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +31,7 @@ class RateVM @Inject constructor(
     var mainMetalData by mutableStateOf<DashboardMetal?>(null)
     var lmeMetalData by mutableStateOf<LmeResponse?>(null)
     var suggestMainMetals by mutableStateOf<List<MetalData>?>(null)
+    var suggestSubMetals by mutableStateOf<List<SubMetalData>?>(null)
 
 
     fun getPremiumUser() = viewModelScope.launch {
@@ -50,6 +52,7 @@ class RateVM @Inject constructor(
         val result = dashboardRepository.getSubMetals(locationId, metalName)
         if (result is Result.Success) {
             subMetalData = result.data
+            suggestSubMetals = result.data.data
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }

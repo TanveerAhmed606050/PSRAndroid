@@ -44,7 +44,6 @@
     <string name="add_profile">Add Profile</string>
     <string name="update_profile">Update Profile</string>
     <string name="update_pass">Update Password</string>
-    <string name="ad_detail">Ad Details</string>
     <string name="dashboard">Your Dashboard</string>
     <string name="network_error">No internet connection. Please check your network settings.</string>
     <string name="change_pass_detail">Enter your new password it must be different from previously used password</string>

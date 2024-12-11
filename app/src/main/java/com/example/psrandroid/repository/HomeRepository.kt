@@ -9,4 +9,11 @@ class HomeRepository @Inject constructor(private val apiInterface: ApiInterface)
         apiInterface.getAllAds()
     }
 
+    suspend fun getAdsByLocation(location: String) = loadResource {
+        apiInterface.getAdsByLocation(location)
+    }
+
+    suspend fun getAllSubMetals() = loadResource {
+        apiInterface.getAllSubMetals()
+    }
 }

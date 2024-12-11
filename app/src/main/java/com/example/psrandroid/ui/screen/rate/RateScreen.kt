@@ -253,7 +253,7 @@ fun DashBoardScreen(
                     )
                 }
                 if (productList?.isEmpty() != false)
-                    NoProductView()
+                    NoProductView("No metal found", DarkBlue)
                 else
                     ProductList(productList)
             }
@@ -553,7 +553,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "${metalDetail?.submetal_name}",
+                text = "${metalDetail?.submetalName}",
                 fontSize = 12.sp,
                 color = Color.Gray,
                 maxLines = 1,
@@ -579,7 +579,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
 }
 
 @Composable
-fun NoProductView() {
+fun NoProductView(msg: String, color: Color) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -588,7 +588,7 @@ fun NoProductView() {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "No metal found", color = LightBlue, fontFamily = mediumFont,
+            text = msg, color = color, fontFamily = mediumFont,
             fontSize = 16.sp
         )
     }
