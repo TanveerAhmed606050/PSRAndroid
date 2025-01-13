@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 
 sealed class Screen(val route: String) {
     data object SplashScreen : Screen("splashScreen")
+    data object PrivacyPolicyScreen : Screen("privacyPoliceScreen")
     data object LanguagesScreen : Screen("LanguageScreen")
     data object CityScreen : Screen("CityScreen")
     data object LoginScreen : Screen("loginScreen")
@@ -18,6 +19,7 @@ sealed class Screen(val route: String) {
     data object PrimeUserScreen : Screen("primeUserScreen")
     data object LmeScreen : Screen("LmeScreen")
     data object HomeScreen : Screen("HomeScreen")
+    data object AdPostScreen : Screen("AdPostScreen")
     data object AdScreen : Screen("AdScreen")
     data object AdDetailScreen : Screen("AdDetailScreen")
 }

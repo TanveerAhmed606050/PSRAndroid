@@ -1,4 +1,4 @@
-package com.example.psrandroid.ui.screen.home.models
+package com.example.psrandroid.ui.screen.adPost.models
 
 import com.google.gson.annotations.SerializedName
 
@@ -43,7 +43,7 @@ val AdData.Companion.mockup by lazy {
         metalName = "Norma Elliott",
         name = "Heriberto Bell",
         photos = "quisque",
-        price = "egestas",
+        price = "86 Lac",
         submetal = "maluisset",
         updatedAt = "vidisse",
         videoPath = "similique"

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.hilt.android)
     kotlin("kapt")
+    alias(libs.plugins.google.service.gms)
     id("kotlin-parcelize")
 }
 
@@ -106,5 +107,7 @@ dependencies {
     implementation(libs.accompanist.adaptive)
     //Swipe Refresh
     implementation(libs.swipe.refresh)
+    //google ads
+    implementation(libs.play.services.ads)
 
 }

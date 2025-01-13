@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">PSR</string>
+    <string name="scrap_rate">Pakistan Scrap Rate</string>
+    <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="from">Powered by</string>
+    <string name="privacy_terms">By proceeding you agree with terms and privacy policy</string>
+    <string name="agree_continue">Agree And Continue</string>
     <string name="enter_lang">Enter Language</string>
     <string name="enter_city">Enter City</string>
     <string name="password">Password</string>
@@ -34,6 +40,7 @@
     <string name="search">Search</string>
     <string name="language">Language</string>
     <string name="city">City</string>
+    <string name="location">Location</string>
     <string name="email">Email</string>
     <string name="phone">Phone</string>
     <string name="address">Address</string>
@@ -61,5 +68,8 @@
     <string name="sub_metal">Sub Metal</string>
     <string name="main_metal">Main Metal</string>
     <string name="metal_name">Metal Name</string>
+    <string name="metal_type">Metal Type</string>
     <string name="description">Description</string>
+    <string name="see_all">See All</string>
+    <string name="buy_sell">Buy/Sell Scrap</string>
 </resources>

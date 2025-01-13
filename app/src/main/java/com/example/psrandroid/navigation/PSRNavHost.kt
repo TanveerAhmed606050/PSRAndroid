@@ -36,10 +36,13 @@ import com.example.psrandroid.ui.screen.auth.LoginScreen
 import com.example.psrandroid.ui.screen.auth.OTPScreen
 import com.example.psrandroid.ui.screen.auth.PasswordScreen
 import com.example.psrandroid.ui.screen.auth.SignupScreen
-import com.example.psrandroid.ui.screen.home.AdScreen
-import com.example.psrandroid.ui.screen.home.DetailAdScreen
+import com.example.psrandroid.ui.screen.adPost.AdScreen
+import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
+import com.example.psrandroid.ui.screen.adPost.AdPostScreen
+import com.example.psrandroid.ui.screen.adPost.AdPostVM
 import com.example.psrandroid.ui.screen.home.HomeScreen
 import com.example.psrandroid.ui.screen.home.HomeVM
+import com.example.psrandroid.ui.screen.intro.PrivacyPolicyScreen
 import com.example.psrandroid.ui.screen.intro.SplashScreen
 import com.example.psrandroid.ui.screen.lme.LmeScreen
 import com.example.psrandroid.ui.screen.lme.PrimeUserScreen
@@ -294,6 +297,7 @@ fun PSRNavHost(
     val authViewModel: AuthVM = hiltViewModel()
     val profileVM: ProfileVM = hiltViewModel()
     val rateVM: RateVM = hiltViewModel()
+    val adPostVM: AdPostVM = hiltViewModel()
     val homeVM: HomeVM = hiltViewModel()
     NavHost(navController, startDestination = Screen.SplashScreen.route) {
         composable(
@@ -302,6 +306,14 @@ fun PSRNavHost(
             exitTransition = { ExitTransition.None }
         ) {
             SplashScreen(navController, authViewModel)
+        }
+
+        composable(
+            route = Screen.PrivacyPolicyScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            PrivacyPolicyScreen(navController)
         }
 
         composable(
@@ -389,6 +401,13 @@ fun PSRNavHost(
             LmeScreen(navController, rateVM)
         }
         composable(
+            route = Screen.AdPostScreen.route,
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
+        ) {
+            AdPostScreen(navController, adPostVM)
+        }
+        composable(
             route = Screen.HomeScreen.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
@@ -400,14 +419,14 @@ fun PSRNavHost(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            AdScreen(navController, homeVM, rateVM = rateVM)
+            AdScreen(navController, adPostVM, rateVM = rateVM)
         }
         composable(
             route = Screen.AdDetailScreen.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            DetailAdScreen(navController, homeVM)
+            DetailAdScreen(navController, adPostVM)
         }
     }
 }

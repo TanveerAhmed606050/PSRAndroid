@@ -11,7 +11,7 @@ import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.SearchSubMetal
-import com.example.psrandroid.ui.screen.home.models.AllAds
+import com.example.psrandroid.ui.screen.adPost.models.AllAds
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import retrofit2.http.Body
 import retrofit2.http.GET

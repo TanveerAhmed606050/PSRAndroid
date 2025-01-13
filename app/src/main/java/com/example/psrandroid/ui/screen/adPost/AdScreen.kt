@@ -1,4 +1,4 @@
-package com.example.psrandroid.ui.screen.home
+package com.example.psrandroid.ui.screen.adPost
 
 import android.content.Context
 import android.net.Uri
@@ -77,7 +77,7 @@ import com.example.psrandroid.ui.theme.regularFont
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AdScreen(navController: NavController, homeVM: HomeVM, rateVM: RateVM) {
+fun AdScreen(navController: NavController, homeVM: AdPostVM, rateVM: RateVM) {
     val context = LocalContext.current
     val locationList = homeVM.userPreferences.getLocationList()?.data ?: listOf()
     var search by remember { mutableStateOf(TextFieldValue("")) }

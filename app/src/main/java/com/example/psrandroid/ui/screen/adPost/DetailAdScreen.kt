@@ -1,4 +1,4 @@
-package com.example.psrandroid.ui.screen.home
+package com.example.psrandroid.ui.screen.adPost
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,7 +21,7 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 
 @Composable
-fun DetailAdScreen(navController: NavController, homeVM: HomeVM) {
+fun DetailAdScreen(navController: NavController, homeVM: AdPostVM) {
     DetailAdScreenViews (backClick = {
         navController.popBackStack()
     })

@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.commonViews.GoogleAdBanner
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -98,7 +99,10 @@ fun LmeList(lmeData: List<LmeData>?) {
         contentPadding = PaddingValues(horizontal = 0.dp)
     ) {
         items(lmeData?.size ?: 0) { index ->
-            LmeItem(lmeData?.get(index) ?: LmeData.mockup)
+            if (index % 3 == 0)
+                GoogleAdBanner()
+            else
+                LmeItem(lmeData?.get(index) ?: LmeData.mockup)
             HorizontalDivider()
         }
     }

@@ -27,5 +27,12 @@ data class SubMetalData(
 }
 
 val SubMetalData.Companion.mockup by lazy {
-    SearchSubMetal(data = listOf(), message = "suscipit", status = false)
+    SubMetalData(
+        id = 1869,
+        submetalName = "Dexter Booth",
+        submetals = "no",
+        submetalUrduName = "Claudia Marks",
+        price = "augue"
+    )
+//    SearchSubMetal(data = listOf(), message = "suscipit", status = false)
 }

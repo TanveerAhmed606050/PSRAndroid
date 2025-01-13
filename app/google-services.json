@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "244014737530",
+    "project_id": "psrandroid-f463a",
+    "storage_bucket": "psrandroid-f463a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:244014737530:android:def93adac659ab6ac0f3c3",
+        "android_client_info": {
+          "package_name": "com.example.psp_android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNzM1vuVylnsCUAliqAfWMhkrtM_7-QdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

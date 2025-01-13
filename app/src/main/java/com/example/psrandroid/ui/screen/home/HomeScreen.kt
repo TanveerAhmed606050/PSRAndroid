@@ -1,323 +1,257 @@
 package com.example.psrandroid.ui.screen.home
 
-import android.net.Uri
-import android.widget.Toast
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
-import com.example.psrandroid.navigation.Screen
-import com.example.psrandroid.network.isNetworkAvailable
-import com.example.psrandroid.ui.screen.auth.ListDialog
-import com.example.psrandroid.ui.screen.home.models.AdData
-import com.example.psrandroid.ui.screen.home.models.mockup
-import com.example.psrandroid.ui.screen.rate.NoProductView
+import com.example.psrandroid.response.AuthData
+import com.example.psrandroid.response.LmeData
+import com.example.psrandroid.response.SubMetalData
+import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.commonViews.MyAsyncImage
+import com.example.psrandroid.ui.screen.adPost.AdsItemsView
+import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.adPost.models.mockup
+import com.example.psrandroid.ui.screen.lme.LmeItem
+import com.example.psrandroid.ui.screen.rate.ProductItem
 import com.example.psrandroid.ui.theme.DarkBlue
-import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
-import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(navController: NavController, homeVM: HomeVM) {
-    val context = LocalContext.current
-    val adsData = homeVM.adsData
-    val progressBar: KProgressHUD = remember { context.progressBar() }
-    progressBar.isVisible(homeVM.isLoading)
-    val noInternetMessage = stringResource(id = R.string.network_error)
-    var expandedCity by remember { mutableStateOf(false) }
-    val locationList = homeVM.userPreferences.getLocationList()?.data ?: listOf()
-    val locationData = locationList.map { it.name }
-//    if (adsData != null) {
-//        homeVM.adsData = null
-//    }
-    if (expandedCity) {
-        ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
-            onConfirm = { locationName ->
-                homeVM.getAdsByLocation(locationName)
-                expandedCity = false
-            })
-    }
-    LaunchedEffect(Unit) {
-        if (isNetworkAvailable(context))
-            homeVM.getAllAds()
-        else
-            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
-                .show()
-    }
-    HomeScreenView(adsData?.data, onAdClick = {
-        navController.navigate(Screen.AdScreen.route)
-    },
-        onFilter = {
-            expandedCity = true
+    val cityList =
+        homeVM.userPreferences.getLocationList()?.data?.map { "${it.name} ${it.urduName}" }
+    HomeScreenViews(userData = AuthData.mockup, adsData = null,
+        onProfileImageClick = {}, cityList = cityList,
+        onCityItemClick = { cityName ->
         })
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreenView(
+fun HomeScreenViews(
+    userData: AuthData,
     adsData: List<AdData>?,
-    onAdClick: () -> Unit,
-    onFilter: () -> Unit,
+    cityList: List<String>?,
+    onProfileImageClick: () -> Unit,
+    onCityItemClick: (String) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var selectedCity by remember { mutableStateOf<String?>(null) }
+    //UI
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue))),
+            .background(DarkBlue)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 8.dp, horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Text(
+                text = stringResource(id = R.string.home),
+                fontSize = 16.sp,
+                fontFamily = mediumFont,
+                color = Color.White,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            ProfileImageView(userData) {
+                onProfileImageClick()
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            LazyRow(
+                contentPadding = PaddingValues(vertical = 8.dp),
             ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.home),
-                        fontSize = 16.sp,
-                        fontFamily = mediumFont,
-                        color = Color.White
-                    )
+                items(4) {
+                    CityItems(cityName = "Lahore لاہور", isSelected = false) {
+                    }
                 }
-                Box(modifier = Modifier) {
-                    Image(
-                        painter = painterResource(id = R.drawable.filter_ic),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { onFilter() },
-                        colorFilter = ColorFilter.tint(Color.White)
+//                items(cityList?.size?:0) { index ->
+//                    val cityName = cityList?.get(index) ?:""
+//                    CityItems(
+//                        cityName = cityName,
+//                        isSelected = cityName == selectedCity, // Check if this city is selected
+//                        onCityItemClick = { city ->
+//                            selectedCity = city // Update the selected city
+//                            onCityItemClick(city) // Trigger the callback
+//                        }
+//                    )
+//                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            SeeAllView(stringResource(id = R.string.buy_sell), clickAllViews = {})
+            LazyRow(
+                contentPadding = PaddingValues(vertical = 8.dp),
+            ) {
+                items(3) { index ->
+                    AdsItemsView(
+                        adsData?.get(index) ?: AdData.mockup, modifier = Modifier
+                            .width(250.dp)
+                            .height(300.dp)
                     )
-//                    DropdownMenu(
-//                        expanded = expanded,
-//                        onDismissRequest = { expanded = false },
-//                        modifier = Modifier
-//                            .background(Color.White, RoundedCornerShape(8.dp))
-//                            .padding(8.dp)
-//                            .wrapContentWidth()
-//                            .align(Alignment.TopStart), // Position relative to Box
-//                    ) {
-//                        DropdownMenuItem(text = {
-//                            Text(
-//                                text = "Lahore",
-//                                fontSize = 16.sp, fontFamily = regularFont
-//                            )
-//                        }, onClick = { expanded = false })
-//                        Spacer(modifier = Modifier.height(8.dp))
-//                        DropdownMenuItem(text = {
-//                            Text(
-//                                text = "Karachi",
-//                                fontSize = 16.sp, fontFamily = regularFont
-//                            )
-//                        }, onClick = { expanded = false })
-//                    }
+                    Spacer(modifier = Modifier.width(20.dp))
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            if (adsData?.isEmpty() == true)
-                NoProductView(msg = "No Ads", Color.White)
-            else {
-                LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 0.dp),
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    items(adsData?.size ?: 0) { index ->
-                        AdsItemsView(adsData?.get(index) ?: AdData.mockup)
-                        Spacer(modifier = Modifier.height(20.dp))
-                    }
+            SeeAllView(stringResource(id = R.string.scrap_rate), clickAllViews = {})
+            LazyRow(
+                contentPadding = PaddingValues(vertical = 8.dp),
+            ) {
+                items(3) { index ->
+                    ProductItem(metalDetail = SubMetalData.mockup, index = index + 1)
+                    Spacer(modifier = Modifier.width(20.dp))
+                }
+            }
+            SeeAllView(stringResource(id = R.string.lme), clickAllViews = {})
+            LazyRow(
+                contentPadding = PaddingValues(vertical = 8.dp),
+            ) {
+                items(3) { index ->
+                    LmeItem(LmeData.mockup)
+                    Spacer(modifier = Modifier.width(20.dp))
                 }
             }
         }
-        ExtendedFloatingActionButton(
-            modifier = Modifier
-                .padding(bottom = 110.dp, end = 16.dp)
-                .align(Alignment.BottomEnd),
-            onClick = {
-                onAdClick()
-            },
-            containerColor = Color.White,
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "",
-                    tint = Color.Blue,
-                    modifier = Modifier.size(20.dp)
-                )
-            },
-            text = {
-                Text(
-                    text = "Add",
-                    color = Color.Blue,
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont
-                )
-            }
-        )
-
     }
 }
 
 @Composable
-fun AdsItemsView(adData: AdData) {
-    // State to hold the current image index
-//    if (adData.photos.isNotEmpty()) {
-    var currentIndex by remember { mutableStateOf(0) }
-
-    // Timer to switch images every 5 seconds
-//        LaunchedEffect(currentIndex) {
-//            kotlinx.coroutines.delay(5000) // 5 seconds delay
-//            currentIndex = (currentIndex + 1) % adData.photos // Loop through images
-//        }
-    // Display the current image
+fun CityItems(
+    cityName: String,
+    isSelected: Boolean, // Add a flag to indicate selection
+    onCityItemClick: (String) -> Unit,
+) {
     Box(
         modifier = Modifier
-            .height(250.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.Black),
+            .padding(horizontal = 8.dp)
+            .background(
+                if (isSelected) Color.LightGray else Color.White,
+                shape = RoundedCornerShape(10.dp)
+            )
+            .clickable { onCityItemClick(cityName) }
     ) {
-        AsyncImage(
-            model = adData.photos, contentDescription = "",
-            error = painterResource(id = R.drawable.splash_ic),
-            contentScale = ContentScale.Crop,
+        Text(
+            text = cityName, color = DarkBlue, fontFamily = mediumFont,
+            modifier = Modifier.padding(8.dp)
         )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White.copy(0.9f))
-                .align(Alignment.BottomStart) // Align the Row at the bottom of the Box
-                .padding(8.dp), // Add some padding for better spacing
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Column(
-                modifier = Modifier.weight(1f), // Take up equal horizontal space
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = "${stringResource(id = R.string.metal_name)}: ${adData.metalName}",
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont,
-                    color = Color.Black,
-                )
-                Text(
-                    text = "${stringResource(id = R.string.sub_metal)}: ${adData.submetal}",
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont,
-                    color = Color.Black,
-                )
-            }
-            Column(
-                modifier = Modifier.weight(1f), // Take up equal horizontal space
-                horizontalAlignment = Alignment.End
-            ) {
-                Text(
-                    text = "${stringResource(id = R.string.city)}: ${adData.city}",
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont,
-                    color = Color.Black,
-                )
-                Text(
-                    text = "${stringResource(id = R.string.price)}: ${adData.price}",
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont,
-                    color = Color.Black,
-                )
-            }
-        }
     }
 }
 
 @Composable
-fun ImageSlider(images: List<Uri>) {
-    // State to hold the current image index
-    if (images.isNotEmpty()) {
-        var currentIndex by remember { mutableIntStateOf(0) }
-
-        // Timer to switch images every 5 seconds
-        LaunchedEffect(currentIndex) {
-            kotlinx.coroutines.delay(5000) // 5 seconds delay
-            currentIndex = (currentIndex + 1) % images.size // Loop through images
-        }
-
-        // Display the current image
-        Box(
+fun SeeAllView(text: String, clickAllViews: () -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = text, color = Color.White,
+            fontFamily = mediumFont, fontSize = 18.sp
+        )
+        Text(
+            text = stringResource(id = R.string.see_all), color = Color.White,
+            fontFamily = mediumFont, fontSize = 18.sp,
+            textAlign = TextAlign.End,
             modifier = Modifier
-                .height(200.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color.Black),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .clickable { clickAllViews() }
+        )
+    }
+}
+
+@Composable
+fun ProfileImageView(userData: AuthData, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 0.dp)
+            .clickable { onClick() },
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        MyAsyncImage(imageUrl = userData.profilePic, 50.dp, true)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp),
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = images[currentIndex]),
-                contentDescription = "Image Slider",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = userData.name,
+                    fontFamily = mediumFont,
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.padding(start = 4.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.next_blk),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .size(20.dp), // Set desired size
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            }
+            Text(
+                text = userData.phone,
+                fontWeight = FontWeight.Normal,
+                color = Color.White,
+                fontSize = 16.sp,
             )
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        HomeScreenView(adsData = null, onAdClick = {},
-            onFilter = {})
+        HomeScreenViews(
+            AuthData.mockup, onProfileImageClick = {}, cityList = listOf(),
+            onCityItemClick = {}, adsData = null
+        )
     }
 }
