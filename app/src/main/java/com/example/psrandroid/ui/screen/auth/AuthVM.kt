@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.auth
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,8 +19,16 @@ import com.example.psrandroid.response.User
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.utils.Result
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,11 +38,58 @@ class AuthVM @Inject constructor(
 ) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
+    private val _verificationId = MutableStateFlow<String?>(null)
+    val verificationId: StateFlow<String?> = _verificationId
 
+    private val _message = MutableStateFlow<String?>(null)
+    val message: StateFlow<String?> = _message
     //    fun isAlreadyLogin(): Boolean = userPreferences.getUserPreference()?.name != null
     var loginData by mutableStateOf<AuthResponse?>(null)
     var locationData by mutableStateOf<LocationResponse?>(null)
     var dealersList by mutableStateOf<DealerResponse?>(null)
+    fun sendVerificationCode(phoneNumber: String, activity: Activity) {
+        val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
+            .setPhoneNumber(phoneNumber)
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(activity)
+            .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                    _message.value = "Verification completed"
+                    signInWithCredential(credential)
+                }
+
+                override fun onVerificationFailed(e: FirebaseException) {
+                    _message.value = "Verification failed: ${e.message}"
+                }
+
+                override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                    _verificationId.value = verificationId
+                    _message.value = "Code sent to $phoneNumber"
+                }
+            })
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    fun verifyCode(code: String) {
+        val credential = _verificationId.value?.let {
+            PhoneAuthProvider.getCredential(it, code)
+        }
+        credential?.let {
+            signInWithCredential(it)
+        }
+    }
+
+    private fun signInWithCredential(credential: PhoneAuthCredential) {
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _message.value = "Verification successful"
+                } else {
+                    _message.value = "Verification failed: ${task.exception?.message}"
+                }
+            }
+    }
 
     fun login(userCredential: UserCredential) = viewModelScope.launch {
         isLoading = true

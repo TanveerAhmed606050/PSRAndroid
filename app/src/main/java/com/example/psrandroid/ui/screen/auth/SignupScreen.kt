@@ -1,11 +1,13 @@
 package com.example.psrandroid.ui.screen.auth
 
+import android.app.Activity
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +72,10 @@ import io.github.rupinderjeet.kprogresshud.KProgressHUD
 @Composable
 fun SignupScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
+    val verificationId by authVM.verificationId.collectAsState()
+    val message by authVM.message.collectAsState()
+    var phoneNumber by remember { mutableStateOf("") }
+    var code by remember { mutableStateOf("") }
     val progressBar: KProgressHUD = remember { context.progressBar() }
     progressBar.isVisible(authVM.isLoading)
     //register api response
@@ -149,6 +157,9 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                         .show()
             } else
                 selectedCity = selectedLocation
+        },
+        onVerificationIconClick = {
+            authVM.sendVerificationCode(phoneNumber, context as Activity)
         })
 }
 
@@ -159,6 +170,7 @@ fun SignupScreen(
     backClick: () -> Unit, onLoginClick: () -> Unit,
     onRegisterButtonClick: (String, String, String, String) -> Unit,
     onCitySelect: (String) -> Unit,
+    onVerificationIconClick: () -> Unit,
 ) {
     var phoneNumber by rememberSaveable { mutableStateOf("") }
     var fullName by rememberSaveable { mutableStateOf("") }
@@ -196,7 +208,7 @@ fun SignupScreen(
                 backClick = { backClick() })
             Spacer(modifier = Modifier.height(50.dp))
 
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 MyTextFieldWithBorder(
                     value = fullName,
                     keyboardType = KeyboardType.Text,
@@ -217,9 +229,21 @@ fun SignupScreen(
                     onValueChange = { phoneNumber = it },
                     imageId = R.drawable.baseline_phone_24
                 )
-
-                Spacer(modifier = Modifier.padding(top = 20.dp))
-
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+                if (isValidPhone(phoneNumber).isEmpty())
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .clickable { onVerificationIconClick() },
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.verify_mbl_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(32.dp),
+                            alignment = Alignment.TopEnd
+                        )
+                    }
+                Spacer(modifier = Modifier.padding(top = 10.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -317,6 +341,7 @@ fun PreviewSignupScreen() {
             backClick = {},
             onLoginClick = {},
             onRegisterButtonClick = { _, _, _, _ -> },
-            onCitySelect = {})
+            onCitySelect = {},
+            onVerificationIconClick = {})
     }
 }

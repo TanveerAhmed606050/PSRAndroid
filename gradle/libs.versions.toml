@@ -31,6 +31,7 @@ media3Ui = "1.4.1"
 media3Exoplayer = "1.4.1"
 googleService = "4.4.2"
 playServicesAds = "23.2.0"
+firebaseAuthKtx = "23.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -73,6 +74,9 @@ swipe-refresh = { module = "com.google.accompanist:accompanist-swiperefresh", ve
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }
 androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3Exoplayer" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+play-services-gsm = { module = "com.google.gms:google-services", version.ref = "googleService" }
+firebase_auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuthKtx" }
+#firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuthKtx" }
 
 [plugins]
 google-service-gms = { id = "com.google.gms.google-services", version.ref = "googleService"}

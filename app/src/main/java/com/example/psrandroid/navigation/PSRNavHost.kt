@@ -126,14 +126,19 @@ fun PSRNavigation(
 
     val bottomMenuList = listOf(
         BottomNavigationItem(
-            "Home",
+            stringResource(id = R.string.home),
             Screen.HomeScreen.route,
             R.drawable.home_ic
         ),
         BottomNavigationItem(
-            "Rate",
+            stringResource(id = R.string.rate),
             Screen.RateScreen.route,
             R.drawable.calendar_ic
+        ),
+        BottomNavigationItem(
+            stringResource(id = R.string.ad_post),
+            Screen.AdPostScreen.route,
+            R.drawable.plus_bottom
         ),
         BottomNavigationItem(
             stringResource(id = R.string.prime_user),
@@ -144,11 +149,6 @@ fun PSRNavigation(
             stringResource(id = R.string.lme),
             Screen.LmeScreen.route,
             R.drawable.baseline_location_pin_24
-        ),
-        BottomNavigationItem(
-            stringResource(id = R.string.profile),
-            Screen.MyProfileScreen.route,
-            R.drawable.baseline_person_24
         ),
     )
 

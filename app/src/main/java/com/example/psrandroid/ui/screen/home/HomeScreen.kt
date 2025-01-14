@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.psp_android.R
+import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.response.AuthData
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.SubMetalData
@@ -50,10 +51,10 @@ import com.example.psrandroid.ui.screen.adPost.AdsItemsView
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.lme.LmeItem
-import com.example.psrandroid.ui.screen.rate.ProductItem
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
+import com.example.psrandroid.ui.theme.regularFont
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -61,7 +62,9 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     val cityList =
         homeVM.userPreferences.getLocationList()?.data?.map { "${it.name} ${it.urduName}" }
     HomeScreenViews(userData = AuthData.mockup, adsData = null,
-        onProfileImageClick = {}, cityList = cityList,
+        onProfileImageClick = {
+            navController.navigate(Screen.MyProfileScreen.route)
+        }, cityList = cityList,
         onCityItemClick = { cityName ->
         })
 }
@@ -141,7 +144,7 @@ fun HomeScreenViews(
                 contentPadding = PaddingValues(vertical = 8.dp),
             ) {
                 items(3) { index ->
-                    ProductItem(metalDetail = SubMetalData.mockup, index = index + 1)
+                    ScrapRateItem(metalDetail = SubMetalData.mockup)
                     Spacer(modifier = Modifier.width(20.dp))
                 }
             }
@@ -176,6 +179,27 @@ fun CityItems(
         Text(
             text = cityName, color = DarkBlue, fontFamily = mediumFont,
             modifier = Modifier.padding(8.dp)
+        )
+    }
+}
+
+@Composable
+fun ScrapRateItem(metalDetail: SubMetalData?) {
+    Column(
+        modifier = Modifier
+            .background(Color.White, shape = RoundedCornerShape(10.dp))
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "${metalDetail?.submetalName} ${metalDetail?.submetalUrduName}",
+            color = DarkBlue, fontSize = 16.sp, fontFamily = regularFont,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = "${metalDetail?.price}", color = DarkBlue, fontSize = 18.sp,
+            fontFamily = mediumFont, textAlign = TextAlign.Center,
         )
     }
 }
