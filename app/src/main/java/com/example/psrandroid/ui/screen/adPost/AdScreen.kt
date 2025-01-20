@@ -3,6 +3,7 @@ package com.example.psrandroid.ui.screen.adPost
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -68,6 +69,7 @@ import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.regularFont
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import es.dmoral.toasty.Toasty
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -81,7 +83,12 @@ fun AdScreen(navController: NavController, homeVM: AdPostVM, rateVM: RateVM) {
     val suggestedSubMetalList = homeVM.suggestSubMetals
     var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var videoUri by remember { mutableStateOf<Uri?>(null) }
-
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+// Display the error message
+    if (errorMessage != null) {
+        Toasty.error(context, errorMessage ?: "", Toast.LENGTH_SHORT, true)
+            .show()
+    }
     LaunchedEffect(Unit) {
         homeVM.getAllSubMetals()
     }
@@ -89,10 +96,24 @@ fun AdScreen(navController: NavController, homeVM: AdPostVM, rateVM: RateVM) {
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
-        if (uris.size <= 3) { // Allow up to 3 images
-            selectedImages = uris
-        } else {
+        val maxFileSizeMb = 5
+        val maxFileSizeBytes = maxFileSizeMb * 1024 * 1024  // Convert MB to bytes
+
+        val totalSize = uris.sumOf { uri ->
+            getFileSizeFromUri(context, uri)
+        }
+
+//        if (uris.size <= 3) { // Allow up to 3 images
+//            selectedImages = uris
+//        } else {
+//            selectedImages = uris.take(3) // Limit to the first 3 images
+//        }
+        if (totalSize <= maxFileSizeBytes) {
             selectedImages = uris.take(3) // Limit to the first 3 images
+            errorMessage = null
+        } else {
+            selectedImages = emptyList() // Clear selection
+            errorMessage = "Total file size exceeds $maxFileSizeMb MB. Please select smaller files."
         }
     }
     // Gallery picker
@@ -135,8 +156,8 @@ fun AdScreen(navController: NavController, homeVM: AdPostVM, rateVM: RateVM) {
         onAddImageClick = {
             launcher.launch("image/*") // Open the gallery to select images
         },
-        onAddVideoClick = {
-            videoLauncher.launch("video/*")
+        onAdPostClick = {
+//            videoLauncher.launch("video/*")
         }
     )
 }
@@ -158,7 +179,7 @@ fun AdScreenView(
     onSearchClick: (TextFieldValue) -> Unit,
     onCitySelect: (String) -> Unit,
     onAddImageClick: () -> Unit,
-    onAddVideoClick: () -> Unit,
+    onAdPostClick: () -> Unit,
     onSubMetalSearch: (TextFieldValue) -> Unit,
     onEnterSubMetalSearch: (TextFieldValue) -> Unit,
 ) {
@@ -313,7 +334,7 @@ fun AdScreenView(
                 .fillMaxWidth()
                 .padding(bottom = 30.dp, start = 20.dp, end = 20.dp),
             text = stringResource(id = R.string.ad_post),
-            onButtonClick = {})
+            onButtonClick = {onAdPostClick()})
         Spacer(modifier = Modifier.height(20.dp))
     }
 }
@@ -384,6 +405,13 @@ fun ImagePickerUI(
     }
 }
 
+// Function to get file size from a Uri
+fun getFileSizeFromUri(context: Context, uri: Uri): Long {
+    return context.contentResolver.openFileDescriptor(uri, "r")?.use { descriptor ->
+        descriptor.statSize
+    } ?: 0L
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
@@ -401,7 +429,7 @@ fun AdScreenPreview() {
             onCitySelect = {},
             selectedCity = "",
             onAddImageClick = {},
-            onAddVideoClick = {},
+            onAdPostClick = {},
             onEnterSubMetalSearch = {},
             onSubMetalSearch = {},
             subMetalSearch = TextFieldValue(""),

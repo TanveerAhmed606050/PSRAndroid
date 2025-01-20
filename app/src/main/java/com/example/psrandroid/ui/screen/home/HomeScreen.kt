@@ -55,7 +55,6 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
-import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.formatDateDisplay
@@ -117,35 +116,32 @@ fun HomeScreenViews(
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
-            Text(
-                text = stringResource(id = R.string.home),
-                fontSize = 16.sp,
-                fontFamily = mediumFont,
-                color = DarkBlue,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            ProfileImageView(userData) {
-                onProfileImageClick()
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            LazyRow(
-                contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier.height(80.dp) // Explicit height for LazyRow
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.SpaceBetween, // Ensures content is spaced properly
+                verticalAlignment = Alignment.CenterVertically // Aligns content vertically centered
             ) {
-                items(cityList?.size ?: 0) { index ->
-                    val cityName = cityList?.get(index) ?: ""
-                    CityItems(
-                        cityName = cityName,
-                        selectedCity = selectedCity, // Check if this city is selected
-                        onCityItemClick = { city ->
-                            onCityItemClick(city) // Trigger the callback
-                        }
-                    )
+                Text(
+                    text = stringResource(id = R.string.home),
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = DarkBlue,
+                    modifier = Modifier.weight(1f), // Takes equal space and helps centering
+//                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
+                Row(
+                    modifier = Modifier
+                        .padding(start = 0.dp)
+                        .clickable { onProfileImageClick() },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    MyAsyncImage(imageUrl = userData.profilePic, 40.dp, true)
                 }
             }
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             SeeAllView(stringResource(id = R.string.buy_sell), clickAllViews = { onSeeAllAds() })
             Spacer(modifier = Modifier.height(10.dp))
             LazyRow(
@@ -166,24 +162,44 @@ fun HomeScreenViews(
             SeeAllView(
                 stringResource(id = R.string.scrap_rate),
                 clickAllViews = { onSeeAllRates() })
+
             Spacer(modifier = Modifier.height(10.dp))
             LazyRow(
                 contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier.height(100.dp) // Explicit height for LazyRow
+                modifier = Modifier.height(60.dp) // Explicit height for LazyRow
+            ) {
+                items(cityList?.size ?: 0) { index ->
+                    val cityName = cityList?.get(index) ?: ""
+                    CityItems(
+                        cityName = cityName,
+                        selectedCity = selectedCity, // Check if this city is selected
+                        onCityItemClick = { city ->
+                            onCityItemClick(city) // Trigger the callback
+                        }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(0.dp))
+            LazyRow(
+                contentPadding = PaddingValues(vertical = 8.dp),
+                modifier = Modifier
+                    .height(200.dp)
+                    .fillMaxWidth() // Explicit height for LazyRow
             ) {
                 items(3) { index ->
                     ScrapRateItem(metalDetail = SubMetalData.mockup)
                     Spacer(modifier = Modifier.width(20.dp))
                 }
             }
-            Spacer(modifier = Modifier.height(0.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             SeeAllView(stringResource(id = R.string.lme), clickAllViews = { onSeeAllLME() })
             Spacer(modifier = Modifier.height(10.dp))
             LazyRow(
-                modifier = Modifier.height(200.dp) // Explicit height for LazyRow
+                modifier = Modifier.height(100.dp) // Explicit height for LazyRow
             ) {
                 items(3) { index ->
                     HomeLmeItem(LmeData.mockup)
+                    Spacer(modifier = Modifier.width(20.dp))
                 }
             }
             Spacer(modifier = Modifier.height(70.dp))
@@ -203,8 +219,8 @@ fun CityItems(
             .padding(horizontal = 8.dp)
 //            .border(width = 1.dp, color = Color.White, RoundedCornerShape(30.dp))
             .background(
-                if (isSelected) Color.Blue else Color.White,
-                shape = RoundedCornerShape(30.dp)
+                if (isSelected) DarkBlue else Color.White,
+                shape = RoundedCornerShape(24.dp)
             )
             .clickable { onCityItemClick(cityName) }
     ) {
@@ -213,7 +229,7 @@ fun CityItems(
             color = if (isSelected) Color.White else LightBlue,
             fontFamily = mediumFont,
             fontSize = 16.sp,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
 }
@@ -229,7 +245,7 @@ fun HomeAdsItems(
             .fillMaxSize()
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { onAdsClick(adData) },
-        elevation = CardDefaults.elevatedCardElevation(12.dp), // Use CardDefaults for elevation
+        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
         colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
     ) {
         Box(
@@ -247,32 +263,45 @@ fun HomeAdsItems(
                     .fillMaxWidth()
                     .align(Alignment.BottomStart) // Align the Row at the bottom of the Box
                     .background(Color.White.copy(1f)), // Add some padding for better spacing
-                verticalAlignment = Alignment.Bottom,
-                horizontalArrangement = Arrangement.Center
+//                verticalAlignment = Alignment.Bottom,
+//                horizontalArrangement = Arrangement.Start
             ) {
                 Column(
-                    modifier = Modifier.weight(1f), // Take up equal horizontal space
+                    modifier = Modifier.padding(horizontal = 8.dp), // Take up equal horizontal space
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
                         text = adData.metalName,
                         fontSize = 14.sp,
                         fontFamily = regularFont,
                         color = Color.DarkGray,
+                        textAlign = TextAlign.Start,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(0.dp))
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
                         text = "PKR ${adData.price}",
                         fontSize = 16.sp,
                         fontFamily = mediumFont,
                         color = Color.DarkGray,
+                        textAlign = TextAlign.Start,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(0.dp))
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
                         text = adData.city,
-                        fontSize = 16.sp,
+                        fontSize = 14.sp,
                         fontFamily = regularFont,
                         color = Color.Gray,
+                        textAlign = TextAlign.Start,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
@@ -283,82 +312,193 @@ fun HomeAdsItems(
 
 @Composable
 fun ScrapRateItem(metalDetail: SubMetalData?) {
-    Column(
+    Card(
         modifier = Modifier
-            .background(Color.White, shape = RoundedCornerShape(10.dp))
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+//            .fillMaxSize()
+            .background(Color.White, RoundedCornerShape(10.dp))
+            .clickable { },
+        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
+        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
     ) {
-        Text(
-            text = "${metalDetail?.submetalName} ${metalDetail?.submetalUrduName}",
-            color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = "${metalDetail?.price}", color = Color.DarkGray, fontSize = 16.sp,
-            fontFamily = mediumFont, textAlign = TextAlign.Center,
-        )
+        Row(
+            modifier = Modifier
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(end = 12.dp)
+            ) {
+                Text(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    text = "Iron",
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                )
+                Text(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    text = "Copper",
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                )
+                Text(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    text = "Silver",
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                )
+                Text(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    text = "Plastic",
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                )
+                Text(
+                    text = "Megalomania",
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                )
+            }
+            Column()
+            {
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .weight(1f), // Occupies 1x space
+                    text = "Rs. 2150", color = Color.DarkGray, fontSize = 16.sp,
+                    fontFamily = mediumFont, textAlign = TextAlign.End,
+                )
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .weight(1f), // Occupies 1x space
+                    text = "Rs. 102", color = Color.DarkGray, fontSize = 16.sp,
+                    fontFamily = mediumFont, textAlign = TextAlign.End,
+                )
+                Row(
+                    modifier = Modifier.weight(3f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .border(
+                                color = DarkBlue,
+                                shape = RoundedCornerShape(4.dp),
+                                width = 0.8.dp
+                            )
+                            .padding(6.dp),
+                        text = stringResource(id = R.string.watch_ad),
+                        color = DarkBlue,
+                        fontSize = 14.sp,
+                        fontFamily = regularFont,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+//                Text(
+//                    modifier = Modifier.padding(bottom = 8.dp),
+//                    text = "Rs. 1420",
+//                    color = DarkBlue,
+//                    fontSize = 16.sp,
+//                    fontFamily = mediumFont,
+//                    textAlign = TextAlign.End,
+//                )
+//                Text(
+//                    modifier = Modifier.padding(bottom = 8.dp),
+//                    text = "Rs. 150",
+//                    color = DarkBlue,
+//                    fontSize = 16.sp,
+//                    fontFamily = mediumFont,
+//                    textAlign = TextAlign.End,
+//                )
+//                Text(
+//                    modifier = Modifier,
+//                    text = "Rs. 1820",
+//                    color = DarkBlue,
+//                    fontSize = 16.sp,
+//                    fontFamily = mediumFont,
+//                    textAlign = TextAlign.End,
+//                )
+            }
+        }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeLmeItem(lmeData: LmeData) {
-    Row(
+    Card(
         modifier = Modifier
-            .padding(end = 10.dp)
-            .background(Color.White, RoundedCornerShape(10.dp)),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxSize()
+            .background(Color.White, RoundedCornerShape(10.dp))
+            .clickable { },
+        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
+        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
+        Row(
+            modifier = Modifier
+                .padding(end = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = lmeData.name,
-                fontSize = 14.sp,
-                color = Color.DarkGray,
-                maxLines = 1,
-                fontFamily = regularFont,
-                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-            )
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text(
-                text = "${lmeData.changeInRate}%", modifier = Modifier
-                    .background(
-                        if (lmeData.changeInRate.toFloat() < 0) Color.Red else
-                            Color.Green,
-                        RoundedCornerShape(10.dp)
-                    )
-                    .padding(vertical = 4.dp, horizontal = 8.dp),
-                color = Color.White,
-                fontFamily = mediumFont,
-                fontSize = 14.sp
-            )
-        }
-        Column(
-            modifier = Modifier.padding(8.dp),
-        ) {
-            Text(
-                text = "Rs. ${lmeData.price}",
-                modifier = Modifier
-                    .background(DarkBlue, RoundedCornerShape(10.dp))
-                    .padding(vertical = 4.dp, horizontal = 8.dp)
-                    .align(Alignment.End),
-                fontSize = 14.sp,
-                fontFamily = regularFont,
-                color = Color.White,
-            )
-            Spacer(modifier = Modifier.padding(vertical = 8.dp))
-            Text(
-                text = "Expire ${formatDateDisplay(lmeData.expiryDate)}",
-                modifier = Modifier
-                    .background(DarkBlue, RoundedCornerShape(10.dp))
-                    .padding(vertical = 4.dp, horizontal = 8.dp),
-                fontSize = 12.sp,
-                fontFamily = regularFont,
-                color = Color.White,
-            )
+            Column(
+                modifier = Modifier.padding(8.dp),
+            ) {
+                Text(
+                    text = lmeData.name,
+                    fontSize = 14.sp,
+                    color = Color.DarkGray,
+                    maxLines = 1,
+                    fontFamily = regularFont,
+                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                )
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                Text(
+                    text = "${lmeData.changeInRate}%", modifier = Modifier
+                        .background(
+                            if (lmeData.changeInRate.toFloat() < 0) Color.Red else
+                                Color.Green,
+                            RoundedCornerShape(10.dp)
+                        )
+                        .padding(vertical = 3.dp, horizontal = 6.dp),
+                    color = Color.White,
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp
+                )
+            }
+            Column(
+                modifier = Modifier.padding(4.dp),
+            ) {
+                Text(
+                    text = "Rs. ${lmeData.price}",
+                    modifier = Modifier
+//                        .background(DarkBlue, RoundedCornerShape(10.dp))
+//                        .padding(vertical = 4.dp, horizontal = 8.dp)
+                        .align(Alignment.End),
+                    fontSize = 12.sp,
+                    fontFamily = regularFont,
+                    color = Color.DarkGray,
+                )
+                Spacer(modifier = Modifier.padding(vertical = 8.dp))
+                Text(
+                    text = "Expire ${formatDateDisplay(lmeData.expiryDate)}",
+                    modifier = Modifier,
+//                        .background(DarkBlue, RoundedCornerShape(10.dp))
+//                        .padding(vertical = 4.dp, horizontal = 8.dp),
+                    fontSize = 10.sp,
+                    fontFamily = regularFont,
+                    color = Color.DarkGray,
+                )
+            }
         }
     }
 }

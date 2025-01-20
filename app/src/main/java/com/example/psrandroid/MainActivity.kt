@@ -18,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,8 +28,9 @@ import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.ui.commonViews.LogoutDialog
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.utils.LogoutSession
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.psrandroid.utils.Utils.actionBar
 import com.google.accompanist.adaptive.calculateDisplayFeatures
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,10 +38,12 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var userPreference: UserPreferences
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        actionBar(this)
         enableEdgeToEdge()
         setContent {
             val scope = rememberCoroutineScope()
@@ -67,13 +69,13 @@ class MainActivity : ComponentActivity() {
 //                    PSRNavHost(navController = navController)
                 }
             }
-            if(isLogout) LogoutDialog(onDismissRequest = {
+            if (isLogout) LogoutDialog(onDismissRequest = {
                 isLogout = false
             }, onOkClick = {
                 isLogout = false
                 userPreference.clearStorage()
                 LogoutSession.clearError()
-                navController.navigate(Screen.LoginScreen.route){
+                navController.navigate(Screen.LoginScreen.route) {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
             })
@@ -82,7 +84,7 @@ class MainActivity : ComponentActivity() {
                 scope.launch {
                     LogoutSession.errorMessages.collect { errorMessage ->
                         errorMessage?.let {
-                            if(it.contains("Unauthorized") || it.contains("401")){
+                            if (it.contains("Unauthorized") || it.contains("401")) {
                                 isLogout = true
                             }
                         }

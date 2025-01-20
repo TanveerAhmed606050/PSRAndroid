@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -276,35 +277,37 @@ fun HeaderSection(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DarkBlue)
+            .background(AppBG)
     ) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 20.dp, vertical = 10.dp)
                 .align(Alignment.CenterStart)
         ) {
-            Spacer(modifier = Modifier.height(30.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
-            ) {
+            Spacer(modifier = Modifier.statusBarsPadding())
+//            Row(
+//                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+//            ) {
                 Text(
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.rate),
                     fontSize = 16.sp,
                     fontFamily = mediumFont,
-                    color = Color.White
+                    color = DarkBlue,
+                    textAlign = TextAlign.Center,
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                Image(
-                    painter = painterResource(id = R.drawable.location_ic),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(20.dp)
-                        .clickable { onLocationClick() }
-                )
-                Text(
-                    text = " | $address", color = Color.White, fontSize = 16.sp,
-                )
-            }
+//                Spacer(modifier = Modifier.weight(1f))
+//                Image(
+//                    painter = painterResource(id = R.drawable.location_ic),
+//                    contentDescription = "",
+//                    modifier = Modifier
+//                        .size(20.dp)
+//                        .clickable { onLocationClick() }
+//                )
+//                Text(
+//                    text = " | $address", color = Color.White, fontSize = 16.sp,
+//                )
+//            }
             Spacer(modifier = Modifier.height(20.dp))
             LazyRow(
                 contentPadding = PaddingValues(vertical = 8.dp),

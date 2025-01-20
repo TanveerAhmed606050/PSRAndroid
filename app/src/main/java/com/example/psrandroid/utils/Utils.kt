@@ -1,5 +1,6 @@
 package com.example.psrandroid.utils
 
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
@@ -8,6 +9,8 @@ import android.net.Uri
 import android.os.Build
 import android.util.Base64
 import androidx.annotation.RequiresApi
+import androidx.core.view.WindowCompat
+import com.example.psp_android.R
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.io.ByteArrayOutputStream
@@ -104,10 +107,21 @@ object Utils {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun formatDateDisplay(dateString: String):String {
+    fun formatDateDisplay(dateString: String): String {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         val outputFormatter = DateTimeFormatter.ofPattern("dd MMM yy", Locale.ENGLISH)
         val date = LocalDate.parse(dateString, inputFormatter)
         return date.format(outputFormatter)
+    }
+
+    fun actionBar(context: Activity) {
+        val window = context.window
+        // Set the status bar background color to white
+        window.statusBarColor = context.resources.getColor(R.color.black, context.theme)
+
+        // Change the status bar icons to black for better visibility
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true
+        }
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.psp_android.R
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
@@ -46,7 +47,7 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick :()->Unit) {
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(16.dp)
-                .background(DarkBlue, shape = RoundedCornerShape(16.dp))
+                .background(AppBG, shape = RoundedCornerShape(16.dp))
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -58,12 +59,12 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick :()->Unit) {
                         start = 16.dp,
                         top = 16.dp,
                         end = 16.dp,
-                        bottom = 8.dp
+                        bottom = 8.dp,
                     ),
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp,
                     fontFamily = mediumFont,
-                    color = Color.White,
+                    color = DarkBlue,
                 )
                 Text(
                     text = stringResource(id = R.string.account_logout_warning),
@@ -71,7 +72,7 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick :()->Unit) {
                     modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                     fontSize = 14.sp,
                     fontFamily = regularFont,
-                    color = Color.White,
+                    color = DarkBlue,
                 )
                 HorizontalDivider(thickness = 0.5.dp, color = Color.White)
                 Row(
@@ -86,7 +87,7 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick :()->Unit) {
                             stringResource(id = R.string.cancel),
                             fontSize = 14.sp,
                             fontFamily = regularFont,
-                            color = colorResource(id = R.color.white)
+                            color = DarkBlue
                         )
                     }
                     VerticalDivider(
@@ -99,7 +100,7 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick :()->Unit) {
                         onClick = onOkClick, modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            stringResource(id = R.string.logout), color = Color.White, fontSize = 16.sp, fontFamily = mediumFont
+                            stringResource(id = R.string.logout), color = DarkBlue, fontSize = 16.sp, fontFamily = mediumFont
                         )
                     }
                 }
