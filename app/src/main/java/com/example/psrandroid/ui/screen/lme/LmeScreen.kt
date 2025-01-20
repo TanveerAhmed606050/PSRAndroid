@@ -40,6 +40,7 @@ import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.GoogleAdBanner
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.screen.rate.RateVM
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -68,7 +69,7 @@ fun LmeScreenView(lmeData: List<LmeData>?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue))),
+            .background(AppBG),
     ) {
         Column(
             modifier = Modifier
@@ -80,11 +81,11 @@ fun LmeScreenView(lmeData: List<LmeData>?) {
             Text(
                 text = stringResource(id = R.string.lme), fontSize = 16.sp,
                 fontFamily = mediumFont,
-                color = Color.White
+                color = DarkBlue
             )
             if (lmeData == null) {
                 Spacer(modifier = Modifier.padding(top = 10.dp))
-                LinearProgress(modifier = Modifier.padding(vertical = 5.dp))
+                LinearProgress(modifier = Modifier.padding(vertical = 3.dp))
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
             LmeList(lmeData = lmeData)
@@ -96,12 +97,14 @@ fun LmeScreenView(lmeData: List<LmeData>?) {
 @Composable
 fun LmeList(lmeData: List<LmeData>?) {
     LazyColumn(
-        contentPadding = PaddingValues(horizontal = 0.dp)
+        contentPadding = PaddingValues(vertical = 0.dp)
     ) {
         items(lmeData?.size ?: 0) { index ->
-            if (index % 3 == 0)
+            if (index % 3 == 1) {
+                Spacer(modifier = Modifier.padding(4.dp))
                 GoogleAdBanner()
-            else
+                Spacer(modifier = Modifier.padding(4.dp))
+            } else
                 LmeItem(lmeData?.get(index) ?: LmeData.mockup)
             HorizontalDivider()
         }
@@ -111,11 +114,10 @@ fun LmeList(lmeData: List<LmeData>?) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LmeItem(lmeData: LmeData) {
-
     Column(
         modifier = Modifier
             .padding(10.dp)
-            .background(Color.White, RoundedCornerShape(10.dp))
+            .background(DarkBlue, RoundedCornerShape(10.dp))
     ) {
         Row(
             modifier = Modifier
@@ -128,15 +130,15 @@ fun LmeItem(lmeData: LmeData) {
             Text(
                 text = lmeData.name,
                 fontSize = 14.sp,
-                color = Color.Black,
+                color = Color.White,
                 maxLines = 1,
                 fontFamily = regularFont,
-                modifier = Modifier.weight(2f),
+                modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
             Box(
                 modifier = Modifier
-                    .background(DarkBlue, shape = RoundedCornerShape(8.dp))
+                    .background(Color.White, shape = RoundedCornerShape(8.dp))
                     .padding(8.dp), contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -144,7 +146,7 @@ fun LmeItem(lmeData: LmeData) {
                     modifier = Modifier.padding(horizontal = 8.dp),
                     fontSize = 14.sp,
                     fontFamily = regularFont,
-                    color = Color.White,
+                    color = DarkBlue,
                 )
             }
         }
@@ -177,14 +179,15 @@ fun LmeItem(lmeData: LmeData) {
                     fontSize = 14.sp
                 )
             }
+            Spacer(modifier = Modifier.padding(end = 8.dp))
             Text(
                 text = "Expire ${formatDateDisplay(lmeData.expiryDate)}",
                 modifier = Modifier
-                    .background(DarkBlue, RoundedCornerShape(10.dp))
+                    .background(Color.White, RoundedCornerShape(10.dp))
                     .padding(8.dp),
                 fontSize = 14.sp,
                 fontFamily = regularFont,
-                color = Color.White,
+                color = DarkBlue,
             )
         }
     }

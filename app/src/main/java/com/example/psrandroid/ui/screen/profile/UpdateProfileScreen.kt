@@ -39,11 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,9 +62,10 @@ import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.ProfileInputField
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
-import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
+import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
@@ -82,17 +83,16 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
         if (userData.status) {
             Toasty.success(
                 context,
-                authVM.loginData?.message?:"",
+                authVM.loginData?.message ?: "",
                 Toast.LENGTH_SHORT,
                 true
             )
                 .show()
             navController.popBackStack()
-        }
-        else
+        } else
             Toasty.error(
                 context,
-                authVM.loginData?.message?:"",
+                authVM.loginData?.message ?: "",
                 Toast.LENGTH_SHORT,
                 true
             )
@@ -192,10 +192,9 @@ fun UpdateProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue)))
+            .background(AppBG)
     ) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Header(
                 modifier = null,
@@ -205,7 +204,8 @@ fun UpdateProfileScreen(
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = 20.dp)
             ) {
                 AsyncImage(
@@ -248,7 +248,7 @@ fun UpdateProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { expandedCity = true }
-                        .height(50.dp)
+                        .height(60.dp)
                         .background(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(LightBlue, Color.White)
@@ -261,14 +261,15 @@ fun UpdateProfileScreen(
                         painter = painterResource(id = R.drawable.baseline_location_pin_24),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 12.dp),
+                        colorFilter = ColorFilter.tint(Color.White),
                     )
                     Text(
                         text = address,
                         color = Color.White,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(horizontal = 12.dp)
+                        fontFamily = regularFont,
+                        modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
                 //                ProfileInputField(
@@ -303,13 +304,13 @@ fun UpdateProfileScreen(
                         .fillMaxWidth()
                         .fillMaxHeight()
                         .wrapContentHeight(Alignment.Bottom)
-                        .padding(bottom = 40.dp)
+//                        .padding(bottom = 40.dp)
                 ) {
                     AppButton(modifier = Modifier,
                         text = stringResource(id = R.string.update_profile),
                         onButtonClick = { updateButtonClick() })
                 }
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
         /*

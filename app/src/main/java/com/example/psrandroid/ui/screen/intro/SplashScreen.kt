@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -62,9 +64,13 @@ fun SplashScreen(
     SplashScreen()
     LaunchedEffect(key1 = true) {
         delay(3000)
-        if (authViewModel.userPreferences.isFirstLaunch) {
+        if (!authViewModel.userPreferences.isTermsAccept){
             navController.popBackStack(Screen.SplashScreen.route, true)
             navController.navigate(Screen.PrivacyPolicyScreen.route)
+        }
+        else if (authViewModel.userPreferences.isFirstLaunch) {
+            navController.popBackStack(Screen.SplashScreen.route, true)
+            navController.navigate(Screen.LoginScreen.route)
         } else {
             navController.popBackStack(Screen.SplashScreen.route, true)
             navController.navigate(Screen.HomeScreen.route)
@@ -77,7 +83,7 @@ fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue))),
+            .background(AppBG),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -87,14 +93,14 @@ fun SplashScreen() {
             Text(
                 text = stringResource(id = R.string.app_name),
                 fontSize = 20.sp,
-                color = Color.White,
+                color = DarkBlue,
                 fontFamily = boldFont,
                 modifier = Modifier.padding(bottom = 0.dp),
             )
             Text(
                 text = stringResource(id = R.string.scrap_rate),
                 fontSize = 18.sp,
-                color = Color.White,
+                color = DarkBlue,
                 fontFamily = mediumFont,
                 modifier = Modifier.padding(bottom = 40.dp),
             )
@@ -107,17 +113,18 @@ fun SplashScreen() {
             Text(
                 text = stringResource(id = R.string.from),
                 fontSize = 18.sp,
-                color = Color.White,
+                color = DarkBlue,
                 fontFamily = mediumFont,
                 modifier = Modifier.padding(bottom = 0.dp),
             )
             Text(
                 text = stringResource(id = R.string.app_name),
                 fontSize = 18.sp,
-                color = Color.White,
+                color = DarkBlue,
                 fontFamily = boldFont,
                 modifier = Modifier.padding(bottom = 20.dp),
             )
+            Spacer(modifier = Modifier.padding(bottom = 20.dp))
         }
     }
 //        Image(

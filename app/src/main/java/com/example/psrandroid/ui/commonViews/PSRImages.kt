@@ -17,12 +17,12 @@ import com.example.psp_android.R
 import com.example.psrandroid.utils.Constant
 
 @Composable
-fun MyAsyncImage(imageUrl: String, size: Dp, isCircular: Boolean) {
+fun MyAsyncImage(imageUrl: String?, size: Dp, isCircular: Boolean) {
     val shape = if (isCircular) CircleShape else RoundedCornerShape(8.dp)
     val placeHolder = painterResource(id = R.drawable.user_placeholder)
 
     AsyncImage(
-        model = Constant.MEDIA_BASE_URL + imageUrl,
+        model = Constant.MEDIA_BASE_URL + "imageUrl",
         contentDescription = "",
         placeholder = placeHolder,
         error = placeHolder,

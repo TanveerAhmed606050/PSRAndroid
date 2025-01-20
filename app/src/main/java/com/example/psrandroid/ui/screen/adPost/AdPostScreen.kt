@@ -1,10 +1,10 @@
 package com.example.psrandroid.ui.screen.adPost
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,23 +21,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,8 +44,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
@@ -54,14 +51,15 @@ import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.NoProductView
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
-import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.isVisible
 import com.example.psrandroid.utils.progressBar
+import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
 import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
@@ -92,25 +90,31 @@ fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()
     }
-    AdPostScreen(adsData?.data, onAdClick = {
+    AdPostScreen(adsData?.data, onPlusIconClick = {
         navController.navigate(Screen.AdScreen.route)
     },
         onFilter = {
             expandedCity = true
+        },
+        onAdsClick = { adData ->
+            val adDataJson = Gson().toJson(adData)
+            navController.navigate(Screen.AdDetailScreen.route + "Details/${adDataJson}")
         })
+
 }
 
 @Composable
 fun AdPostScreen(
     adsData: List<AdData>?,
-    onAdClick: () -> Unit,
+    onPlusIconClick: () -> Unit,
     onFilter: () -> Unit,
+    onAdsClick: (AdData) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue))),
+            .background(AppBG),
     ) {
         Column(
             modifier = Modifier
@@ -134,7 +138,7 @@ fun AdPostScreen(
                         text = stringResource(id = R.string.ad_post),
                         fontSize = 16.sp,
                         fontFamily = mediumFont,
-                        color = Color.White
+                        color = DarkBlue
                     )
                 }
                 Box(modifier = Modifier) {
@@ -144,7 +148,7 @@ fun AdPostScreen(
                         modifier = Modifier
                             .size(24.dp)
                             .clickable { onFilter() },
-                        colorFilter = ColorFilter.tint(Color.White)
+                        colorFilter = ColorFilter.tint(DarkBlue)
                     )
 //                    DropdownMenu(
 //                        expanded = expanded,
@@ -179,8 +183,10 @@ fun AdPostScreen(
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    items(3) { index ->
-                        AdsItemsView(adsData?.get(index) ?: AdData.mockup, modifier = Modifier)
+                    items(adsData?.size ?: 0) { index ->
+                        AdsItemsView(adsData?.get(index) ?: AdData.mockup, modifier = Modifier,
+                            onAdsClick = { onAdsClick(it) }
+                        )
                         Spacer(modifier = Modifier.height(20.dp))
                     }
                 }
@@ -191,21 +197,21 @@ fun AdPostScreen(
                 .padding(bottom = 110.dp, end = 16.dp)
                 .align(Alignment.BottomEnd),
             onClick = {
-                onAdClick()
+                onPlusIconClick()
             },
             containerColor = Color.White,
             icon = {
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = "",
-                    tint = Color.Blue,
+                    tint = DarkBlue,
                     modifier = Modifier.size(20.dp)
                 )
             },
             text = {
                 Text(
-                    text = "Add",
-                    color = Color.Blue,
+                    text = stringResource(id = R.string.add),
+                    color = DarkBlue,
                     fontSize = 16.sp,
                     fontFamily = mediumFont
                 )
@@ -216,94 +222,71 @@ fun AdPostScreen(
 }
 
 @Composable
-fun AdsItemsView(adData: AdData,
-                 modifier:Modifier) {
-    // State to hold the current image index
-//    if (adData.photos.isNotEmpty()) {
-    var currentIndex by remember { mutableStateOf(0) }
-
-    // Timer to switch images every 5 seconds
-//        LaunchedEffect(currentIndex) {
-//            kotlinx.coroutines.delay(5000) // 5 seconds delay
-//            currentIndex = (currentIndex + 1) % adData.photos // Loop through images
-//        }
+fun AdsItemsView(
+    adData: AdData,
+    modifier: Modifier,
+    onAdsClick: (AdData) -> Unit,
+) {
     // Display the current image
-    Box(
+    Card(
         modifier = modifier
-            .height(250.dp)
+            .height(200.dp)
             .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color.Black),
+            .background(Color.White, RoundedCornerShape(10.dp))
+            .clickable { onAdsClick(adData) },
+        elevation = CardDefaults.elevatedCardElevation(12.dp), // Use CardDefaults for elevation
+        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
     ) {
-        AsyncImage(
-            model = adData.photos, contentDescription = "",
-            error = painterResource(id = R.drawable.splash_ic),
-            contentScale = ContentScale.Crop,
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White.copy(0.8f))
-                .align(Alignment.BottomStart) // Align the Row at the bottom of the Box
-                .padding(8.dp), // Add some padding for better spacing
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Column(
-                modifier = Modifier.weight(1f), // Take up equal horizontal space
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = adData.metalName,
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont,
-                    color = Color.Black,
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = "PKR ${adData.price}",
-                    fontSize = 18.sp,
-                    fontFamily = boldFont,
-                    color = Color.Black,
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = adData.city,
-                    fontSize = 16.sp,
-                    fontFamily = regularFont,
-                    color = Color.Black,
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-        }
-    }
-}
-
-@Composable
-fun ImageSlider(images: List<Uri>) {
-    // State to hold the current image index
-    if (images.isNotEmpty()) {
-        var currentIndex by remember { mutableIntStateOf(0) }
-
-        // Timer to switch images every 5 seconds
-        LaunchedEffect(currentIndex) {
-            kotlinx.coroutines.delay(5000) // 5 seconds delay
-            currentIndex = (currentIndex + 1) % images.size // Loop through images
-        }
-
-        // Display the current image
         Box(
-            modifier = Modifier
-                .height(200.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color.Black),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.fillMaxSize() // Make Box take up the full size of the Card
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = images[currentIndex]),
-                contentDescription = "Image Slider",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .background(Color.White), // Add some padding for better spacing
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.demo_scrap), contentDescription = "",
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .padding(10.dp)
+                )
+                Column(
+                    modifier = Modifier.padding(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = adData.metalName,
+                        fontSize = 14.sp,
+                        fontFamily = mediumFont,
+                        color = Color.DarkGray,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "PKR ${adData.price}",
+                        fontSize = 16.sp,
+                        fontFamily = mediumFont,
+                        color = Color.DarkGray,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = adData.city,
+                        fontSize = 14.sp,
+                        fontFamily = regularFont,
+                        color = Color.DarkGray,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = adData.description,
+                        fontSize = 14.sp,
+                        fontFamily = regularFont,
+                        color = Color.Gray,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
         }
     }
 }
@@ -312,7 +295,8 @@ fun ImageSlider(images: List<Uri>) {
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        AdPostScreen(adsData = null, onAdClick = {},
-            onFilter = {})
+        AdPostScreen(adsData = null, onPlusIconClick = {},
+            onFilter = {},
+            onAdsClick = {})
     }
 }

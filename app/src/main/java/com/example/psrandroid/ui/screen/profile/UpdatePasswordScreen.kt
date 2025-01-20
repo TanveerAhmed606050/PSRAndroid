@@ -35,6 +35,7 @@ import com.example.psp_android.R
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -80,12 +81,12 @@ fun UpdatePasswordScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue)))
+            .background(AppBG)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
+                .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Header(
@@ -96,7 +97,7 @@ fun UpdatePasswordScreen(
             Spacer(modifier = Modifier.padding(top = 20.dp))
             Text(
                 text = stringResource(R.string.change_pass_detail),
-                color = Color.White,
+                color = DarkBlue,
                 fontFamily = regularFont,
                 fontSize = 12.sp
             )

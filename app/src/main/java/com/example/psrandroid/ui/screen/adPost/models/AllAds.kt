@@ -38,7 +38,7 @@ val AdData.Companion.mockup by lazy {
     AdData(
         city = "Golden Coast",
         createdAt = "inani",
-        description = "commodo",
+        description = "Description",
         id = 4574,
         metalName = "Norma Elliott",
         name = "Heriberto Bell",

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -21,15 +22,19 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.commonViews.AppButton
+import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
+import com.example.psrandroid.ui.theme.regularFont
 
 @Composable
-fun PrivacyPolicyScreen(navController: NavController) {
+fun PrivacyPolicyScreen(navController: NavController, authVM: AuthVM) {
     PrivacyPolicyViews(onAgreeClick = {
+        authVM.userPreferences.isTermsAccept = true
         navController.popBackStack()
         navController.navigate(Screen.LoginScreen.route)
     })
@@ -42,7 +47,7 @@ fun PrivacyPolicyViews(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue))),
+            .background(AppBG),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -52,14 +57,14 @@ fun PrivacyPolicyViews(
             Text(
                 text = stringResource(id = R.string.app_name),
                 fontSize = 20.sp,
-                color = Color.White,
+                color = DarkBlue,
                 fontFamily = boldFont,
                 modifier = Modifier.padding(bottom = 0.dp),
             )
             Text(
                 text = stringResource(id = R.string.scrap_rate),
                 fontSize = 18.sp,
-                color = Color.White,
+                color = DarkBlue,
                 fontFamily = mediumFont,
                 modifier = Modifier.padding(bottom = 40.dp),
             )
@@ -74,8 +79,8 @@ fun PrivacyPolicyViews(
             Text(
                 text = stringResource(id = R.string.privacy_terms),
                 fontSize = 18.sp,
-                color = Color.White,
-                fontFamily = mediumFont,
+                color = DarkBlue,
+                fontFamily = regularFont,
                 modifier = Modifier.padding(bottom = 0.dp),
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp,
@@ -86,6 +91,7 @@ fun PrivacyPolicyViews(
                 text = stringResource(id = R.string.agree_continue),
                 onButtonClick = { onAgreeClick() }
             )
+            Spacer(modifier = Modifier.padding(bottom = 20.dp))
         }
     }
 }

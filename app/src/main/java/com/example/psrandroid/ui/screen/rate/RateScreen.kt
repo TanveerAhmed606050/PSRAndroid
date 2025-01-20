@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -46,7 +47,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -68,6 +68,8 @@ import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
+import com.example.psrandroid.ui.screen.home.CityItems
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -112,23 +114,7 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
     }
     val noInternetMessage = stringResource(id = R.string.network_error)
     var expandedCity by remember { mutableStateOf(false) }
-    val locationData = locationList.map { it.name }
-    if (expandedCity) {
-        ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
-            onConfirm = { locationName ->
-                location = locationName
-                expandedCity = false
-                authVM.updateUserLocation(
-                    UpdateLocation(
-                        userId = sharedPreferences.getUserPreference()?.id ?: 0,
-                        location = locationName
-                    )
-                )
-                locationId = rateVM.userPreferences.getLocationList()?.data?.find {
-                    it.name.equals(locationName, ignoreCase = true)
-                }?.id ?: 0
-            })
-    }
+    val locationData = locationList.map { "${it.name}" }
 
     LaunchedEffect(locationId) {
         rateVM.getSubMetals("$locationId", search.text)
@@ -146,14 +132,15 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
             .show()
 
     DashBoardScreen(search, name, location, phone,
+        cityList = locationData,
         subMetalData?.data, isRefreshing,
-        suggestedSearchList,
+        suggestedSearchList = suggestedSearchList,
         onSearch = { query ->
             search = query
             rateVM.searchMainMetals(search.text)
         }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
         onLocationClick = {
-            expandedCity = true
+//            expandedCity = true
         },
         onPullDown = {
             isRefreshing = true
@@ -179,6 +166,19 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
                 Toasty.error(
                     context, noInternetMessage, Toast.LENGTH_SHORT, true
                 ).show()
+        },
+        onCityItemClick = { locationName ->
+            location = locationName
+            authVM.updateUserLocation(
+                UpdateLocation(
+                    userId = sharedPreferences.getUserPreference()?.id ?: 0,
+                    location = locationName
+                )
+            )
+            locationId = rateVM.userPreferences.getLocationList()?.data?.find {
+                it.name.equals(locationName, ignoreCase = true)
+            }?.id ?: 0
+
         })
 }
 
@@ -189,6 +189,7 @@ fun DashBoardScreen(
     name: String,
     address: String,
     phone: String,
+    cityList: List<String>?,
     productList: List<SubMetalData>?,
     isRefreshing: Boolean,
     suggestedSearchList: List<MetalData>?,
@@ -197,6 +198,7 @@ fun DashBoardScreen(
     addProfileClick: () -> Unit,
     onLocationClick: () -> Unit,
     onPullDown: () -> Unit,
+    onCityItemClick: (String) -> Unit,
 ) {
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
@@ -208,7 +210,7 @@ fun DashBoardScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFEEF1F4)) // Background color
+                .background(AppBG) // Background color
         ) {
             Column(
                 modifier = Modifier
@@ -216,10 +218,11 @@ fun DashBoardScreen(
                     .padding(bottom = 100.dp)
             ) {
                 // Header section
-                HeaderSection(name, address, phone, addProfileClick = {
+                HeaderSection(name, address, phone, cityList, addProfileClick = {
                     addProfileClick()
                 },
-                    onLocationClick = { onLocationClick() })
+                    onLocationClick = { onLocationClick() },
+                    onCityItemClick = { onCityItemClick(it) })
 
                 Spacer(modifier = Modifier.height(0.dp))
                 // Search bar
@@ -264,9 +267,12 @@ fun DashBoardScreen(
 @Composable
 fun HeaderSection(
     name: String, address: String, phone: String,
+    cityList: List<String>?,
     addProfileClick: () -> Unit,
     onLocationClick: () -> Unit,
+    onCityItemClick: (String) -> Unit,
 ) {
+    var selectedCity by remember { mutableStateOf<String?>(null) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -282,7 +288,7 @@ fun HeaderSection(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(id = R.string.dashboard),
+                    text = stringResource(id = R.string.rate),
                     fontSize = 16.sp,
                     fontFamily = mediumFont,
                     color = Color.White
@@ -300,35 +306,51 @@ fun HeaderSection(
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Row(
-                modifier = Modifier
-                    .background(
-                        color = LightBlue, shape = RoundedCornerShape(12.dp)
-                    )
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .padding(start = 0.dp)
+            LazyRow(
+                contentPadding = PaddingValues(vertical = 8.dp),
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.steel_ic), // Replace with actual image resource
-                    contentDescription = "",
-                    modifier = Modifier
-                        .width(100.dp)
-                        .fillMaxHeight()
-                        .padding(start = 8.dp),
-                    contentScale = ContentScale.Crop
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-
-                    UserDetailItem(imageId = R.drawable.profile_ic, text = name)
-                    HorizontalDivider(color = Color.White)
-                    UserDetailItem(imageId = R.drawable.location_ic, text = address)
-                    HorizontalDivider(color = Color.White)
-                    UserDetailItem(imageId = R.drawable.phone_ic, text = phone)
-
+                items(cityList?.size ?: 0) { index ->
+                    val cityName = cityList?.get(index) ?: ""
+                    CityItems(
+                        cityName = cityName,
+                        selectedCity = selectedCity ?: "Lahore", // Check if this city is selected
+                        onCityItemClick = { city ->
+                            selectedCity = city // Update the selected city
+                            onCityItemClick(city) // Trigger the callback
+                        }
+                    )
                 }
+
             }
+//            Row(
+//                modifier = Modifier
+//                    .background(
+//                        color = LightBlue, shape = RoundedCornerShape(12.dp)
+//                    )
+//                    .fillMaxWidth()
+//                    .height(100.dp)
+//                    .padding(start = 0.dp)
+//            ) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.steel_ic), // Replace with actual image resource
+//                    contentDescription = "",
+//                    modifier = Modifier
+//                        .width(100.dp)
+//                        .fillMaxHeight()
+//                        .padding(start = 8.dp),
+//                    contentScale = ContentScale.Crop
+//                )
+//                Spacer(modifier = Modifier.width(12.dp))
+//                Column {
+//
+//                    UserDetailItem(imageId = R.drawable.profile_ic, text = name)
+//                    HorizontalDivider(color = Color.White)
+//                    UserDetailItem(imageId = R.drawable.location_ic, text = address)
+//                    HorizontalDivider(color = Color.White)
+//                    UserDetailItem(imageId = R.drawable.phone_ic, text = phone)
+//
+//                }
+//            }
         }
     }
 }
@@ -399,7 +421,8 @@ fun SearchBar(
                     Icon(
                         painterResource(id = R.drawable.search_ic),
                         contentDescription = "",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
+                        tint = DarkBlue,
                     )
                 },
                 placeholder = {
@@ -407,7 +430,7 @@ fun SearchBar(
                         text = stringResource(id = R.string.search),
                         color = DarkBlue,
                         letterSpacing = 2.sp,
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                     )
                 },
                 singleLine = true,
@@ -423,7 +446,7 @@ fun SearchBar(
                     .fillMaxWidth()
                     .background(color = Color.White, shape = RoundedCornerShape(12))
                     .clip(RoundedCornerShape(12.dp))
-                    .padding(2.dp)
+                    .padding(0.dp)
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
                     }
@@ -601,6 +624,7 @@ fun PreviewDashboardScreen() {
     PSP_AndroidTheme {
         DashBoardScreen(
             TextFieldValue(""), "", "", "",
+            cityList = listOf(),
             listOf(),
             suggestedSearchList = listOf(),
             isRefreshing = false,
@@ -608,6 +632,8 @@ fun PreviewDashboardScreen() {
             addProfileClick = {},
             onLocationClick = {},
             onPullDown = {},
-            onSearchClick = {})
+            onSearchClick = {},
+            onCityItemClick = {},
+        )
     }
 }

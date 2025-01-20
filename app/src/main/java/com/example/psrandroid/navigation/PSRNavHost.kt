@@ -23,23 +23,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature
 import com.example.psp_android.R
-import com.example.psrandroid.ui.screen.auth.AuthVM
-import com.example.psrandroid.ui.screen.auth.CityScreen
-import com.example.psrandroid.ui.screen.auth.LanguageScreen
-import com.example.psrandroid.ui.screen.auth.LoginScreen
-import com.example.psrandroid.ui.screen.auth.OTPScreen
-import com.example.psrandroid.ui.screen.auth.PasswordScreen
-import com.example.psrandroid.ui.screen.auth.SignupScreen
-import com.example.psrandroid.ui.screen.adPost.AdScreen
-import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
 import com.example.psrandroid.ui.screen.adPost.AdPostScreen
 import com.example.psrandroid.ui.screen.adPost.AdPostVM
+import com.example.psrandroid.ui.screen.adPost.AdScreen
+import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
+import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.screen.auth.LanguageScreen
+import com.example.psrandroid.ui.screen.auth.LoginScreen
+import com.example.psrandroid.ui.screen.auth.PasswordScreen
+import com.example.psrandroid.ui.screen.auth.SignupScreen
 import com.example.psrandroid.ui.screen.home.HomeScreen
 import com.example.psrandroid.ui.screen.home.HomeVM
 import com.example.psrandroid.ui.screen.intro.PrivacyPolicyScreen
@@ -58,6 +59,7 @@ import com.example.psrandroid.utils.PSRNavigationContentPosition
 import com.example.psrandroid.utils.PSRNavigationType
 import com.example.psrandroid.utils.isBookPosture
 import com.example.psrandroid.utils.isSeparating
+import com.google.gson.Gson
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -138,7 +140,7 @@ fun PSRNavigation(
         BottomNavigationItem(
             stringResource(id = R.string.ad_post),
             Screen.AdPostScreen.route,
-            R.drawable.plus_bottom
+            R.drawable.calendar_ic
         ),
         BottomNavigationItem(
             stringResource(id = R.string.prime_user),
@@ -313,7 +315,7 @@ fun PSRNavHost(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            PrivacyPolicyScreen(navController)
+            PrivacyPolicyScreen(navController, authViewModel)
         }
 
         composable(
@@ -324,25 +326,11 @@ fun PSRNavHost(
             LanguageScreen(navController)
         }
         composable(
-            route = Screen.CityScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
-        ) {
-            CityScreen(navController)
-        }
-        composable(
             route = Screen.LoginScreen.route,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
             LoginScreen(navController, authViewModel)
-        }
-        composable(
-            route = Screen.OTPScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
-        ) {
-            OTPScreen(navController, authViewModel)
         }
         composable(
             route = Screen.RegisterScreen.route,
@@ -422,11 +410,14 @@ fun PSRNavHost(
             AdScreen(navController, adPostVM, rateVM = rateVM)
         }
         composable(
-            route = Screen.AdDetailScreen.route,
+            route = Screen.AdDetailScreen.route + "Details/{data}",
+            arguments = listOf(navArgument("data") { type = NavType.StringType }),
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
-        ) {
-            DetailAdScreen(navController, adPostVM)
+        ) { backStackEntry ->
+            val userJson = backStackEntry.arguments?.getString("data")
+            val adData = userJson?.let { Gson().fromJson(it, AdData::class.java) }
+            DetailAdScreen(navController, adPostVM, adData)
         }
     }
 }

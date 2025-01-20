@@ -112,5 +112,7 @@ dependencies {
     implementation(libs.play.services.ads)
     implementation(libs.play.services.gsm)
     implementation(libs.firebase.auth)
-
+    // Pager libs
+    implementation(libs.accompanist.pager)
+    implementation(libs.pager.indicators)
 }

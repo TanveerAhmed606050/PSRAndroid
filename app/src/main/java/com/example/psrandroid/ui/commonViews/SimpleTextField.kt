@@ -68,19 +68,23 @@ fun ProfileInputField(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.padding(start = 8.dp)
             )
         },
         placeholder = {
-            Text(text = placeholder, color = Color.White)
+            Text(text = placeholder, color = Color.White,
+                fontSize = 16.sp,
+                fontFamily = regularFont,
+            )
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = DarkBlue, // Change focused border color
-            unfocusedBorderColor = Color.Transparent, // Change unfocused border color
-            focusedLabelColor = Color.Transparent,
-            unfocusedLabelColor = Color.Transparent,
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White
+            unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
+            focusedLabelColor = DarkBlue,
+            unfocusedLabelColor = if (value.isEmpty()) Color.White else DarkBlue,
+            focusedTextColor = DarkBlue,
+            unfocusedTextColor = colorResource(id = R.color.text_grey)
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -123,18 +127,19 @@ fun MyTextFieldWithBorder(
         },
         label = {
             Text(
-                text = placeholder, fontFamily = mediumFont,
+                text = placeholder, fontFamily = regularFont,
                 letterSpacing = 2.sp,
-                color = Color.White
+                color = DarkBlue,
+                fontSize = 14.sp,
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.White, // Change focused border color
+            focusedBorderColor = DarkBlue, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
             unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White
+            focusedTextColor = DarkBlue,
+            unfocusedTextColor = colorResource(id = R.color.text_grey)
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -143,9 +148,8 @@ fun MyTextFieldWithBorder(
         ),
         trailingIcon = {
             Image(
-                painter = painterResource(
-                    id = imageId
-                ), // Using the provided icon
+                painter = painterResource(id = imageId), // Using the provided icon
+                colorFilter = ColorFilter.tint(DarkBlue),
                 contentDescription = null, // Add appropriate content description
             )
         },
@@ -183,18 +187,19 @@ fun PasswordTextFields(
         label = {
             Text(
                 placeholder,
-                fontFamily = mediumFont,
+                fontFamily = regularFont,
                 letterSpacing = 2.sp,
-                color = Color.White
+                color = DarkBlue,
+                fontSize = 14.sp
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.White, // Change focused border color
+            focusedBorderColor = DarkBlue, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
             unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White
+            focusedTextColor = DarkBlue,
+            unfocusedTextColor = colorResource(id = R.color.text_grey)
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -205,6 +210,7 @@ fun PasswordTextFields(
             Image(
                 painter = passwordIcon, // Using the provided icon
                 contentDescription = null, // Add appropriate content description
+                colorFilter = ColorFilter.tint(DarkBlue),
                 modifier = Modifier
                     .clickable {
                         passwordVisible = !passwordVisible
@@ -245,27 +251,29 @@ fun PhoneTextField(
         },
         label = {
             Text(
-                text = placeholder, fontFamily = mediumFont,
+                text = placeholder, fontFamily = regularFont,
                 letterSpacing = 2.sp,
-                color = Color.White
+                color = DarkBlue,
+                fontSize = 14.sp,
             )
         },
         textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
         leadingIcon = {
             Text(
                 text = prefix,
-                color = Color.White,
-                fontFamily = mediumFont,
+                color = DarkBlue,
+                fontFamily = regularFont,
                 letterSpacing = 2.sp,
+                fontSize = 14.sp,
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.White, // Change focused border color
+            focusedBorderColor = DarkBlue, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
             unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White
+            focusedTextColor = DarkBlue,
+            unfocusedTextColor = colorResource(id = R.color.text_grey)
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -275,6 +283,7 @@ fun PhoneTextField(
         trailingIcon = {
             Image(
                 painter = painterResource(id = imageId),
+                colorFilter = ColorFilter.tint(DarkBlue),
                 contentDescription = null, // Add appropriate content description
             )
         },
@@ -314,7 +323,7 @@ fun CustomTextField(
             Text(
                 text = placeholder,
                 fontFamily = regularFont,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -329,7 +338,7 @@ fun CustomTextField(
             value = value,
             onValueChange = onValueChange,
             textStyle = TextStyle(
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontFamily = regularFont,
                 textAlign = TextAlign.Start, // Align input text as well
                 color = DarkBlue,

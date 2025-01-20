@@ -47,7 +47,6 @@ fun LanguageScreen(
             language = selectedLanguage
         },
         nextClick = {
-            navController.navigate(Screen.CityScreen.route)
         },
         backClick = {
             navController.popBackStack()

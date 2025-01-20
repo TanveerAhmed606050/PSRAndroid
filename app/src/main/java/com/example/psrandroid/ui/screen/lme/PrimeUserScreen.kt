@@ -34,6 +34,7 @@ import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.screen.rate.RateVM
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -55,7 +56,7 @@ fun PrimeUserScreen(primeUserData: PrimeUser?) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue)))
+            .background(AppBG)
             .padding(bottom = 100.dp)
     ) {
         Column(
@@ -68,11 +69,11 @@ fun PrimeUserScreen(primeUserData: PrimeUser?) {
             Text(
                 text = stringResource(id = R.string.prime_user), fontSize = 16.sp,
                 fontFamily = mediumFont,
-                color = Color.White
+                color = DarkBlue
             )
             if (primeUserData == null) {
                 Spacer(modifier = Modifier.padding(top = 10.dp))
-                LinearProgress(modifier = Modifier.padding(vertical = 5.dp))
+                LinearProgress(modifier = Modifier.padding(vertical = 3.dp))
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
             LazyColumn(
@@ -114,8 +115,8 @@ fun UserItemData(primeUserData: PrimeUserData) {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Name",
-                    color = Color.Black,
+                    text = stringResource(id = R.string.name),
+                    color = DarkBlue,
                     fontFamily = regularFont,
                     fontSize = 12.sp,
                 )
@@ -123,24 +124,24 @@ fun UserItemData(primeUserData: PrimeUserData) {
                     text = "Business Name",
                     fontSize = 12.sp,
                     fontFamily = regularFont,
-                    color = Color.Black,
+                    color = DarkBlue,
                 )
                 Text(
                     text = "Phone Number",
                     fontSize = 12.sp,
-                    color = Color.Black,
+                    color = DarkBlue,
                     fontFamily = regularFont,
                 )
                 Text(
-                    text = "Address",
+                    text = stringResource(id = R.string.address),
                     fontFamily = regularFont,
-                    color = Color.Black,
+                    color = DarkBlue,
                     fontSize = 12.sp,
                 )
                 Text(
                     text = "Metals",
                     fontFamily = regularFont,
-                    color = Color.Black,
+                    color = DarkBlue,
                     fontSize = 12.sp,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -153,7 +154,7 @@ fun UserItemData(primeUserData: PrimeUserData) {
             ) {
                 Text(
                     text = primeUserData.name,
-                    color = Color.Black,
+                    color = LightBlue,
                     fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
@@ -161,7 +162,7 @@ fun UserItemData(primeUserData: PrimeUserData) {
                 )
                 Text(
                     text = primeUserData.businessName,
-                    color = Color.Black,
+                    color = LightBlue,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                     fontSize = 14.sp,
@@ -169,7 +170,7 @@ fun UserItemData(primeUserData: PrimeUserData) {
                 )
                 Text(
                     text = primeUserData.whatsapp,
-                    color = Color.Black,
+                    color = LightBlue,
                     fontFamily = mediumFont,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
@@ -177,17 +178,17 @@ fun UserItemData(primeUserData: PrimeUserData) {
                 )
                 Text(
                     text = primeUserData.location,
-                    color = Color.Black,
+                    color = LightBlue,
                     fontFamily = mediumFont,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
                 Text(
                     text = primeUserData.type,
-                    color = Color.Black,
+                    color = LightBlue,
                     fontFamily = mediumFont,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )

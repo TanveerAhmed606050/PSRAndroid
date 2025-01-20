@@ -18,7 +18,7 @@ data class AuthData(
     @SerializedName("updated_at")
     val updatedAt: String = "",
     @SerializedName("profile_pic")
-    val profilePic: String
+    val profilePic: String = ""
 ) {
     companion object
 }
@@ -31,7 +31,7 @@ val AuthData.Companion.mockup by lazy {
         name = "Luciano O'Neil",
         phone = "(896) 723-3609",
         updatedAt = "verterem",
-        profilePic = "partiendo"
+        profilePic = ""
     )
 }
 

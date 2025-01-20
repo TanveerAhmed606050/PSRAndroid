@@ -20,15 +20,18 @@ data class LmeData(
     val price: String,
     @SerializedName("updated_at")
     val updatedAt: String
-){companion object}
-val LmeData.Companion.mockup by lazy{
+) {
+    companion object
+}
+
+val LmeData.Companion.mockup by lazy {
     LmeData(
-        changeInRate = "mnesarchum",
+        changeInRate = "15",
         createdAt = "no",
-        expiryDate = "2025-12-11",
+        expiryDate = "2025-01-21",
         id = 6163,
-        name = "Betsy Knapp",
-        price = "animal",
+        name = "Plastic",
+        price = "12",
         updatedAt = "quas"
     )
 }

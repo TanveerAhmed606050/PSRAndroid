@@ -2,6 +2,7 @@ package com.example.psrandroid.ui.screen.auth
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,9 @@ import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.commonViews.PhoneTextField
+import com.example.psrandroid.ui.theme.AppBG
+import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
@@ -78,7 +82,7 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
 
     LoginScreen(onLoginButtonClick = { phoneNumber, password ->
         if (isNetworkAvailable(context)) {
-            if (isValidPhone("+92$phoneNumber").isNotEmpty())
+            if (isValidPhone(phoneNumber).isNotEmpty())
                 Toasty.error(context, isValidPhone("+92$phoneNumber"), Toast.LENGTH_SHORT, true)
                     .show()
             else if (isValidPassword(password).isNotEmpty())
@@ -114,19 +118,20 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppBG)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.lang_city_bg),
-            contentDescription = null,
-            contentScale = ContentScale.Crop, // Adjust this as needed
-            modifier = Modifier.fillMaxSize(),
-        )
+//        Image(
+//            painter = painterResource(id = R.drawable.lang_city_bg),
+//            contentDescription = null,
+//            contentScale = ContentScale.Crop, // Adjust this as needed
+//            modifier = Modifier.fillMaxSize(),
+//        )
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
-                text = stringResource(id = R.string.login_in), color = Color.White,
+                text = stringResource(id = R.string.login_in), color = LightBlue,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
-                fontWeight = FontWeight.Bold
+                fontFamily = mediumFont,
             )
             Spacer(modifier = Modifier.height(80.dp))
 
@@ -157,9 +162,9 @@ fun LoginScreen(
                         .clickable {
                             onForgotPasswordClick()
                         },
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    fontFamily = mediumFont,
+                    color = DarkBlue,
+                    fontSize = 14.sp,
+                    fontFamily = regularFont,
                     textAlign = TextAlign.End
                 )
             }
@@ -180,7 +185,7 @@ fun LoginScreen(
                 Text(
                     text = stringResource(id = R.string.dont_acc),
                     fontSize = 12.sp,
-                    color = colorResource(id = R.color.text_grey),
+                    color = DarkBlue,
                     fontFamily = regularFont,
                     textAlign = TextAlign.Center
                 )
@@ -190,7 +195,7 @@ fun LoginScreen(
                         .clickable {
                             onSignup()
                         },
-                    color = Color.White,
+                    color = LightBlue,
                     fontFamily = mediumFont,
                     fontSize = 12.sp,
                     textAlign = TextAlign.Center

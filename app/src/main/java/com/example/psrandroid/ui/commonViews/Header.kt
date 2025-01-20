@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -24,6 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
+import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.mediumFont
 
 @Composable
@@ -39,11 +42,11 @@ fun Header(modifier: Modifier?,headerText:String, backClick: () -> Unit) {
             modifier = Modifier
                 .size(30.dp)
                 .padding(6.dp)
-                .clickable { backClick() }.align(Alignment.CenterStart)
-
+                .clickable { backClick() }.align(Alignment.CenterStart),
+            colorFilter = ColorFilter.tint(DarkBlue)
         )
         Text(
-            text = headerText, color = Color.White,
+            text = headerText, color = DarkBlue,
             textAlign = TextAlign.Center,
             fontSize = 16.sp,
             modifier = Modifier

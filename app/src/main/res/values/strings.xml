@@ -4,6 +4,7 @@
     <string name="rate">Rate</string>
     <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
     <string name="from">Powered by</string>
     <string name="privacy_terms">By proceeding you agree with terms and privacy policy</string>
     <string name="agree_continue">Agree And Continue</string>
@@ -11,6 +12,7 @@
     <string name="enter_city">Enter City</string>
     <string name="password">Password</string>
     <string name="confirm_pass">Confirm Password</string>
+    <string name="confirm">Confirm</string>
     <string name="forgot_pass">Forgot Password</string>
     <string name="login_in">Login</string>
     <string name="logout">Logout</string>
@@ -35,6 +37,7 @@
     <string name="prime_user">Premium User</string>
     <string name="lme">LME</string>
     <string name="ad_detail">Ad Details</string>
+    <string name="show_no">Show Number</string>
     <string name="home">Home</string>
     <string name="confirm_pass_err">Password and confirm password don\'t match</string>
     <string name="full_name">Full Name</string>

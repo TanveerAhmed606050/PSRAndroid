@@ -5,6 +5,7 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,8 +23,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -46,9 +52,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.dto.UserCredential
+import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
@@ -57,6 +66,9 @@ import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.MyTextFieldWithBorder
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.commonViews.PhoneTextField
+import com.example.psrandroid.ui.theme.AppBG
+import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
@@ -72,10 +84,11 @@ import io.github.rupinderjeet.kprogresshud.KProgressHUD
 @Composable
 fun SignupScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
-    val verificationId by authVM.verificationId.collectAsState()
+    val showDialog = remember { mutableStateOf(false) }
+    var isPhoneNoVerified by remember { mutableStateOf(false) }
+    val otpText = remember { mutableStateOf("") }
+//    val verificationId by authVM.verificationId.collectAsState()
     val message by authVM.message.collectAsState()
-    var phoneNumber by remember { mutableStateOf("") }
-    var code by remember { mutableStateOf("") }
     val progressBar: KProgressHUD = remember { context.progressBar() }
     progressBar.isVisible(authVM.isLoading)
     //register api response
@@ -85,19 +98,42 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
         if (locationList.isEmpty())
             authVM.getLocation()
     }
+    if (message?.isNotEmpty() == true) {
+        Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
+        if (message == "Verification successful") {
+            showDialog.value = false
+            isPhoneNoVerified = true
+        }
+        authVM.updateMessage("")
+    }
     var selectedCity by rememberSaveable { mutableStateOf("") }
 
     if (authData != null) {
         if (authData.status) {
             Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
-            navController.popBackStack()
+//            navController.popBackStack()
+            navController.navigate(Screen.HomeScreen.route) {
+                popUpTo(navController.graph.id)
+            }
         } else
             Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
     }
-
+    //OTP dialog
+    OtpDialog(
+        showDialog = showDialog,
+        otpText = otpText.value,
+        otpCount = 6, // Example OTP length
+        onOtpTextChange = { text, isComplete ->
+            otpText.value = text
+        },
+        onConfirmBtn = {
+            authVM.verifyCode(otpText.value)
+        }
+    )
     SignupScreen(
         locationList,
+        isPhoneNoVerified = isPhoneNoVerified,
         backClick = { navController.popBackStack() },
         onLoginClick = {
             navController.popBackStack()
@@ -125,10 +161,10 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                         true
                     ).show()
                 else {
-                    val phoneNumber = phone.takeLast(10)
+                    val phoneNo = phone.takeLast(10)
                     authVM.register(
                         UserCredential(
-                            phone = "+92$phoneNumber", name = name, password = password,
+                            phone = "+92$phoneNo", name = name, password = password,
                             location = selectedCity
                         )
                     )
@@ -158,8 +194,9 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
             } else
                 selectedCity = selectedLocation
         },
-        onVerificationIconClick = {
-            authVM.sendVerificationCode(phoneNumber, context as Activity)
+        onVerificationIconClick = { phoneNo ->
+            showDialog.value = true
+            authVM.sendVerificationCode("+92$phoneNo", context as Activity)
         })
 }
 
@@ -167,10 +204,11 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
 @Composable
 fun SignupScreen(
     locationList: List<LocationData>,
+    isPhoneNoVerified: Boolean,
     backClick: () -> Unit, onLoginClick: () -> Unit,
     onRegisterButtonClick: (String, String, String, String) -> Unit,
     onCitySelect: (String) -> Unit,
-    onVerificationIconClick: () -> Unit,
+    onVerificationIconClick: (String) -> Unit,
 ) {
     var phoneNumber by rememberSaveable { mutableStateOf("") }
     var fullName by rememberSaveable { mutableStateOf("") }
@@ -192,14 +230,15 @@ fun SignupScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(AppBG)
             .verticalScroll(rememberScrollState())
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.lang_city_bg),
-            contentDescription = null,
-            contentScale = ContentScale.Crop, // Adjust this as needed
-            modifier = Modifier.fillMaxSize(),
-        )
+//        Image(
+//            painter = painterResource(id = R.drawable.lang_city_bg),
+//            contentDescription = null,
+//            contentScale = ContentScale.Crop, // Adjust this as needed
+//            modifier = Modifier.fillMaxSize(),
+//        )
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Header(
@@ -230,17 +269,19 @@ fun SignupScreen(
                     imageId = R.drawable.baseline_phone_24
                 )
                 Spacer(modifier = Modifier.padding(top = 10.dp))
-                if (isValidPhone(phoneNumber).isEmpty())
+                if (isValidPhone(phoneNumber).isEmpty() && !isPhoneNoVerified)
                     Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .clickable { onVerificationIconClick() },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onVerificationIconClick(phoneNumber) },
                         horizontalArrangement = Arrangement.End,
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.verify_mbl_ic),
                             contentDescription = "",
                             modifier = Modifier.size(32.dp),
-                            alignment = Alignment.TopEnd
+                            alignment = Alignment.TopEnd,
+                            colorFilter = ColorFilter.tint(DarkBlue)
                         )
                     }
                 Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -263,9 +304,9 @@ fun SignupScreen(
                 ) {
                     Text(
                         text = city,
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
+                        color = DarkBlue,
+                        fontSize = 14.sp,
+                        fontFamily = regularFont,
                         modifier = Modifier.padding(horizontal = 12.dp)
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -273,7 +314,8 @@ fun SignupScreen(
                         painter = painterResource(id = R.drawable.baseline_location_pin_24),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(end = 8.dp)
+                            .padding(end = 8.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
                     )
                 }
                 Spacer(modifier = Modifier.padding(top = 20.dp))
@@ -297,20 +339,21 @@ fun SignupScreen(
                     }
                 )
                 Spacer(modifier = Modifier.padding(top = 30.dp))
-                AppButton(
-                    modifier = Modifier
-                        .widthIn(min = 300.dp, max = 600.dp)
-                        .padding(bottom = 30.dp),
-                    text = stringResource(id = R.string.signup)
-                ) {
-                    onRegisterButtonClick(phoneNumber, fullName, password, confirmPassword)
-                }
+                if (isPhoneNoVerified)
+                    AppButton(
+                        modifier = Modifier
+                            .widthIn(min = 300.dp, max = 600.dp)
+                            .padding(bottom = 30.dp),
+                        text = stringResource(id = R.string.signup),
+                    ) {
+                        onRegisterButtonClick(phoneNumber, fullName, password, confirmPassword)
+                    }
                 Row(modifier = Modifier.align(CenterHorizontally)) {
                     Text(
                         text = stringResource(id = R.string.already_acc), modifier = Modifier
                             .padding(vertical = 20.dp),
                         fontSize = 12.sp,
-                        color = colorResource(id = R.color.text_grey),
+                        color = DarkBlue,
                         fontFamily = regularFont,
                         textAlign = TextAlign.Center
                     )
@@ -320,7 +363,7 @@ fun SignupScreen(
                             .clickable {
                                 onLoginClick()
                             },
-                        color = Color.White,
+                        color = LightBlue,
                         fontFamily = mediumFont,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center
@@ -328,7 +371,97 @@ fun SignupScreen(
                 }
             }
         }
-//        BottomNavigationButtons()
+    }
+}
+
+@Composable
+fun OtpDialog(
+    showDialog: MutableState<Boolean>,
+    otpText: String,
+    otpCount: Int,
+    onOtpTextChange: (String, Boolean) -> Unit,
+    onConfirmBtn: () -> Unit,
+) {
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = {
+                Text(
+                    text = "Enter OTP", fontFamily = mediumFont,
+                    color = DarkBlue, fontSize = 18.sp,
+                )
+            },
+            text = {
+                Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(40.dp))
+                    PinTextField(
+                        otpText = otpText,
+                        otpCount = otpCount,
+                        onOtpTextChange = onOtpTextChange
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onConfirmBtn()
+//                    showDialog.value = false
+                }) {
+                    Text(
+                        stringResource(id = R.string.confirm),
+                        fontSize = 16.sp, fontFamily = mediumFont, color = DarkBlue,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text(
+                        stringResource(id = R.string.cancel),
+                        fontSize = 16.sp, fontFamily = mediumFont, color = Color.Red
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun ListDialog(
+    dataList: List<String>,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    Dialog(
+        onDismissRequest = { onDismiss() }, properties = DialogProperties(
+            dismissOnBackPress = true, dismissOnClickOutside = true
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White, shape = RoundedCornerShape(16.dp))
+        ) {
+            Column(modifier = Modifier
+                .fillMaxWidth() // Ensures column takes the full width
+                .verticalScroll(rememberScrollState())) {
+                // List of cities from assets as clickable items
+                dataList.forEach { city ->
+                    Text(
+                        text = city,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onConfirm(city)
+                            }
+                            .padding(16.dp),
+                        fontSize = 16.sp,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Medium
+                    )
+
+                }
+            }
+        }
     }
 }
 
@@ -338,6 +471,7 @@ fun SignupScreen(
 fun PreviewSignupScreen() {
     PSP_AndroidTheme {
         SignupScreen(listOf(LocationData.mockup),
+            false,
             backClick = {},
             onLoginClick = {},
             onRegisterButtonClick = { _, _, _, _ -> },

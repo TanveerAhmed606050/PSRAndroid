@@ -41,28 +41,33 @@ class AuthVM @Inject constructor(
     private val _verificationId = MutableStateFlow<String?>(null)
     val verificationId: StateFlow<String?> = _verificationId
 
-    private val _message = MutableStateFlow<String?>(null)
+    private val _message = MutableStateFlow("")
     val message: StateFlow<String?> = _message
     //    fun isAlreadyLogin(): Boolean = userPreferences.getUserPreference()?.name != null
     var loginData by mutableStateOf<AuthResponse?>(null)
     var locationData by mutableStateOf<LocationResponse?>(null)
     var dealersList by mutableStateOf<DealerResponse?>(null)
+
     fun sendVerificationCode(phoneNumber: String, activity: Activity) {
+        isLoading = true
         val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
             .setPhoneNumber(phoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)
             .setActivity(activity)
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+//                    isLoading = false
                     _message.value = "Verification completed"
                     signInWithCredential(credential)
                 }
 
                 override fun onVerificationFailed(e: FirebaseException) {
+                    isLoading = false
                     _message.value = "Verification failed: ${e.message}"
                 }
 
                 override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                    isLoading = false
                     _verificationId.value = verificationId
                     _message.value = "Code sent to $phoneNumber"
                 }
@@ -72,6 +77,7 @@ class AuthVM @Inject constructor(
     }
 
     fun verifyCode(code: String) {
+        isLoading = true
         val credential = _verificationId.value?.let {
             PhoneAuthProvider.getCredential(it, code)
         }
@@ -80,9 +86,14 @@ class AuthVM @Inject constructor(
         }
     }
 
+    fun updateMessage(text:String){
+        _message.value = text
+    }
+
     private fun signInWithCredential(credential: PhoneAuthCredential) {
         FirebaseAuth.getInstance().signInWithCredential(credential)
             .addOnCompleteListener { task ->
+                isLoading = false
                 if (task.isSuccessful) {
                     _message.value = "Verification successful"
                 } else {

@@ -33,11 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,12 +48,13 @@ import com.example.psrandroid.dto.ImageUpdate
 import com.example.psrandroid.dto.ProfileOption
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
+import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LogoutDialog
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
-import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
@@ -87,7 +87,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         isLogout = false
         authVM.userPreferences.clearStorage()
         LogoutSession.clearError()
-        navController.navigate(Screen.LoginScreen.route){
+        navController.navigate(Screen.LoginScreen.route) {
             popUpTo(navController.graph.startDestinationId) { inclusive = true }
         }
     },
@@ -135,7 +135,8 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 isLogout = true
             else
                 navController.navigate(screenRoute)
-        })
+        },
+        backClick = { navController.popBackStack() })
 }
 
 @Composable
@@ -143,31 +144,31 @@ fun MyProfileScreen(
     profilePic: String,
     onItemClick: (String) -> Unit,
     onBottomSheetShow: () -> Unit,
+    backClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue)))
+            .background(AppBG)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 8.dp, horizontal = 0.dp)
+                .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
-            Text(
-                text = stringResource(id = R.string.my_profile), fontSize = 16.sp,
-                fontFamily = mediumFont,
-                color = Color.White
-            )
+            Header(
+                modifier = null,
+                stringResource(id = R.string.my_profile),
+                backClick = { backClick() })
             Spacer(modifier = Modifier.padding(top = 20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
                     MyAsyncImage(imageUrl = profilePic, 50.dp, true)
                     Surface(
-                        color = LightBlue,
+                        color = DarkBlue,
                         shape = CircleShape,
                         modifier = Modifier
                             .width(16.dp)
@@ -225,7 +226,6 @@ fun ProfileOptions(
     )
     Column(
         modifier = Modifier
-            .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(color = Color.White)
     ) {
@@ -235,7 +235,7 @@ fun ProfileOptions(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp),
-                color = colorResource(id = R.color.text_grey)
+                color = DarkBlue
             )
         }
     }
@@ -291,18 +291,23 @@ fun ProfileOptionItem(
             }, verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(option.iconId), contentDescription = null
+            painter = painterResource(option.iconId), contentDescription = null,
+            colorFilter = ColorFilter.tint(LightBlue)
         )
+
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = option.title,
                 fontSize = 16.sp,
                 fontFamily = regularFont,
-                color = option.color
+                color = option.color,
             )
         }
-        Image(painter = painterResource(id = R.drawable.next_blk), contentDescription = null)
+        Image(
+            painter = painterResource(id = R.drawable.next_blk), contentDescription = null,
+            colorFilter = ColorFilter.tint(LightBlue)
+        )
     }
 }
 
@@ -312,6 +317,7 @@ fun MyProfileScreenPreview() {
     MyProfileScreen(
         onBottomSheetShow = {},
         profilePic = "",
-        onItemClick = {}
+        onItemClick = {},
+        backClick = {}
     )
 }

@@ -22,7 +22,7 @@ import java.util.Locale
 object Utils {
     // Function to load cities from JSON file in assets
     fun isValidPhone(phoneNumber: String): String {
-        val phoneNumberPattern = Regex("^[+]?[0-9]{10,13}\$")
+        val phoneNumberPattern = Regex("^[+]?[0-9]{10}\$")
         return if (phoneNumberPattern.matches(phoneNumber)) "" else "Enter valid number"
     }
 
@@ -106,7 +106,7 @@ object Utils {
     @RequiresApi(Build.VERSION_CODES.O)
     fun formatDateDisplay(dateString: String):String {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
-        val outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)
+        val outputFormatter = DateTimeFormatter.ofPattern("dd MMM yy", Locale.ENGLISH)
         val date = LocalDate.parse(dateString, inputFormatter)
         return date.format(outputFormatter)
     }

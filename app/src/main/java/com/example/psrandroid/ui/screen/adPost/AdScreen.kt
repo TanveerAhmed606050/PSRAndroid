@@ -3,10 +3,8 @@ package com.example.psrandroid.ui.screen.adPost
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.view.ViewGroup
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -37,14 +35,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -52,13 +49,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.media3.common.MediaItem
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.PlayerView
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.MetalData
@@ -70,10 +62,12 @@ import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.screen.rate.SearchBar
 import com.example.psrandroid.ui.screen.rate.models.SubData
+import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
-import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.regularFont
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -184,7 +178,7 @@ fun AdScreenView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(LightBlue, DarkBlue)))
+            .background(AppBG)
             .verticalScroll(rememberScrollState()),
     ) {
         Column(
@@ -202,12 +196,12 @@ fun AdScreenView(
         ImagePickerUI(selectedImages,
             onAddImageClick = { onAddImageClick() })
         Spacer(modifier = Modifier.height(10.dp))
-        VideoViewUI(context = context, videoUri = videoUri,
-            onAddVideoClick = { onAddVideoClick() })
-        Spacer(modifier = Modifier.height(10.dp))
+//        VideoViewUI(context = context, videoUri = videoUri,
+//            onAddVideoClick = { onAddVideoClick() })
+//        Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(id = R.string.main_metal),
-            color = Color.White,
+            color = DarkBlue,
             fontFamily = regularFont,
             modifier = Modifier.padding(start = 20.dp)
         )
@@ -222,7 +216,7 @@ fun AdScreenView(
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(id = R.string.sub_metal),
-            color = Color.White,
+            color = DarkBlue,
             fontFamily = regularFont,
             modifier = Modifier.padding(start = 20.dp)
         )
@@ -236,7 +230,7 @@ fun AdScreenView(
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(id = R.string.name),
-            color = Color.White,
+            color = DarkBlue,
             fontFamily = regularFont,
             modifier = Modifier.padding(start = 20.dp)
         )
@@ -255,7 +249,7 @@ fun AdScreenView(
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(id = R.string.city),
-            color = Color.White,
+            color = DarkBlue,
             fontFamily = regularFont,
             modifier = Modifier.padding(start = 20.dp)
         )
@@ -280,9 +274,9 @@ fun AdScreenView(
             Text(
                 text = selectedCity,
                 color = DarkBlue,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 letterSpacing = 2.sp,
-                fontWeight = FontWeight.Medium,
+                fontFamily = regularFont,
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -320,62 +314,7 @@ fun AdScreenView(
                 .padding(bottom = 30.dp, start = 20.dp, end = 20.dp),
             text = stringResource(id = R.string.ad_post),
             onButtonClick = {})
-    }
-}
-
-@OptIn(UnstableApi::class)
-@Composable
-fun VideoViewUI(
-    context: Context,
-    videoUri: Uri?,
-    onAddVideoClick: () -> Unit
-) {
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            val mediaItem =
-                videoUri?.let { MediaItem.fromUri(it) }
-            if (mediaItem != null) {
-                setMediaItem(mediaItem)
-            }
-            prepare()
-            playWhenReady = true
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 20.dp)
-            .fillMaxWidth()
-            .height(250.dp)
-            .background(Color.White, RoundedCornerShape(12.dp))
-            .clip(RoundedCornerShape(12.dp)),
-        contentAlignment = Alignment.BottomEnd,
-    ) {
-        AndroidView(
-            factory = {
-                PlayerView(context).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    player = exoPlayer
-                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-        // Button
-        Button(
-            onClick = { onAddVideoClick() },
-            shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(containerColor = DarkBlue),
-        ) {
-            Text(
-                text = "Add video",
-                color = Color.White,
-                fontSize = 16.sp
-            )
-        }
+        Spacer(modifier = Modifier.height(20.dp))
     }
 }
 
@@ -384,6 +323,8 @@ fun ImagePickerUI(
     imageList: List<Uri>,
     onAddImageClick: () -> Unit
 ) {
+    val pagerState = rememberPagerState()
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -396,30 +337,27 @@ fun ImagePickerUI(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ImageSlider(images = imageList)
-
-            // Icons section
-//            Row(
-//                modifier = Modifier.padding(bottom = 16.dp),
-//                verticalAlignment = Alignment.CenterVertically,
-//                horizontalArrangement = Arrangement.Center
-//            ) {
-//                val icons = listOf(
-//                    painterResource(id = R.drawable.home_ic),  // Replace with your drawable resources
-//                    painterResource(id = R.drawable.calendar_ic),
-//                    painterResource(id = R.drawable.home_ic)
-//                )
-//
-//                icons.forEachIndexed { index, painter ->
-//                    Image(
-//                        painter = painter,
-//                        contentDescription = null,
-//                        modifier = Modifier
-//                            .size(50.dp)
-//                            .padding(horizontal = 8.dp)
-//                    )
-//                }
-//            }
+            HorizontalPager(
+                count = imageList.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                val uri = imageList[page]
+                Box(
+                    modifier = Modifier
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Selected Image $page",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
             // Instruction text
             Text(
                 text = "5MB maximum file size accepted in the\nfollowing formats: jpg, jpeg, png, .gif",

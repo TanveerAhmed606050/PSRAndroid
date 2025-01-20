@@ -6,9 +6,7 @@ import androidx.core.content.edit
 import com.example.psrandroid.response.AuthData
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
-import com.example.psrandroid.response.User
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,11 +21,15 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         const val DEALERS_LIST = "dealers_list"
         const val IS_FIRST_LAUNCH = "isFirstLaunch"
         const val LATEST_SEARCH = "latest_search"
+        const val READ_TERMS = "read_terms"
     }
 
     var isFirstLaunch: Boolean
         get() = sharedPreferences.getBoolean(IS_FIRST_LAUNCH, true)
         set(value) = sharedPreferences.edit { putBoolean(IS_FIRST_LAUNCH, value) }
+    var isTermsAccept: Boolean
+        get() = sharedPreferences.getBoolean(READ_TERMS, false)
+        set(value) = sharedPreferences.edit { putBoolean(READ_TERMS, value) }
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
     private val gson = Gson()
@@ -46,7 +48,7 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
     }
 
     var lastSearchMetal: String
-        get() = sharedPreferences.getString(LATEST_SEARCH, "iron")?:""
+        get() = sharedPreferences.getString(LATEST_SEARCH, "iron") ?: ""
         set(value) = sharedPreferences.edit { putString(LATEST_SEARCH, value) }
 
     fun saveLocationList(locationData: LocationResponse) {
