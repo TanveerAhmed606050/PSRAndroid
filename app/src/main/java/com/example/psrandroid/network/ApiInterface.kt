@@ -12,6 +12,8 @@ import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.ui.screen.adPost.models.AllAds
+import com.example.psrandroid.ui.screen.adPost.models.CreatePost
+import com.example.psrandroid.ui.screen.adPost.models.CreatePostResponse
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -63,13 +65,13 @@ interface ApiInterface {
     @GET("searchSuggestion")
     suspend fun getSearchMetals(
         @Query("location_id") locationId: String,
-        @Query("metal_name") metalName: String
+        @Query("metal_name") metalName: String,
     ): DashboardMetal
 
     @GET("search")
     suspend fun getSubMetals(
         @Query("location_id") locationId: String,
-        @Query("metal_name") metalName: String
+        @Query("metal_name") metalName: String,
     ): SearchSubMetal
 
     @GET("LMEMetals")
@@ -87,4 +89,9 @@ interface ApiInterface {
 
     @GET("Ads/getSubmetals")
     suspend fun getAllSubMetals(): AllSubMetalData
+
+    @POST("Ads/create")
+    suspend fun createPost(
+        @Body createPost: CreatePost
+    ): CreatePostResponse
 }

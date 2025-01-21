@@ -33,7 +33,7 @@ import androidx.window.layout.FoldingFeature
 import com.example.psp_android.R
 import com.example.psrandroid.ui.screen.adPost.AdPostScreen
 import com.example.psrandroid.ui.screen.adPost.AdPostVM
-import com.example.psrandroid.ui.screen.adPost.AdScreen
+import com.example.psrandroid.ui.screen.adPost.CreateAdScreen
 import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.auth.AuthVM
@@ -407,7 +407,7 @@ fun PSRNavHost(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            AdScreen(navController, adPostVM, rateVM = rateVM)
+            CreateAdScreen(navController, adPostVM, rateVM = rateVM)
         }
         composable(
             route = Screen.AdDetailScreen.route + "Details/{data}",

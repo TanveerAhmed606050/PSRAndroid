@@ -40,6 +40,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,7 +68,7 @@ import io.github.rupinderjeet.kprogresshud.KProgressHUD
 @Composable
 fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
-    val adsData = adPostVM.adsData
+    val adsData = adPostVM.allAdsData
     val progressBar: KProgressHUD = remember { context.progressBar() }
     progressBar.isVisible(adPostVM.isLoading)
     val noInternetMessage = stringResource(id = R.string.network_error)
@@ -188,6 +190,8 @@ fun AdPostScreen(
                             onAdsClick = { onAdsClick(it) }
                         )
                         Spacer(modifier = Modifier.height(20.dp))
+                        if (index + 1 == adsData?.size)
+                            Spacer(modifier = Modifier.height(80.dp))
                     }
                 }
             }
@@ -217,7 +221,6 @@ fun AdPostScreen(
                 )
             }
         )
-
     }
 }
 
@@ -230,11 +233,11 @@ fun AdsItemsView(
     // Display the current image
     Card(
         modifier = modifier
-            .height(200.dp)
+            .height(180.dp)
             .fillMaxWidth()
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { onAdsClick(adData) },
-        elevation = CardDefaults.elevatedCardElevation(12.dp), // Use CardDefaults for elevation
+        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
         colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
     ) {
         Box(
@@ -255,27 +258,39 @@ fun AdsItemsView(
                 Column(
                     modifier = Modifier.padding(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+//                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start,
                         text = adData.metalName,
                         fontSize = 14.sp,
                         fontFamily = mediumFont,
                         color = Color.DarkGray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start,
                         text = "PKR ${adData.price}",
                         fontSize = 16.sp,
                         fontFamily = mediumFont,
                         color = Color.DarkGray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start,
                         text = adData.city,
                         fontSize = 14.sp,
                         fontFamily = regularFont,
                         color = Color.DarkGray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -283,6 +298,8 @@ fun AdsItemsView(
                         fontSize = 14.sp,
                         fontFamily = regularFont,
                         color = Color.Gray,
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }

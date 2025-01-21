@@ -114,7 +114,6 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
         )
     }
     val noInternetMessage = stringResource(id = R.string.network_error)
-    var expandedCity by remember { mutableStateOf(false) }
     val locationData = locationList.map { "${it.name}" }
 
     LaunchedEffect(locationId) {
@@ -447,8 +446,7 @@ fun SearchBar(
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.White, shape = RoundedCornerShape(12))
-                    .clip(RoundedCornerShape(12.dp))
+                    .background(color = Color.White, shape = RoundedCornerShape(10))
                     .padding(0.dp)
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused

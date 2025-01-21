@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.repository.HomeRepository
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.ui.screen.adPost.models.AllAds
+import com.example.psrandroid.ui.screen.adPost.models.CreatePost
+import com.example.psrandroid.ui.screen.adPost.models.CreatePostResponse
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.utils.Result
@@ -22,18 +24,19 @@ class AdPostVM @Inject constructor(
 ) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
-    var adsData by mutableStateOf<AllAds?>(null)
+    var allAdsData by mutableStateOf<AllAds?>(null)
     var locationAds by mutableStateOf<AllAds?>(null)
     var subMetalData by mutableStateOf<AllSubMetalData?>(null)
     var suggestSubMetals by mutableStateOf<List<SubData>?>(null)
+    var adPostResponse by mutableStateOf<CreatePostResponse?>(null)
 
     fun getAllAds() = viewModelScope.launch {
-        if (adsData == null) {
+        if (allAdsData == null) {
             isLoading = true
             val result = homeRepository.getAllAds()
             isLoading = false
             if (result is Result.Success) {
-                adsData = result.data
+                allAdsData = result.data
             } else if (result is Result.Failure) {
                 error = result.exception.message ?: "Failure"
             }
@@ -45,7 +48,7 @@ class AdPostVM @Inject constructor(
         val result = homeRepository.getAdsByLocation(location)
         isLoading = false
         if (result is Result.Success) {
-            adsData = result.data
+            allAdsData = result.data
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
@@ -56,6 +59,19 @@ class AdPostVM @Inject constructor(
             val result = homeRepository.getAllSubMetals()
             if (result is Result.Success) {
                 subMetalData = result.data
+            } else if (result is Result.Failure) {
+                error = result.exception.message ?: "Failure"
+            }
+        }
+    }
+
+    fun createPost(createPost: CreatePost) = viewModelScope.launch {
+        isLoading = true
+        if (adPostResponse == null) {
+            val result = homeRepository.createPost(createPost)
+            isLoading = false
+            if (result is Result.Success) {
+                adPostResponse = result.data
             } else if (result is Result.Failure) {
                 error = result.exception.message ?: "Failure"
             }
