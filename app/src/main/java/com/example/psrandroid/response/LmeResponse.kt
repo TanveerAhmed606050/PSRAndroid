@@ -26,11 +26,11 @@ data class LmeData(
 
 val LmeData.Companion.mockup by lazy {
     LmeData(
-        changeInRate = "15",
+        changeInRate = "-1.5",
         createdAt = "no",
         expiryDate = "2025-01-21",
         id = 6163,
-        name = "Plastic",
+        name = "Copper",
         price = "12",
         updatedAt = "quas"
     )

@@ -3,7 +3,6 @@ package com.example.psrandroid.ui.screen.home
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -104,7 +104,7 @@ fun HomeScreenViews(
     onAdsClick: (AdData) -> Unit,
 ) {
     //UI
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(AppBG)
@@ -129,7 +129,6 @@ fun HomeScreenViews(
                     fontFamily = mediumFont,
                     color = DarkBlue,
                     modifier = Modifier.weight(1f), // Takes equal space and helps centering
-//                    modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
                 Row(
@@ -143,7 +142,7 @@ fun HomeScreenViews(
             }
             Spacer(modifier = Modifier.height(20.dp))
             SeeAllView(stringResource(id = R.string.buy_sell), clickAllViews = { onSeeAllAds() })
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(0.dp))
             LazyRow(
                 contentPadding = PaddingValues(vertical = 8.dp),
                 modifier = Modifier.height(220.dp) // Explicit height for LazyRow
@@ -155,7 +154,7 @@ fun HomeScreenViews(
                             .height(200.dp),
                         onAdsClick = { onAdsClick(it) }
                     )
-                    Spacer(modifier = Modifier.width(20.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -188,7 +187,7 @@ fun HomeScreenViews(
             ) {
                 items(3) { index ->
                     ScrapRateItem(metalDetail = SubMetalData.mockup)
-                    Spacer(modifier = Modifier.width(20.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -199,10 +198,10 @@ fun HomeScreenViews(
             ) {
                 items(3) { index ->
                     HomeLmeItem(LmeData.mockup)
-                    Spacer(modifier = Modifier.width(20.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                 }
             }
-            Spacer(modifier = Modifier.height(70.dp))
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }
@@ -227,8 +226,8 @@ fun CityItems(
         Text(
             text = cityName,
             color = if (isSelected) Color.White else LightBlue,
-            fontFamily = mediumFont,
-            fontSize = 16.sp,
+            fontFamily = regularFont,
+            fontSize = 14.sp,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
@@ -251,7 +250,6 @@ fun HomeAdsItems(
         Box(
             modifier = Modifier.fillMaxSize() // Make Box take up the full size of the Card
         ) {
-//            Image(painter = painterResource(id = R.drawable.splash_ic), contentDescription = "")
             AsyncImage(
                 model = adData.photos, contentDescription = "",
                 error = painterResource(id = R.drawable.demo_scrap),
@@ -285,8 +283,8 @@ fun HomeAdsItems(
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = "PKR ${adData.price}",
-                        fontSize = 16.sp,
-                        fontFamily = mediumFont,
+                        fontSize = 14.sp,
+                        fontFamily = regularFont,
                         color = Color.DarkGray,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
@@ -314,122 +312,135 @@ fun HomeAdsItems(
 fun ScrapRateItem(metalDetail: SubMetalData?) {
     Card(
         modifier = Modifier
-//            .fillMaxSize()
+            .height(180.dp)
+            .fillMaxWidth() // Ensures the row takes the full width of the parent
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { },
         elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
         colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxHeight()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.SpaceAround,
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(end = 12.dp)
+            Row(
+                modifier = Modifier,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier.width(74.dp),
                     text = "Iron",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
+//                Spacer(modifier = Modifier.weight(1f)) // Pushes the second Text to the end
                 Text(
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier,
+                    text = "Rs. 2150", color = Color.DarkGray, fontSize = 12.sp,
+                    fontFamily = regularFont, textAlign = TextAlign.Center,
+                )
+            }
+            Row(
+                modifier = Modifier
+            ) {
+                Text(
+                    modifier = Modifier.width(74.dp),
                     text = "Copper",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
                 Text(
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier, // Occupies 1x space
+                    text = "Rs. 102", color = Color.DarkGray, fontSize = 12.sp,
+                    fontFamily = regularFont, textAlign = TextAlign.End,
+                )
+            }
+            Row(
+                modifier = Modifier
+            ) {
+                Text(
+                    modifier = Modifier.width(74.dp),
                     text = "Silver",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
                 Text(
-                    modifier = Modifier.padding(bottom = 8.dp),
+                    modifier = Modifier,
+                    text = stringResource(id = R.string.watch_ad),
+                    color = Color.DarkGray,
+                    fontSize = 12.sp,
+                    fontFamily = regularFont,
+                    textAlign = TextAlign.End,
+                )
+            }
+            Row(
+                modifier = Modifier
+            ) {
+                Text(
+                    modifier = Modifier.width(74.dp),
                     text = "Plastic",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
                 Text(
-                    text = "Megalomania",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = mediumFont,
+                    modifier = Modifier,
+                    text = "Rs. ****",
+                    color = Color.DarkGray,
+                    fontSize = 12.sp,
+                    fontFamily = regularFont,
+                    textAlign = TextAlign.End,
+                )
+            }
+            Row(
+                modifier = Modifier
+            ) {
+                Text(
+                    modifier = Modifier.width(74.dp),
+                    text = "Nikal",
+                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
-            }
-            Column()
-            {
                 Text(
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .weight(1f), // Occupies 1x space
-                    text = "Rs. 2150", color = Color.DarkGray, fontSize = 16.sp,
-                    fontFamily = mediumFont, textAlign = TextAlign.End,
+                    modifier = Modifier,
+                    text = "Rs. ****",
+                    color = Color.DarkGray,
+                    fontSize = 12.sp,
+                    fontFamily = regularFont,
+                    textAlign = TextAlign.End,
                 )
-                Text(
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .weight(1f), // Occupies 1x space
-                    text = "Rs. 102", color = Color.DarkGray, fontSize = 16.sp,
-                    fontFamily = mediumFont, textAlign = TextAlign.End,
-                )
-                Row(
-                    modifier = Modifier.weight(3f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(bottom = 8.dp)
-                            .border(
-                                color = DarkBlue,
-                                shape = RoundedCornerShape(4.dp),
-                                width = 0.8.dp
-                            )
-                            .padding(6.dp),
-                        text = stringResource(id = R.string.watch_ad),
-                        color = DarkBlue,
-                        fontSize = 14.sp,
-                        fontFamily = regularFont,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-//                Text(
-//                    modifier = Modifier.padding(bottom = 8.dp),
-//                    text = "Rs. 1420",
-//                    color = DarkBlue,
-//                    fontSize = 16.sp,
-//                    fontFamily = mediumFont,
-//                    textAlign = TextAlign.End,
-//                )
-//                Text(
-//                    modifier = Modifier.padding(bottom = 8.dp),
-//                    text = "Rs. 150",
-//                    color = DarkBlue,
-//                    fontSize = 16.sp,
-//                    fontFamily = mediumFont,
-//                    textAlign = TextAlign.End,
-//                )
-//                Text(
-//                    modifier = Modifier,
-//                    text = "Rs. 1820",
-//                    color = DarkBlue,
-//                    fontSize = 16.sp,
-//                    fontFamily = mediumFont,
-//                    textAlign = TextAlign.End,
-//                )
             }
+//                Row(
+//                    modifier = Modifier.weight(3f),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Text(
+//                        modifier = Modifier
+//                            .padding(bottom = 4.dp)
+//                            .border(
+//                                color = DarkBlue,
+//                                shape = RoundedCornerShape(4.dp),
+//                                width = 0.8.dp
+//                            )
+//                            .padding(6.dp),
+//                        text = stringResource(id = R.string.watch_ad),
+//                        color = DarkBlue,
+//                        fontSize = 14.sp,
+//                        fontFamily = regularFont,
+//                        textAlign = TextAlign.Center,
+//                    )
+//                }
         }
     }
 }
@@ -447,15 +458,16 @@ fun HomeLmeItem(lmeData: LmeData) {
     ) {
         Row(
             modifier = Modifier
-                .padding(end = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
-                modifier = Modifier.padding(8.dp),
+//                modifier = Modifier.padding(8.dp),
             ) {
                 Text(
+                    modifier = Modifier.width(70.dp),
                     text = lmeData.name,
-                    fontSize = 14.sp,
+                    fontSize = 12.sp,
                     color = Color.DarkGray,
                     maxLines = 1,
                     fontFamily = regularFont,
@@ -472,17 +484,15 @@ fun HomeLmeItem(lmeData: LmeData) {
                         .padding(vertical = 3.dp, horizontal = 6.dp),
                     color = Color.White,
                     fontFamily = mediumFont,
-                    fontSize = 14.sp
+                    fontSize = 12.sp
                 )
             }
             Column(
-                modifier = Modifier.padding(4.dp),
+//                modifier = Modifier.padding(4.dp),
             ) {
                 Text(
                     text = "Rs. ${lmeData.price}",
                     modifier = Modifier
-//                        .background(DarkBlue, RoundedCornerShape(10.dp))
-//                        .padding(vertical = 4.dp, horizontal = 8.dp)
                         .align(Alignment.End),
                     fontSize = 12.sp,
                     fontFamily = regularFont,
@@ -492,11 +502,10 @@ fun HomeLmeItem(lmeData: LmeData) {
                 Text(
                     text = "Expire ${formatDateDisplay(lmeData.expiryDate)}",
                     modifier = Modifier,
-//                        .background(DarkBlue, RoundedCornerShape(10.dp))
-//                        .padding(vertical = 4.dp, horizontal = 8.dp),
                     fontSize = 10.sp,
                     fontFamily = regularFont,
                     color = Color.DarkGray,
+                    letterSpacing = 1.sp,
                 )
             }
         }
@@ -507,7 +516,7 @@ fun HomeLmeItem(lmeData: LmeData) {
 fun SeeAllView(text: String, clickAllViews: () -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = text, color = DarkBlue,
+            text = text, color = Color.DarkGray,
             fontFamily = regularFont, fontSize = 16.sp,
         )
         Text(

@@ -304,13 +304,12 @@ fun UpdateProfileScreen(
                         .fillMaxWidth()
                         .fillMaxHeight()
                         .wrapContentHeight(Alignment.Bottom)
-//                        .padding(bottom = 40.dp)
                 ) {
                     AppButton(modifier = Modifier,
                         text = stringResource(id = R.string.update_profile),
                         onButtonClick = { updateButtonClick() })
                 }
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(30.dp))
             }
         }
         /*

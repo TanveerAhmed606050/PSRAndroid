@@ -91,7 +91,7 @@ fun PrivacyPolicyViews(
                 text = stringResource(id = R.string.agree_continue),
                 onButtonClick = { onAgreeClick() }
             )
-            Spacer(modifier = Modifier.padding(bottom = 20.dp))
+            Spacer(modifier = Modifier.padding(bottom = 40.dp))
         }
     }
 }

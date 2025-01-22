@@ -109,7 +109,7 @@ object Utils {
     @RequiresApi(Build.VERSION_CODES.O)
     fun formatDateDisplay(dateString: String): String {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
-        val outputFormatter = DateTimeFormatter.ofPattern("dd MMM yy", Locale.ENGLISH)
+        val outputFormatter = DateTimeFormatter.ofPattern("dd MMM", Locale.ENGLISH)
         val date = LocalDate.parse(dateString, inputFormatter)
         return date.format(outputFormatter)
     }

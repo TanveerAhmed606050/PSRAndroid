@@ -115,4 +115,7 @@ dependencies {
     // Pager libs
     implementation(libs.accompanist.pager)
     implementation(libs.pager.indicators)
+    //accompanist
+    implementation(libs.accompanist)
+
 }

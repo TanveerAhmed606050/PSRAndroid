@@ -6,7 +6,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,8 +66,8 @@ import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.SubMetalData
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.auth.AuthVM
-import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.home.CityItems
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -76,19 +75,20 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
     val context = LocalContext.current
-    val progressBar: KProgressHUD = remember { context.progressBar() }
+//    val progressBar: KProgressHUD = remember { context.progressBar() }
     var isRefreshing by remember { mutableStateOf(false) }
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = rateVM.isLoading
+    if (showProgress)
+        LoadingDialog()
     if (!rateVM.isLoading)
         isRefreshing = false
 
@@ -96,7 +96,6 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
         it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
     }?.id ?: 0 // get location id
 
-    progressBar.isVisible(rateVM.isLoading)
     val locationList = rateVM.userPreferences.getLocationList()?.data ?: listOf()
 
     var search by remember { mutableStateOf(TextFieldValue(rateVM.userPreferences.lastSearchMetal)) }
@@ -259,6 +258,8 @@ fun DashBoardScreen(
                     NoProductView("No metal found", DarkBlue)
                 else
                     ProductList(productList)
+                Spacer(modifier = Modifier.height(120.dp))
+
             }
         }
     }
@@ -287,14 +288,14 @@ fun HeaderSection(
 //            Row(
 //                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
 //            ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.rate),
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont,
-                    color = DarkBlue,
-                    textAlign = TextAlign.Center,
-                )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.rate),
+                fontSize = 16.sp,
+                fontFamily = mediumFont,
+                color = DarkBlue,
+                textAlign = TextAlign.Center,
+            )
 //                Spacer(modifier = Modifier.weight(1f))
 //                Image(
 //                    painter = painterResource(id = R.drawable.location_ic),

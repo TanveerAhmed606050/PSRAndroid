@@ -16,6 +16,7 @@
     <string name="forgot_pass">Forgot Password</string>
     <string name="login_in">Login</string>
     <string name="logout">Logout</string>
+    <string name="loading">Loading...</string>
     <string name="password_change">Change Password</string>
     <string name="privacy_policy">Privacy Policies</string>
     <string name="terms_condition">Terms and Conditions</string>

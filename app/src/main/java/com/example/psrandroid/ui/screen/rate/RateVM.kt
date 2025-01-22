@@ -49,7 +49,9 @@ class RateVM @Inject constructor(
     }
 
     fun getSubMetals(locationId: String, metalName: String) = viewModelScope.launch {
+        isLoading = true
         val result = dashboardRepository.getSubMetals(locationId, metalName)
+        isLoading = false
         if (result is Result.Success) {
             subMetalData = result.data
             suggestSubMetals = result.data.data
@@ -60,7 +62,9 @@ class RateVM @Inject constructor(
 
     fun getMainMetals(locationId: String, metalName: String) = viewModelScope.launch {
         if (mainMetalData == null) {
+            isLoading = true
             val result = dashboardRepository.getSearchMetals(locationId, metalName)
+            isLoading = false
             if (result is Result.Success) {
                 mainMetalData = result.data
                 suggestMainMetals = result.data.data

@@ -124,7 +124,7 @@ fun SplashScreen() {
                 fontFamily = boldFont,
                 modifier = Modifier.padding(bottom = 20.dp),
             )
-            Spacer(modifier = Modifier.padding(bottom = 20.dp))
+            Spacer(modifier = Modifier.padding(bottom = 30.dp))
         }
     }
 //        Image(

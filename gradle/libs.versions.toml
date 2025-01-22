@@ -33,6 +33,7 @@ googleService = "4.4.2"
 playServicesAds = "23.2.0"
 firebaseAuthKtx = "23.1.0"
 pagerVersion = "0.32.0"
+accompanistVersion = "0.37.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -80,6 +81,7 @@ firebase_auth = { module = "com.google.firebase:firebase-auth", version.ref = "f
 #firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuthKtx" }
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "pagerVersion" }
 pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "pagerVersion" }
+accompanist = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "pagerVersion" }
 
 [plugins]
 google-service-gms = { id = "com.google.gms.google-services", version.ref = "googleService"}

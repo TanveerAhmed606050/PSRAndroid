@@ -49,6 +49,7 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.auth.ListDialog
@@ -69,8 +70,12 @@ import io.github.rupinderjeet.kprogresshud.KProgressHUD
 fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
     val adsData = adPostVM.allAdsData
-    val progressBar: KProgressHUD = remember { context.progressBar() }
-    progressBar.isVisible(adPostVM.isLoading)
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = adPostVM.isLoading
+    if (showProgress)
+        LoadingDialog()
+//    val progressBar: KProgressHUD = remember { context.progressBar() }
+//    progressBar.isVisible(adPostVM.isLoading)
     val noInternetMessage = stringResource(id = R.string.network_error)
     var expandedCity by remember { mutableStateOf(false) }
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
@@ -189,9 +194,9 @@ fun AdPostScreen(
                         AdsItemsView(adsData?.get(index) ?: AdData.mockup, modifier = Modifier,
                             onAdsClick = { onAdsClick(it) }
                         )
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         if (index + 1 == adsData?.size)
-                            Spacer(modifier = Modifier.height(80.dp))
+                            Spacer(modifier = Modifier.height(120.dp))
                     }
                 }
             }
@@ -233,7 +238,7 @@ fun AdsItemsView(
     // Display the current image
     Card(
         modifier = modifier
-            .height(180.dp)
+            .height(150.dp)
             .fillMaxWidth()
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { onAdsClick(adData) },
@@ -253,10 +258,10 @@ fun AdsItemsView(
                     painter = painterResource(id = R.drawable.demo_scrap), contentDescription = "",
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
-                        .padding(10.dp)
+                        .padding(8.dp)
                 )
                 Column(
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
 //                    verticalArrangement = Arrangement.Center
                 ) {
@@ -264,8 +269,8 @@ fun AdsItemsView(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start,
                         text = adData.metalName,
-                        fontSize = 14.sp,
-                        fontFamily = mediumFont,
+                        fontSize = 12.sp,
+                        fontFamily = regularFont,
                         color = Color.DarkGray,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
@@ -275,8 +280,8 @@ fun AdsItemsView(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start,
                         text = "PKR ${adData.price}",
-                        fontSize = 16.sp,
-                        fontFamily = mediumFont,
+                        fontSize = 12.sp,
+                        fontFamily = regularFont,
                         color = Color.DarkGray,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
@@ -286,7 +291,7 @@ fun AdsItemsView(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start,
                         text = adData.city,
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontFamily = regularFont,
                         color = Color.DarkGray,
                         maxLines = 1,
@@ -294,12 +299,13 @@ fun AdsItemsView(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
                         text = adData.description,
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontFamily = regularFont,
                         color = Color.Gray,
-//                        maxLines = 1,
-//                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
