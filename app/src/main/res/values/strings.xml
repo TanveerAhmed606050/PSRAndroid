@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">PSR</string>
-    <string name="scrap_rate">Pakistan Scrap Rate</string>
+    <string name="scrap_rate">Scrap Rates</string>
     <string name="rate">Rate</string>
     <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
@@ -78,5 +78,5 @@
     <string name="metal_type">Metal Type</string>
     <string name="description">Description</string>
     <string name="see_all">See All</string>
-    <string name="buy_sell">Buy/Sell Scrap</string>
+    <string name="buy_sell">Buy Scrap</string>
 </resources>
