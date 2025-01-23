@@ -61,8 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.psp_android.R
-import com.example.psrandroid.dto.UpdateLocation
-import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.SubMetalData
@@ -83,7 +81,6 @@ import es.dmoral.toasty.Toasty
 @Composable
 fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
     val context = LocalContext.current
-//    val progressBar: KProgressHUD = remember { context.progressBar() }
     var isRefreshing by remember { mutableStateOf(false) }
     var showProgress by remember { mutableStateOf(false) }
     showProgress = rateVM.isLoading
@@ -137,9 +134,6 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
         onSearch = { query ->
             search = query
             rateVM.searchMainMetals(search.text)
-        }, addProfileClick = { navController.navigate(Screen.AddProfileScreen.route) },
-        onLocationClick = {
-//            expandedCity = true
         },
         onPullDown = {
             isRefreshing = true
@@ -168,16 +162,16 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
         },
         onCityItemClick = { locationName ->
             location = locationName
-            authVM.updateUserLocation(
-                UpdateLocation(
-                    userId = sharedPreferences.getUserPreference()?.id ?: 0,
-                    location = locationName
-                )
-            )
+//            authVM.updateUserLocation(
+//                UpdateLocation(
+//                    userId = sharedPreferences.getUserPreference()?.id ?: 0,
+//                    location = locationName
+//                )
+//            )
             locationId = rateVM.userPreferences.getLocationList()?.data?.find {
                 it.name.equals(locationName, ignoreCase = true)
             }?.id ?: 0
-
+            rateVM.getSubMetals("$locationId", search.text)
         })
 }
 
@@ -194,8 +188,6 @@ fun DashBoardScreen(
     suggestedSearchList: List<MetalData>?,
     onSearchClick: (TextFieldValue) -> Unit,
     onSearch: (TextFieldValue) -> Unit,
-    addProfileClick: () -> Unit,
-    onLocationClick: () -> Unit,
     onPullDown: () -> Unit,
     onCityItemClick: (String) -> Unit,
 ) {
@@ -217,10 +209,7 @@ fun DashBoardScreen(
                     .padding(bottom = 100.dp)
             ) {
                 // Header section
-                HeaderSection(name, address, phone, cityList, addProfileClick = {
-                    addProfileClick()
-                },
-                    onLocationClick = { onLocationClick() },
+                HeaderSection(headerTitle = stringResource(id = R.string.rate), cityList = cityList,
                     onCityItemClick = { onCityItemClick(it) })
 
                 Spacer(modifier = Modifier.height(0.dp))
@@ -267,10 +256,8 @@ fun DashBoardScreen(
 
 @Composable
 fun HeaderSection(
-    name: String, address: String, phone: String,
+    headerTitle: String,
     cityList: List<String>?,
-    addProfileClick: () -> Unit,
-    onLocationClick: () -> Unit,
     onCityItemClick: (String) -> Unit,
 ) {
     var selectedCity by remember { mutableStateOf<String?>(null) }
@@ -285,12 +272,9 @@ fun HeaderSection(
                 .align(Alignment.CenterStart)
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
-//            Row(
-//                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
-//            ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = stringResource(id = R.string.rate),
+                text = headerTitle,
                 fontSize = 16.sp,
                 fontFamily = mediumFont,
                 color = DarkBlue,
@@ -631,8 +615,6 @@ fun PreviewDashboardScreen() {
             suggestedSearchList = listOf(),
             isRefreshing = false,
             onSearch = {},
-            addProfileClick = {},
-            onLocationClick = {},
             onPullDown = {},
             onSearchClick = {},
             onCityItemClick = {},

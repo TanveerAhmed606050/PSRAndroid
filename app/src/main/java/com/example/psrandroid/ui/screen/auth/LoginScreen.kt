@@ -1,7 +1,6 @@
 package com.example.psrandroid.ui.screen.auth
 
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,13 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +35,7 @@ import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.AppButton
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.commonViews.PhoneTextField
 import com.example.psrandroid.ui.theme.AppBG
@@ -51,21 +46,21 @@ import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
 import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
 fun LoginScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
-    val progressBar: KProgressHUD = remember { context.progressBar() }
-    progressBar.isVisible(authVM.isLoading)
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = authVM.isLoading
+    if (showProgress)
+        LoadingDialog()
     val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
     if (isNetworkAvailable(context)) {
         if (locationList.isEmpty())
             authVM.getLocation()
     }
+    val noNetworkMessage = stringResource(id = R.string.network_error)
     //login api response
     val authData = authVM.loginData
     if (authData != null) {
@@ -94,7 +89,7 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
         } else
             Toasty.error(
                 context,
-                "No internet connection. Please check your network settings.",
+                noNetworkMessage,
                 Toast.LENGTH_SHORT,
                 true
             )

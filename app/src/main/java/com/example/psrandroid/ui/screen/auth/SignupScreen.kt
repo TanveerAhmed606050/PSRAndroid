@@ -24,7 +24,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -40,7 +39,6 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -63,6 +61,7 @@ import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.MyTextFieldWithBorder
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.commonViews.PhoneTextField
@@ -75,10 +74,7 @@ import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
 import com.example.psrandroid.utils.Utils.isValidText
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
 import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -87,10 +83,12 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     val showDialog = remember { mutableStateOf(false) }
     var isPhoneNoVerified by remember { mutableStateOf(false) }
     val otpText = remember { mutableStateOf("") }
-//    val verificationId by authVM.verificationId.collectAsState()
     val message by authVM.message.collectAsState()
-    val progressBar: KProgressHUD = remember { context.progressBar() }
-    progressBar.isVisible(authVM.isLoading)
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = authVM.isLoading
+    if (showProgress)
+        LoadingDialog()
+    val noNetworkMessage = stringResource(id = R.string.network_error)
     //register api response
     val authData = authVM.loginData
     val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
@@ -111,7 +109,6 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     if (authData != null) {
         if (authData.status) {
             Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
-//            navController.popBackStack()
             navController.navigate(Screen.HomeScreen.route) {
                 popUpTo(navController.graph.id)
             }
@@ -172,7 +169,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
             } else
                 Toasty.error(
                     context,
-                    "No internet connection. Please check your network settings.",
+                    noNetworkMessage,
                     Toast.LENGTH_SHORT,
                     true
                 )
@@ -186,7 +183,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                 } else
                     Toasty.error(
                         context,
-                        "No internet connection. Please check your network settings.",
+                        noNetworkMessage,
                         Toast.LENGTH_SHORT,
                         true
                     )
@@ -195,7 +192,6 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                 selectedCity = selectedLocation
         },
         onVerificationIconClick = { phoneNo ->
-            showDialog.value = true
             authVM.sendVerificationCode("+92$phoneNo", context as Activity)
         })
 }
@@ -233,12 +229,6 @@ fun SignupScreen(
             .background(AppBG)
             .verticalScroll(rememberScrollState())
     ) {
-//        Image(
-//            painter = painterResource(id = R.drawable.lang_city_bg),
-//            contentDescription = null,
-//            contentScale = ContentScale.Crop, // Adjust this as needed
-//            modifier = Modifier.fillMaxSize(),
-//        )
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Header(
@@ -339,15 +329,15 @@ fun SignupScreen(
                     }
                 )
                 Spacer(modifier = Modifier.padding(top = 30.dp))
-                if (isPhoneNoVerified)
-                    AppButton(
-                        modifier = Modifier
-                            .widthIn(min = 300.dp, max = 600.dp)
-                            .padding(bottom = 30.dp),
-                        text = stringResource(id = R.string.signup),
-                    ) {
-                        onRegisterButtonClick(phoneNumber, fullName, password, confirmPassword)
-                    }
+                AppButton(
+                    modifier = Modifier
+                        .widthIn(min = 300.dp, max = 600.dp)
+                        .padding(bottom = 30.dp),
+                    text = stringResource(id = R.string.signup),
+                    isEnable = isPhoneNoVerified
+                ) {
+                    onRegisterButtonClick(phoneNumber, fullName, password, confirmPassword)
+                }
                 Row(modifier = Modifier.align(CenterHorizontally)) {
                     Text(
                         text = stringResource(id = R.string.already_acc), modifier = Modifier
@@ -405,7 +395,6 @@ fun OtpDialog(
             confirmButton = {
                 TextButton(onClick = {
                     onConfirmBtn()
-//                    showDialog.value = false
                 }) {
                     Text(
                         stringResource(id = R.string.confirm),
@@ -441,9 +430,11 @@ fun ListDialog(
                 .fillMaxWidth()
                 .background(Color.White, shape = RoundedCornerShape(16.dp))
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth() // Ensures column takes the full width
-                .verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth() // Ensures column takes the full width
+                    .verticalScroll(rememberScrollState())
+            ) {
                 // List of cities from assets as clickable items
                 dataList.forEach { city ->
                     Text(

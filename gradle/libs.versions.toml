@@ -23,8 +23,6 @@ multidex = "2.0.1"
 toasty = "1.5.2"
 window = "1.3.0"
 material3WindowSizeClass = "1.3.0"
-komposecountrycodepicker = "1.1.2"
-kprogresshud = "1.0.0"
 accompanistAdaptive = "0.26.2-beta"
 swipe = "0.30.1"
 media3Ui = "1.4.1"
@@ -33,7 +31,6 @@ googleService = "4.4.2"
 playServicesAds = "23.2.0"
 firebaseAuthKtx = "23.1.0"
 pagerVersion = "0.32.0"
-accompanistVersion = "0.37.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -69,8 +66,6 @@ androidx-multidex = { module = "androidx.multidex:multidex", version.ref = "mult
 toast = { module = "com.github.GrenderG:Toasty", version.ref = "toasty" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "window" }
 androidx-material3-window = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClass" }
-komposecountrycodepicker = { module = "com.github.JoelKanyi:KomposeCountryCodePicker", version.ref = "komposecountrycodepicker" }
-kprogresshud = { module = "io.github.rupinderjeet:kprogresshud", version.ref = "kprogresshud" }
 accompanist-adaptive = { module = "com.google.accompanist:accompanist-adaptive", version.ref = "accompanistAdaptive" }
 swipe-refresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "swipe" }
 androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3Ui" }
@@ -78,7 +73,6 @@ androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplaye
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 play-services-gsm = { module = "com.google.gms:google-services", version.ref = "googleService" }
 firebase_auth = { module = "com.google.firebase:firebase-auth", version.ref = "firebaseAuthKtx" }
-#firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuthKtx" }
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "pagerVersion" }
 pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "pagerVersion" }
 accompanist = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "pagerVersion" }
