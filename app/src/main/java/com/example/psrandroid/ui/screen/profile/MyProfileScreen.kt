@@ -49,6 +49,7 @@ import com.example.psrandroid.dto.ProfileOption
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.Header
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.LogoutDialog
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.screen.auth.AuthVM
@@ -58,10 +59,7 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
 import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
 fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
@@ -77,7 +75,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     if (authData != null) {
         if (authData.status) {
             Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
-            profilePic = authData.data.profilePic ?: ""
+            profilePic = authData.data.profilePic
         } else
             Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
@@ -94,8 +92,10 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         onDismissRequest = {
             isLogout = false
         })
-    val progressBar: KProgressHUD = remember { context.progressBar() }
-    progressBar.isVisible(authVM.isLoading)
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = authVM.isLoading
+    if (showProgress)
+        LoadingDialog()
     val noInternetMessage = stringResource(id = R.string.network_error)
 
     val pickImageLauncher = rememberLauncherForActivityResult(

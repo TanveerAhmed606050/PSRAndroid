@@ -75,6 +75,7 @@ import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.CustomTextField
 import com.example.psrandroid.ui.commonViews.Header
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.RateVM
@@ -85,12 +86,9 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -129,8 +127,10 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     LaunchedEffect(Unit) {
         adPostVM.getAllSubMetals()
     }
-    val progressBar: KProgressHUD = remember { context.progressBar() }
-    progressBar.isVisible(adPostVM.isLoading)
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = rateVM.isLoading
+    if (showProgress)
+        LoadingDialog()
     val noInternetMessage = stringResource(id = R.string.network_error)
 
     // Launcher for selecting multiple images

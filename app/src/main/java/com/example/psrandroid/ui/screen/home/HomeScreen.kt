@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.home
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -85,7 +86,8 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
         onSeeAllLME = { navController.navigate(Screen.LmeScreen.route) },
         onAdsClick = { adData ->
             val adDataJson = Gson().toJson(adData)
-            navController.navigate(Screen.AdDetailScreen.route + "Details/${adDataJson}")
+            val encodedJson = Uri.encode(adDataJson)
+            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
         })
 }
 

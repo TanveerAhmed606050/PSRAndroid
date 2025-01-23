@@ -81,8 +81,6 @@ dependencies {
     //navigation
     implementation(libs.androidx.navigation.common.ktx)
     implementation(libs.androidx.navigation.compose)
-    //k progress bar
-    implementation (libs.kprogresshud)
 
     // Retrofit
     implementation(libs.retrofit)

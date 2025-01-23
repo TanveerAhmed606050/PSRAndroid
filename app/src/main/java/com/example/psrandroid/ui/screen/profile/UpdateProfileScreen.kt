@@ -59,6 +59,7 @@ import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.ProfileInputField
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
@@ -67,17 +68,16 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
 import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
 fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
     val sharedPreferences = authVM.userPreferences
     val context = LocalContext.current
-    val progressBar: KProgressHUD = remember { context.progressBar() }
-    progressBar.isVisible(authVM.isLoading)
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = authVM.isLoading
+    if (showProgress)
+        LoadingDialog()
     val userData = authVM.loginData
     if (userData != null) {
         if (userData.status) {

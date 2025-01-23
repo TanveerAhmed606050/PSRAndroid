@@ -29,7 +29,7 @@ data class AdData(
     @SerializedName("updated_at")
     val updatedAt: String,
     @SerializedName("video_path")
-    val videoPath: String
+    val videoPath: String = ""
 ) {
     companion object
 }
@@ -40,11 +40,11 @@ val AdData.Companion.mockup by lazy {
         createdAt = "inani",
         description = "Description",
         id = 4574,
-        metalName = "Norma Elliott",
-        name = "Heriberto Bell",
-        photos = "quisque",
-        price = "86 Lac",
-        submetal = "maluisset",
+        metalName = "Iron",
+        name = "Scrap Iron",
+        photos = "",
+        price = "6 Lac",
+        submetal = "Kanchi Tok",
         updatedAt = "vidisse",
         videoPath = "similique"
     )

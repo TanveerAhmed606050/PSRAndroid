@@ -22,7 +22,7 @@ import com.example.psrandroid.ui.theme.mediumFont
 
 @Composable
 fun AppButton(
-    modifier: Modifier, text: String,
+    modifier: Modifier, text: String, isEnable: Boolean = true,
     onButtonClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -37,7 +37,8 @@ fun AppButton(
             containerColor = if (isPressed) DarkBlue.copy(alpha = 0.7f) else DarkBlue
         ),
         shape = RoundedCornerShape(10.dp),
-        interactionSource = interactionSource
+        interactionSource = interactionSource,
+        enabled = isEnable,
     ) {
         Text(
             text = text,

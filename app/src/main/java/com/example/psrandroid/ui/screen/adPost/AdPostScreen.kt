@@ -1,10 +1,10 @@
 package com.example.psrandroid.ui.screen.adPost
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,44 +51,32 @@ import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
-import com.example.psrandroid.ui.screen.auth.ListDialog
+import com.example.psrandroid.ui.screen.rate.HeaderSection
 import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
-import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.isVisible
-import com.example.psrandroid.utils.progressBar
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
-import io.github.rupinderjeet.kprogresshud.KProgressHUD
 
 @Composable
 fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
+    var location by remember {
+        mutableStateOf(
+            adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
+        )
+    }
     val adsData = adPostVM.allAdsData
     var showProgress by remember { mutableStateOf(false) }
     showProgress = adPostVM.isLoading
     if (showProgress)
         LoadingDialog()
-//    val progressBar: KProgressHUD = remember { context.progressBar() }
-//    progressBar.isVisible(adPostVM.isLoading)
     val noInternetMessage = stringResource(id = R.string.network_error)
-    var expandedCity by remember { mutableStateOf(false) }
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val locationData = locationList.map { it.name }
-//    if (adsData != null) {
-//        homeVM.adsData = null
-//    }
-    if (expandedCity) {
-        ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
-            onConfirm = { locationName ->
-                adPostVM.getAdsByLocation(locationName)
-                expandedCity = false
-            })
-    }
     LaunchedEffect(Unit) {
         if (isNetworkAvailable(context))
             adPostVM.getAllAds()
@@ -97,15 +84,21 @@ fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()
     }
-    AdPostScreen(adsData?.data, onPlusIconClick = {
-        navController.navigate(Screen.AdScreen.route)
-    },
-        onFilter = {
-            expandedCity = true
+    AdPostScreen(
+        adsData = adsData?.data,
+        cityList = locationData, onPlusIconClick = {
+            navController.navigate(Screen.AdScreen.route)
+        },
+        onCityItemClick = { locationName ->
+            location = locationName
+            val locationId = adPostVM.userPreferences.getLocationList()?.data?.find {
+                it.name.equals(locationName, ignoreCase = true)
+            }?.id ?: 0
         },
         onAdsClick = { adData ->
             val adDataJson = Gson().toJson(adData)
-            navController.navigate(Screen.AdDetailScreen.route + "Details/${adDataJson}")
+            val encodedJson = Uri.encode(adDataJson)
+            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
         })
 
 }
@@ -113,11 +106,11 @@ fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
 @Composable
 fun AdPostScreen(
     adsData: List<AdData>?,
+    cityList: List<String>?,
     onPlusIconClick: () -> Unit,
-    onFilter: () -> Unit,
+    onCityItemClick: (String) -> Unit,
     onAdsClick: (AdData) -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -129,34 +122,33 @@ fun AdPostScreen(
                 .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.statusBarsPadding())
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.ad_post),
-                        fontSize = 16.sp,
-                        fontFamily = mediumFont,
-                        color = DarkBlue
-                    )
-                }
-                Box(modifier = Modifier) {
-                    Image(
-                        painter = painterResource(id = R.drawable.filter_ic),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { onFilter() },
-                        colorFilter = ColorFilter.tint(DarkBlue)
-                    )
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+//                Box(
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .fillMaxWidth(),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//                    Text(
+//                        text = stringResource(id = R.string.ad_post),
+//                        fontSize = 16.sp,
+//                        fontFamily = mediumFont,
+//                        color = DarkBlue
+//                    )
+//                }
+//                Box(modifier = Modifier) {
+//                    Image(
+//                        painter = painterResource(id = R.drawable.filter_ic),
+//                        contentDescription = "",
+//                        modifier = Modifier
+//                            .size(24.dp)
+//                            .clickable { onFilter() },
+//                        colorFilter = ColorFilter.tint(DarkBlue)
+//                    )
 //                    DropdownMenu(
 //                        expanded = expanded,
 //                        onDismissRequest = { expanded = false },
@@ -180,8 +172,11 @@ fun AdPostScreen(
 //                            )
 //                        }, onClick = { expanded = false })
 //                    }
-                }
-            }
+//                }
+//            }
+            // Header section
+            HeaderSection(headerTitle = stringResource(id = R.string.ad_post), cityList = cityList,
+                onCityItemClick = { onCityItemClick(it) })
             Spacer(modifier = Modifier.height(20.dp))
             if (adsData?.isEmpty() == true)
                 NoProductView(msg = "No Ads", Color.White)
@@ -318,8 +313,9 @@ fun AdsItemsView(
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        AdPostScreen(adsData = null, onPlusIconClick = {},
-            onFilter = {},
+        AdPostScreen(adsData = null,
+            cityList = listOf(), onPlusIconClick = {},
+            onCityItemClick = {},
             onAdsClick = {})
     }
 }

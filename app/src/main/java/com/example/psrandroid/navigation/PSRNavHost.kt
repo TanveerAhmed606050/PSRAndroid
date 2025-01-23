@@ -1,5 +1,6 @@
 package com.example.psrandroid.navigation
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -414,8 +415,9 @@ fun PSRNavHost(
             arguments = listOf(navArgument("data") { type = NavType.StringType }),
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
-        ) { backStackEntry ->
-            val userJson = backStackEntry.arguments?.getString("data")
+        ) {  backStackEntry ->
+            val encodedJson = backStackEntry.arguments?.getString("data")
+            val userJson = encodedJson?.let { Uri.decode(it) }
             val adData = userJson?.let { Gson().fromJson(it, AdData::class.java) }
             DetailAdScreen(navController, adPostVM, adData)
         }
