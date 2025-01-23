@@ -1,11 +1,14 @@
 package com.example.psrandroid.ui.commonViews
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,7 +24,9 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -29,11 +34,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 
 @Composable
 fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick: () -> Unit) {
@@ -139,6 +147,43 @@ fun LoadingDialog() {
                 Text(
                     text = stringResource(id = R.string.loading), color = Color.DarkGray,
                     fontFamily = regularFont, fontSize = 14.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FullScreenImageDialog(
+    onDismissRequest: () -> Unit,
+    imageList: List<Uri>,
+) {
+    val pagerState = rememberPagerState()
+    Dialog(
+        onDismissRequest = {onDismissRequest()}, properties = DialogProperties(
+            dismissOnBackPress = true, dismissOnClickOutside = true
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 20.dp)
+                .background(AppBG, shape = RoundedCornerShape(10.dp))
+        ) {
+            HorizontalPager(
+                count = imageList.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                val uri = imageList[page]
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
+                    contentDescription = "Selected Image $page",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(10.dp))
+                        .clickable { },
+                    contentScale = ContentScale.Crop,
                 )
             }
         }

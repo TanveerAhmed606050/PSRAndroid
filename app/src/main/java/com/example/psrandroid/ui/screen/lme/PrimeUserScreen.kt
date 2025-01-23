@@ -1,6 +1,7 @@
 package com.example.psrandroid.ui.screen.lme
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +18,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,8 +36,10 @@ import com.example.psp_android.R
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.PrimeUserData
 import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.commonViews.GoogleInterstitialAd
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
+import com.example.psrandroid.ui.commonViews.showInterstitialAd
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -43,16 +50,28 @@ import com.example.psrandroid.ui.theme.regularFont
 
 @Composable
 fun PrimeUserScreen(navController: NavController, dashboardVM: RateVM) {
+    val context = LocalContext.current
     val primeUserData = dashboardVM.premiumUserData
+    var watchAd by remember { mutableStateOf(false) }
+    GoogleInterstitialAd(context = context, onAdClick = {
+    })
 
     LaunchedEffect(Unit) {
         dashboardVM.getPremiumUser()
     }
-    PrimeUserScreen(primeUserData)
+    PrimeUserScreen(watchAd, primeUserData,
+        onShowContact = { contact ->
+            if (contact == context.getString(R.string.show_no))
+                showInterstitialAd(context)
+            watchAd = true
+        })
 }
 
 @Composable
-fun PrimeUserScreen(primeUserData: PrimeUser?) {
+fun PrimeUserScreen(
+    watchAd: Boolean, primeUserData: PrimeUser?,
+    onShowContact: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +99,11 @@ fun PrimeUserScreen(primeUserData: PrimeUser?) {
                 contentPadding = PaddingValues(horizontal = 0.dp)
             ) {
                 items(primeUserData?.data?.size ?: 0) { index ->
-                    UserItemData(primeUserData?.data?.get(index) ?: PrimeUserData.mockup)
+                    UserItemData(
+                        watchAd = watchAd,
+                        primeUserData?.data?.get(index) ?: PrimeUserData.mockup,
+                        onShowContact = { onShowContact(it) }
+                    )
                 }
             }
         }
@@ -88,7 +111,10 @@ fun PrimeUserScreen(primeUserData: PrimeUser?) {
 }
 
 @Composable
-fun UserItemData(primeUserData: PrimeUserData) {
+fun UserItemData(
+    watchAd: Boolean, primeUserData: PrimeUserData,
+    onShowContact: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,16 +147,10 @@ fun UserItemData(primeUserData: PrimeUserData) {
                     fontSize = 12.sp,
                 )
                 Text(
-                    text = "Business Name",
+                    text = stringResource(id = R.string.business_name),
                     fontSize = 12.sp,
                     fontFamily = regularFont,
                     color = DarkBlue,
-                )
-                Text(
-                    text = "Phone Number",
-                    fontSize = 12.sp,
-                    color = DarkBlue,
-                    fontFamily = regularFont,
                 )
                 Text(
                     text = stringResource(id = R.string.address),
@@ -139,10 +159,16 @@ fun UserItemData(primeUserData: PrimeUserData) {
                     fontSize = 12.sp,
                 )
                 Text(
-                    text = "Metals",
+                    text = stringResource(id = R.string.metals),
                     fontFamily = regularFont,
                     color = DarkBlue,
                     fontSize = 12.sp,
+                )
+                Text(
+                    text = stringResource(id = R.string.phone_no),
+                    fontSize = 12.sp,
+                    color = DarkBlue,
+                    fontFamily = regularFont,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -150,6 +176,7 @@ fun UserItemData(primeUserData: PrimeUserData) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 8.dp, start = 8.dp),
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
@@ -169,14 +196,6 @@ fun UserItemData(primeUserData: PrimeUserData) {
                     fontFamily = mediumFont,
                 )
                 Text(
-                    text = primeUserData.whatsapp,
-                    color = LightBlue,
-                    fontFamily = mediumFont,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    fontSize = 14.sp,
-                )
-                Text(
                     text = primeUserData.location,
                     color = LightBlue,
                     fontFamily = mediumFont,
@@ -191,6 +210,15 @@ fun UserItemData(primeUserData: PrimeUserData) {
                     fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                )
+                Text(
+                    text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
+                    color = LightBlue,
+                    fontFamily = mediumFont,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    fontSize = 14.sp,
+                    modifier = Modifier.clickable { onShowContact(primeUserData.whatsapp) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -208,6 +236,7 @@ fun UserItemData(primeUserData: PrimeUserData) {
 @Composable
 fun PrimeUserScreenPreview() {
     PSP_AndroidTheme {
-        PrimeUserScreen(primeUserData = PrimeUser.mockup)
+        PrimeUserScreen(false, primeUserData = PrimeUser.mockup,
+            onShowContact = {})
     }
 }

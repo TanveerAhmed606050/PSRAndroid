@@ -74,6 +74,7 @@ import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.CustomTextField
+import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
@@ -109,11 +110,6 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
         Toasty.error(context, errorMessage ?: "", Toast.LENGTH_SHORT, true)
             .show()
     }
-//    if (adPostVM.error.isEmpty()) {
-//        Toasty.error(context, adPostResponse?.message ?: "", Toast.LENGTH_SHORT, true)
-//            .show()
-//        adPostVM.error = ""
-//    }
     if (adPostResponse != null) {
         if (adPostResponse.status)
             Toasty.success(context, adPostResponse.message, Toast.LENGTH_SHORT, true)
@@ -127,6 +123,11 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     LaunchedEffect(Unit) {
         adPostVM.getAllSubMetals()
     }
+    var showDialog by remember { mutableStateOf(false) }
+    if (showDialog)
+        FullScreenImageDialog(imageList = selectedImages, onDismissRequest = {
+            showDialog = false
+        })
     var showProgress by remember { mutableStateOf(false) }
     showProgress = rateVM.isLoading
     if (showProgress)
@@ -204,6 +205,9 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
             } else
                 Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                     .show()
+        },
+        onSelectedImageClick = {
+            showDialog = true
         }
     )
 }
@@ -224,6 +228,7 @@ fun AdScreenView(
     onSearchClick: (TextFieldValue) -> Unit,
     onCitySelect: (String) -> Unit,
     onAddImageClick: () -> Unit,
+    onSelectedImageClick: (Uri) -> Unit,
     onAdPostClick: (String, String, String) -> Unit,
     onSubMetalSearch: (TextFieldValue) -> Unit,
     onEnterSubMetalSearch: (TextFieldValue) -> Unit,
@@ -261,7 +266,8 @@ fun AdScreenView(
         }
         //add image view
         ImagePickerUI(selectedImages,
-            onAddImageClick = { onAddImageClick() })
+            onAddImageClick = { onAddImageClick() },
+            onSelectedImageClick = { image -> onSelectedImageClick(image) })
         Spacer(modifier = Modifier.height(10.dp))
 //        VideoViewUI(context = context, videoUri = videoUri,
 //            onAddVideoClick = { onAddVideoClick() })
@@ -407,7 +413,8 @@ fun AdScreenView(
 @Composable
 fun ImagePickerUI(
     imageList: List<Uri>,
-    onAddImageClick: () -> Unit
+    onAddImageClick: () -> Unit,
+    onSelectedImageClick: (Uri) -> Unit,
 ) {
     val pagerState = rememberPagerState()
 
@@ -439,7 +446,9 @@ fun ImagePickerUI(
                     Image(
                         painter = rememberAsyncImagePainter(uri),
                         contentDescription = "Selected Image $page",
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable { onSelectedImageClick(uri) },
                         contentScale = ContentScale.Crop,
                     )
                 }
@@ -646,6 +655,7 @@ fun AdScreenPreview() {
             onEnterSubMetalSearch = {},
             onSubMetalSearch = {},
             subMetalSearch = TextFieldValue(""),
+            onSelectedImageClick = {}
         )
     }
 }

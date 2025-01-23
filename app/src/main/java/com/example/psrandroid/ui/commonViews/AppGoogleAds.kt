@@ -88,6 +88,6 @@ fun showInterstitialAd(context: Context) {
     if (interstitialAd != null) {
         interstitialAd?.show(context as Activity)
     } else {
-        Log.d("TAG", "The interstitial ad wasn't ready yet.")
+        Log.d("dgjls", "The interstitial ad wasn't ready yet.")
     }
 }
