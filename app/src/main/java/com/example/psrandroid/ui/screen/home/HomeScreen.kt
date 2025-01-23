@@ -164,7 +164,7 @@ fun HomeScreenViews(
                 stringResource(id = R.string.scrap_rate),
                 clickAllViews = { onSeeAllRates() })
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             LazyRow(
                 contentPadding = PaddingValues(vertical = 8.dp),
                 modifier = Modifier.height(60.dp) // Explicit height for LazyRow
@@ -334,7 +334,7 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                 Text(
                     modifier = Modifier.width(74.dp),
                     text = "Iron",
-                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
@@ -352,7 +352,7 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                 Text(
                     modifier = Modifier.width(74.dp),
                     text = "Copper",
-                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
@@ -369,18 +369,19 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                 Text(
                     modifier = Modifier.width(74.dp),
                     text = "Silver",
-                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
                 Text(
-                    modifier = Modifier,
+                    modifier = Modifier.background(color= DarkBlue,
+                    RoundedCornerShape(4.dp)).padding(5.dp,0.dp,5.dp,0.dp),
                     text = stringResource(id = R.string.watch_ad),
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
+                    color = Color.White,
+                    fontSize = 10.sp,
                     fontFamily = regularFont,
-                    textAlign = TextAlign.End,
+                    textAlign = TextAlign.End
                 )
             }
             Row(
@@ -389,7 +390,7 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                 Text(
                     modifier = Modifier.width(74.dp),
                     text = "Plastic",
-                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
@@ -409,7 +410,7 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                 Text(
                     modifier = Modifier.width(74.dp),
                     text = "Nikal",
-                    color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
+                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
@@ -469,7 +470,7 @@ fun HomeLmeItem(lmeData: LmeData) {
                 Text(
                     modifier = Modifier.width(70.dp),
                     text = lmeData.name,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = Color.DarkGray,
                     maxLines = 1,
                     fontFamily = regularFont,
@@ -496,7 +497,7 @@ fun HomeLmeItem(lmeData: LmeData) {
                     text = "Rs. ${lmeData.price}",
                     modifier = Modifier
                         .align(Alignment.End),
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     fontFamily = regularFont,
                     color = Color.DarkGray,
                 )
@@ -523,10 +524,10 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
         )
         Text(
             text = stringResource(id = R.string.see_all), color = DarkBlue,
-            fontFamily = mediumFont, fontSize = 16.sp,
+            fontFamily = mediumFont, fontSize = 12.sp,
             textAlign = TextAlign.End,
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth().padding(3.dp)
                 .clickable { clickAllViews() }
         )
     }
