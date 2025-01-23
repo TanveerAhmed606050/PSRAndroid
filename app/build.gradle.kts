@@ -5,11 +5,13 @@ plugins {
     kotlin("kapt")
     alias(libs.plugins.google.service.gms)
     id("kotlin-parcelize")
+    alias(libs.plugins.kotlin.compose)
+
 }
 
 android {
     namespace = "com.example.psp_android"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.psp_android"
@@ -34,17 +36,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
     }
     packaging {
         resources {
@@ -106,6 +105,7 @@ dependencies {
     implementation(libs.toast)
     //compose adaptive layout
     implementation(libs.accompanist.adaptive)
+    implementation(libs.accompanist)
     //Swipe Refresh
     implementation(libs.swipe.refresh)
     //google ads
@@ -115,7 +115,4 @@ dependencies {
     // Pager libs
     implementation(libs.accompanist.pager)
     implementation(libs.pager.indicators)
-    //accompanist
-    implementation(libs.accompanist)
-
 }
