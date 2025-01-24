@@ -44,9 +44,11 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
 @Composable
 fun LoginScreen(navController: NavController, authVM: AuthVM) {
@@ -84,7 +86,13 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
                 Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true).show()
             else {
                 val phone = phoneNumber.takeLast(10)
-                authVM.login(UserCredential(phone = "+92$phone", password = password, deviceId = "ksdgha"))
+                authVM.login(
+                    UserCredential(
+                        phone = "+92$phone",
+                        password = password,
+                        deviceId = "ksdgha"
+                    )
+                )
             }
         } else
             Toasty.error(
@@ -107,6 +115,9 @@ fun LoginScreen(
     onSignup: () -> Unit,
     onForgotPasswordClick: () -> Unit
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
+
     var phoneNumber by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -115,12 +126,6 @@ fun LoginScreen(
             .fillMaxSize()
             .background(AppBG)
     ) {
-//        Image(
-//            painter = painterResource(id = R.drawable.lang_city_bg),
-//            contentDescription = null,
-//            contentScale = ContentScale.Crop, // Adjust this as needed
-//            modifier = Modifier.fillMaxSize(),
-//        )
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
@@ -150,7 +155,8 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.padding(top = 15.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
-                Spacer(modifier = Modifier.weight(1f))
+                if (!isRtl)
+                    Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = stringResource(id = R.string.forgot_pass),
                     modifier = Modifier
@@ -160,7 +166,7 @@ fun LoginScreen(
                     color = DarkBlue,
                     fontSize = 14.sp,
                     fontFamily = regularFont,
-                    textAlign = TextAlign.End
+//                    textAlign = if (isRtl) TextAlign.Start else TextAlign.End
                 )
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
@@ -177,6 +183,18 @@ fun LoginScreen(
                     .align(CenterHorizontally)
                     .padding(vertical = 80.dp)
             ) {
+                if (isRtl)
+                    Text(
+                        text = stringResource(id = R.string.signup), modifier = Modifier
+                            .padding(end = 4.dp)
+                            .clickable {
+                                onSignup()
+                            },
+                        color = LightBlue,
+                        fontFamily = mediumFont,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center
+                    )
                 Text(
                     text = stringResource(id = R.string.dont_acc),
                     fontSize = 12.sp,
@@ -184,17 +202,18 @@ fun LoginScreen(
                     fontFamily = regularFont,
                     textAlign = TextAlign.Center
                 )
-                Text(
-                    text = stringResource(id = R.string.signup), modifier = Modifier
-                        .padding(start = 4.dp)
-                        .clickable {
-                            onSignup()
-                        },
-                    color = LightBlue,
-                    fontFamily = mediumFont,
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Center
-                )
+                if (!isRtl)
+                    Text(
+                        text = stringResource(id = R.string.signup), modifier = Modifier
+                            .padding(start = 4.dp)
+                            .clickable {
+                                onSignup()
+                            },
+                        color = LightBlue,
+                        fontFamily = mediumFont,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center
+                    )
             }
         }
     }

@@ -13,8 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,9 +24,9 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.screen.auth.switchLanguage
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
-import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
@@ -48,27 +48,18 @@ fun SplashScreen(
     navController: NavController,
     authViewModel: AuthVM
 ) {
-    //login api response
-//    val locationData = authViewModel.locationData
-//    val dealersList = authViewModel.dealersList
-    //call location & dealers List
+    val context = LocalContext.current
     authViewModel.getLocation()
-//    authViewModel.getDealersList()
-//    if (locationData?.status != false){
-//        if (locationData != null) {
-//            authViewModel.userPreferences.saveLocationList(locationData)
-//        }
-//        authViewModel.locationData = null
-//    }
 
+    if (authViewModel.userPreferences.isUrduSelected)
+        switchLanguage(context = context, "ur")
     SplashScreen()
     LaunchedEffect(key1 = true) {
         delay(3000)
-        if (!authViewModel.userPreferences.isTermsAccept){
+        if (!authViewModel.userPreferences.isTermsAccept) {
             navController.popBackStack(Screen.SplashScreen.route, true)
             navController.navigate(Screen.PrivacyPolicyScreen.route)
-        }
-        else if (authViewModel.userPreferences.isFirstLaunch) {
+        } else if (authViewModel.userPreferences.isFirstLaunch) {
             navController.popBackStack(Screen.SplashScreen.route, true)
             navController.navigate(Screen.LoginScreen.route)
         } else {

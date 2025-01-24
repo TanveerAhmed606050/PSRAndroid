@@ -84,13 +84,11 @@
     <string name="metal_type">Metal Type</string>
     <string name="description">Description</string>
     <string name="see_all">See All</string>
-<<<<<<< HEAD
-    <string name="buy_sell">Buy/Sell Scrap</string>
     <string name="no_sms_error">No SMS app found</string>
     <string name="no_call_app">No Call app</string>
     <string name="no_whatsApp_error">WhatsApp is not installed.</string>
     <string name="open_whatsApp_error">Failed to open WhatsApp.</string>
-=======
     <string name="buy_sell">Buy Scrap</string>
->>>>>>> 54b665853ce04ac9f1162332d9983c90213a71a0
+    <string name="select_city_error">Please select a city</string>
+
 </resources>

@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.auth
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,8 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,18 +36,33 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.commonViews.Header
+import com.example.psrandroid.ui.screen.home.HomeVM
+import com.example.psrandroid.ui.theme.AppBG
+import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
+import java.util.Locale
 
 @Composable
 fun LanguageScreen(
-    navController: NavController
+    navController: NavController,
+    homeVM: HomeVM,
 ) {
-    var language by remember { mutableStateOf("Language") }
-    LanguageScreen(language,
+    val context = LocalContext.current
+    var language by remember { mutableStateOf(context.getText(R.string.language)) }
+    LanguageScreen(language.toString(),
         selectedLanguage = { selectedLanguage ->
             language = selectedLanguage
+            if (language == "English") {
+                switchLanguage(context, "en")
+                homeVM.userPreferences.isUrduSelected = false
+            } else {
+                switchLanguage(context, "ur")
+                homeVM.userPreferences.isUrduSelected = true
+            }
         },
         nextClick = {
+            navController.popBackStack()
+            navController.navigate(Screen.LoginScreen.route)
         },
         backClick = {
             navController.popBackStack()
@@ -60,7 +76,7 @@ fun LanguageScreen(
     nextClick: () -> Unit,
     backClick: () -> Unit,
 ) {
-    val languageList = listOf("Urdu", "English")
+    val languageList = listOf("اردو", "English")
     var expandedLang by remember { mutableStateOf(false) }
     if (expandedLang) {
         ListDialog(dataList = languageList, onDismiss = { expandedLang = false },
@@ -72,23 +88,16 @@ fun LanguageScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(AppBG)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.lang_city_bg),
-            contentDescription = null,
-            contentScale = ContentScale.Crop, // Adjust this as needed
-            modifier = Modifier.fillMaxSize(),
-        )
-        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-            Spacer(modifier = Modifier.height(36.dp))
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Header(
                 modifier = null,
                 stringResource(id = R.string.enter_lang),
                 backClick = { backClick() })
             Spacer(modifier = Modifier.height(100.dp))
             Column(modifier = Modifier.padding(16.dp)) {
-                HorizontalDivider(color = Color.White, thickness = 2.dp)
+                HorizontalDivider(color = DarkBlue, thickness = 2.dp)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -101,11 +110,12 @@ fun LanguageScreen(
                         contentDescription = null,
                         modifier = Modifier
                             .padding(end = 12.dp)
-                            .size(32.dp)
+                            .size(32.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
                     )
                     Text(
                         text = language,
-                        color = Color.White,
+                        color = DarkBlue,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -113,10 +123,11 @@ fun LanguageScreen(
                     Image(
                         painter = painterResource(id = R.drawable.baseline_arrow_drop_down_24),
                         contentDescription = null,
-                        modifier = Modifier.padding(end = 0.dp)
+                        modifier = Modifier.padding(end = 0.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
                     )
                 }
-                HorizontalDivider(color = Color.White, thickness = 2.dp)
+                HorizontalDivider(color = DarkBlue, thickness = 2.dp)
             }
             Spacer(modifier = Modifier.height(50.dp))
         }
@@ -128,7 +139,7 @@ fun LanguageScreen(
         ) {
             Row(
                 modifier = Modifier
-                    .background(color = Color.Blue, shape = CircleShape)
+                    .background(color = DarkBlue, shape = CircleShape)
                     .size(50.dp)
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.Center,
@@ -143,6 +154,13 @@ fun LanguageScreen(
     }
 }
 
+fun switchLanguage(context: Context, language: String) {
+    val locale = Locale(language)
+    Locale.setDefault(locale)
+    val configuration = context.resources.configuration
+    configuration.setLocale(locale)
+    context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
+}
 
 @Preview
 @Composable

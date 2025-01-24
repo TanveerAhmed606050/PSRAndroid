@@ -2,7 +2,6 @@ package com.example.psrandroid.ui.commonViews
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -44,11 +42,12 @@ import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
-import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
 import com.example.psrandroid.utils.Utils.isValidText
+import java.util.Locale
 
 @Composable
 fun ProfileInputField(
@@ -73,7 +72,8 @@ fun ProfileInputField(
             )
         },
         placeholder = {
-            Text(text = placeholder, color = Color.White,
+            Text(
+                text = placeholder, color = Color.White,
                 fontSize = 16.sp,
                 fontFamily = regularFont,
             )
@@ -117,6 +117,8 @@ fun MyTextFieldWithBorder(
     onValueChange: (String) -> Unit,
     imageId: Int,
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     var isValid by remember { mutableStateOf(true) }
     val textColor = if (isValid) Color.White else Color.Red
     isValid = isValidText(value).isEmpty()
@@ -125,12 +127,17 @@ fun MyTextFieldWithBorder(
         onValueChange = {
             onValueChange(it)
         },
-        label = {
+        placeholder = {
             Text(
-                text = placeholder, fontFamily = regularFont,
+                placeholder,
+                fontFamily = regularFont,
                 letterSpacing = 2.sp,
-                color = DarkBlue,
                 fontSize = 14.sp,
+                maxLines = 1,
+                color = DarkBlue,
+                modifier = Modifier.fillMaxWidth(),
+                overflow = TextOverflow.Ellipsis,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
@@ -146,13 +153,30 @@ fun MyTextFieldWithBorder(
             keyboardType = keyboardType,
             imeAction = imeAction,
         ),
-        trailingIcon = {
-            Image(
-                painter = painterResource(id = imageId), // Using the provided icon
-                colorFilter = ColorFilter.tint(DarkBlue),
-                contentDescription = null, // Add appropriate content description
-            )
-        },
+        leadingIcon = if (isRtl) {
+            {
+                Image(
+                    painter = painterResource(id = imageId), // Using the provided icon
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(DarkBlue)
+                )
+            }
+        } else null,
+        trailingIcon = if (!isRtl) {
+            {
+                Image(
+                    painter = painterResource(id = imageId), // Using the provided icon
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(DarkBlue)
+                )
+            }
+        } else null,
+        textStyle = TextStyle(
+            fontSize = 14.sp,
+            fontFamily = regularFont,
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
+            color = DarkBlue,
+        ),
         shape = RoundedCornerShape(12.dp),
         modifier = modifier
             .fillMaxWidth()
@@ -168,10 +192,13 @@ fun PasswordTextFields(
     placeholder: String,
     onValueChange: (String) -> Unit
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
+
     var isFocused by remember { mutableStateOf(false) }
     var isValid by remember { mutableStateOf(true) }
     var passwordVisible by remember { mutableStateOf(false) }
-    val textColor = if (isValid) Color.White else Color.Red
+    val textColor = if (isValid) DarkBlue else Color.Red
     val passwordIcon =
         if (passwordVisible && isFocused) painterResource(id = R.drawable.s_eye_close)
         else if (!passwordVisible && isFocused) painterResource(id = R.drawable.s_eye_ic)
@@ -184,45 +211,60 @@ fun PasswordTextFields(
         onValueChange = {
             onValueChange(it)
         },
-        label = {
+        placeholder = {
             Text(
                 placeholder,
                 fontFamily = regularFont,
                 letterSpacing = 2.sp,
+                fontSize = 14.sp,
+                maxLines = 1,
                 color = DarkBlue,
-                fontSize = 14.sp
+                modifier = Modifier.fillMaxWidth(),
+                overflow = TextOverflow.Ellipsis,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             )
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = DarkBlue, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
-            unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
+            unfocusedLabelColor = if (value.isEmpty()) DarkBlue else textColor,
             focusedTextColor = DarkBlue,
-            unfocusedTextColor = colorResource(id = R.color.text_grey)
+            unfocusedTextColor = DarkBlue
         ),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction
         ),
-        trailingIcon = {
-            Image(
-                painter = passwordIcon, // Using the provided icon
-                contentDescription = null, // Add appropriate content description
-                colorFilter = ColorFilter.tint(DarkBlue),
-                modifier = Modifier
-                    .clickable {
-                        passwordVisible = !passwordVisible
-                    }
-            )
-        },
+        leadingIcon = if (isRtl) {
+            {
+                Image(
+                    painter = passwordIcon, // Using the provided icon
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(DarkBlue)
+                )
+            }
+        } else null,
+        trailingIcon = if (!isRtl) {
+            {
+                Image(
+                    painter = passwordIcon, // Using the provided icon
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(DarkBlue)
+                )
+            }
+        } else null,
+        textStyle = TextStyle(
+            fontSize = 14.sp,
+            fontFamily = regularFont,
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
+            color = DarkBlue,
+        ),
         shape = RoundedCornerShape(12.dp), // Set corner radius here
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = Color.Transparent,
-            )
+            .background(color = Color.Transparent)
             .onFocusChanged {
                 isFocused = it.isFocused
             },
@@ -239,39 +281,56 @@ fun PhoneTextField(
     onValueChange: (String) -> Unit,
     imageId: Int,
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     val prefix = "+92 "
     var isValid by remember { mutableStateOf(true) }
     var isFocused by remember { mutableStateOf(false) }
-    val textColor = if (isValid) Color.White else Color.Red
+    val textColor = if (isValid) DarkBlue else Color.Red
     isValid = isValidPhone(value).isEmpty()
     OutlinedTextField(
         value = value,
         onValueChange = {
             onValueChange(it)
         },
-        label = {
+        placeholder = {
             Text(
                 text = placeholder, fontFamily = regularFont,
                 letterSpacing = 2.sp,
                 color = DarkBlue,
                 fontSize = 14.sp,
+                maxLines = 1,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start
             )
         },
-        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Start),
+        textStyle = TextStyle(
+            fontSize = 14.sp,
+            fontFamily = regularFont,
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
+            color = DarkBlue,
+        ),
         leadingIcon = {
-            Text(
-                text = prefix,
-                color = DarkBlue,
-                fontFamily = regularFont,
-                letterSpacing = 2.sp,
-                fontSize = 14.sp,
-            )
+            if (isRtl)
+                Image(
+                    painter = painterResource(id = imageId),
+                    colorFilter = ColorFilter.tint(DarkBlue),
+                    contentDescription = null, // Add appropriate content description
+                )
+            else
+                Text(
+                    text = prefix,
+                    color = DarkBlue,
+                    fontFamily = regularFont,
+                    letterSpacing = 2.sp,
+                    fontSize = 14.sp,
+                )
         },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = DarkBlue, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
             focusedLabelColor = textColor,
-            unfocusedLabelColor = if (value.isEmpty()) Color.White else textColor,
+            unfocusedLabelColor = if (value.isEmpty()) DarkBlue else textColor,
             focusedTextColor = DarkBlue,
             unfocusedTextColor = colorResource(id = R.color.text_grey)
         ),
@@ -281,11 +340,20 @@ fun PhoneTextField(
             imeAction = imeAction,
         ),
         trailingIcon = {
-            Image(
-                painter = painterResource(id = imageId),
-                colorFilter = ColorFilter.tint(DarkBlue),
-                contentDescription = null, // Add appropriate content description
-            )
+            if (isRtl)
+                Text(
+                    text = prefix,
+                    color = DarkBlue,
+                    fontFamily = regularFont,
+                    letterSpacing = 2.sp,
+                    fontSize = 14.sp,
+                )
+            else
+                Image(
+                    painter = painterResource(id = imageId),
+                    colorFilter = ColorFilter.tint(DarkBlue),
+                    contentDescription = null, // Add appropriate content description
+                )
         },
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier

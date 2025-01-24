@@ -324,7 +324,7 @@ fun PSRNavHost(
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
-            LanguageScreen(navController)
+            LanguageScreen(navController, homeVM)
         }
         composable(
             route = Screen.LoginScreen.route,

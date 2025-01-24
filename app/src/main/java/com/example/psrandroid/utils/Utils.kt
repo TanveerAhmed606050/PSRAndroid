@@ -113,6 +113,10 @@ object Utils {
         val date = LocalDate.parse(dateString, inputFormatter)
         return date.format(outputFormatter)
     }
+    fun isRtlLocale(locale: Locale): Boolean {
+        val rtlLanguages = listOf("ur") // List of RTL languages
+        return rtlLanguages.contains(locale.language)
+    }
 
     fun actionBar(context: Activity) {
         val window = context.window

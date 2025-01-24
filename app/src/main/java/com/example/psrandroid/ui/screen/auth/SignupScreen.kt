@@ -1,6 +1,7 @@
 package com.example.psrandroid.ui.screen.auth
 
 import android.app.Activity
+import android.content.Context
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -71,10 +72,12 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.example.psrandroid.utils.Utils.isValidPassword
 import com.example.psrandroid.utils.Utils.isValidPhone
 import com.example.psrandroid.utils.Utils.isValidText
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -129,7 +132,8 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
         }
     )
     SignupScreen(
-        locationList,
+        context = context,
+        locationList = locationList,
         isPhoneNoVerified = isPhoneNoVerified,
         backClick = { navController.popBackStack() },
         onLoginClick = {
@@ -142,8 +146,13 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                 else if (isValidPhone(phone).isNotEmpty())
                     Toasty.error(context, isValidPhone("+92$phone"), Toast.LENGTH_SHORT, true)
                         .show()
-                else if (selectedCity.isEmpty() || selectedCity == "City")
-                    Toasty.error(context, "Please select a city", Toast.LENGTH_SHORT, true).show()
+                else if (selectedCity.isEmpty() || selectedCity == context.getString(R.string.city))
+                    Toasty.error(
+                        context,
+                        context.getString(R.string.select_city_error),
+                        Toast.LENGTH_SHORT,
+                        true
+                    ).show()
                 else if (isValidPassword(password).isNotEmpty())
                     Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true)
                         .show()
@@ -199,6 +208,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SignupScreen(
+    context: Context,
     locationList: List<LocationData>,
     isPhoneNoVerified: Boolean,
     backClick: () -> Unit, onLoginClick: () -> Unit,
@@ -206,11 +216,13 @@ fun SignupScreen(
     onCitySelect: (String) -> Unit,
     onVerificationIconClick: (String) -> Unit,
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     var phoneNumber by rememberSaveable { mutableStateOf("") }
     var fullName by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var confirmPassword by rememberSaveable { mutableStateOf("") }
-    var city by rememberSaveable { mutableStateOf("City") }
+    var city by rememberSaveable { mutableStateOf(context.getText(R.string.city)) }
     var expandedCity by remember { mutableStateOf(false) }
     val locationData = locationList.map { it.name }
 
@@ -264,13 +276,13 @@ fun SignupScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onVerificationIconClick(phoneNumber) },
-                        horizontalArrangement = Arrangement.End,
+                        horizontalArrangement = if (isRtl) Arrangement.Start else Arrangement.End,
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.verify_mbl_ic),
                             contentDescription = "",
                             modifier = Modifier.size(32.dp),
-                            alignment = Alignment.TopEnd,
+//                            alignment = if (isRtl) Alignment.TopStart else Alignment.TopEnd,
                             colorFilter = ColorFilter.tint(DarkBlue)
                         )
                     }
@@ -292,21 +304,35 @@ fun SignupScreen(
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = city,
-                        color = DarkBlue,
-                        fontSize = 14.sp,
-                        fontFamily = regularFont,
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
+                    if (!isRtl) {
+                        Text(
+                            text = city.toString(),
+                            color = DarkBlue,
+                            fontSize = 14.sp,
+                            fontFamily = regularFont,
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp),
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                     Image(
                         painter = painterResource(id = R.drawable.baseline_location_pin_24),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(end = 8.dp),
-                        colorFilter = ColorFilter.tint(DarkBlue)
+                            .padding(horizontal = 8.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue),
                     )
+                    if (isRtl) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = city.toString(),
+                            color = DarkBlue,
+                            fontSize = 14.sp,
+                            fontFamily = regularFont,
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp),
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.padding(top = 20.dp))
                 PasswordTextFields(
@@ -339,25 +365,39 @@ fun SignupScreen(
                     onRegisterButtonClick(phoneNumber, fullName, password, confirmPassword)
                 }
                 Row(modifier = Modifier.align(CenterHorizontally)) {
+                    if (isRtl)
+                        Text(
+                            text = stringResource(id = R.string.login_in), modifier = Modifier
+                                .padding(top = 20.dp, bottom = 20.dp, end = 4.dp)
+                                .clickable {
+                                    onLoginClick()
+                                },
+                            color = LightBlue,
+                            fontFamily = mediumFont,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center
+                        )
                     Text(
-                        text = stringResource(id = R.string.already_acc), modifier = Modifier
+                        text = stringResource(id = R.string.already_acc),
+                        modifier = Modifier
                             .padding(vertical = 20.dp),
                         fontSize = 12.sp,
                         color = DarkBlue,
                         fontFamily = regularFont,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
-                    Text(
-                        text = stringResource(id = R.string.login_in), modifier = Modifier
-                            .padding(top = 20.dp, bottom = 20.dp, start = 4.dp)
-                            .clickable {
-                                onLoginClick()
-                            },
-                        color = LightBlue,
-                        fontFamily = mediumFont,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    if (!isRtl)
+                        Text(
+                            text = stringResource(id = R.string.login_in), modifier = Modifier
+                                .padding(top = 20.dp, bottom = 20.dp, start = 4.dp)
+                                .clickable {
+                                    onLoginClick()
+                                },
+                            color = LightBlue,
+                            fontFamily = mediumFont,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center
+                        )
                 }
             }
         }
@@ -461,7 +501,7 @@ fun ListDialog(
 @Composable
 fun PreviewSignupScreen() {
     PSP_AndroidTheme {
-        SignupScreen(listOf(LocationData.mockup),
+        SignupScreen(context = LocalContext.current, listOf(LocationData.mockup),
             false,
             backClick = {},
             onLoginClick = {},
