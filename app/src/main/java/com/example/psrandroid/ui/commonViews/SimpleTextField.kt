@@ -376,6 +376,8 @@ fun CustomTextField(
     imageId: Int,
     enable: Boolean = true,
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     var isFocused by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
@@ -392,10 +394,10 @@ fun CustomTextField(
                 text = placeholder,
                 fontFamily = regularFont,
                 fontSize = 14.sp,
-                textAlign = TextAlign.Start,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 40.dp, start = 8.dp),
+                    .padding(end = if (isRtl) 8.dp else 40.dp, start = if (isRtl) 40.dp else 8.dp),
                 color = DarkBlue,
                 letterSpacing = 2.sp,
                 overflow = TextOverflow.Ellipsis
@@ -408,7 +410,7 @@ fun CustomTextField(
             textStyle = TextStyle(
                 fontSize = 14.sp,
                 fontFamily = regularFont,
-                textAlign = TextAlign.Start, // Align input text as well
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
                 color = DarkBlue,
                 letterSpacing = 2.sp,
             ),
@@ -417,7 +419,11 @@ fun CustomTextField(
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
                 }
-                .padding(start = 8.dp, top = 0.dp, end = 30.dp), // Space for the leading icon
+                .padding(
+                    start = if (isRtl) 30.dp else 8.dp,
+                    top = 0.dp,
+                    end = if (isRtl) 8.dp else 30.dp
+                ), // Space for the leading icon
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType,
                 imeAction = imeAction,
@@ -429,7 +435,7 @@ fun CustomTextField(
             painter = painterResource(id = imageId),
             contentDescription = null,
             modifier = Modifier
-                .align(Alignment.TopEnd) // Align icon vertically center
+                .align(if (isRtl) Alignment.TopStart else Alignment.TopEnd) // Align icon vertically center
                 .padding(horizontal = 8.dp, vertical = 4.dp) // Consistent padding
                 .size(16.dp),
             colorFilter = ColorFilter.tint(DarkBlue)

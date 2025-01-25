@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -73,9 +74,11 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -375,6 +378,8 @@ fun SearchBar(
     onSearchClick: (TextFieldValue) -> Unit,
     onSearch: (TextFieldValue) -> Unit,
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     var isFocused by remember { mutableStateOf(false) }
     var expandedDropDown by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -404,20 +409,43 @@ fun SearchBar(
                         expandedDropDown = true
                     }
                 },
-                leadingIcon = {
-                    Icon(
-                        painterResource(id = R.drawable.search_ic),
-                        contentDescription = "",
-                        modifier = Modifier.size(24.dp),
-                        tint = DarkBlue,
-                    )
-                },
+                leadingIcon = if (!isRtl) {
+                    {
+                        Icon(
+                            painterResource(id = R.drawable.search_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(24.dp),
+                            tint = DarkBlue,
+                        )
+                    }
+                } else null,
+                trailingIcon = if (isRtl) {
+                    {
+                        Icon(
+                            painterResource(id = R.drawable.search_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(24.dp),
+                            tint = DarkBlue,
+                        )
+                    }
+                } else null,
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = regularFont,
+                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
+                    color = DarkBlue,
+                ),
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.search),
-                        color = DarkBlue,
+                        fontFamily = regularFont,
                         letterSpacing = 2.sp,
                         fontSize = 14.sp,
+                        maxLines = 1,
+                        color = DarkBlue,
+                        modifier = Modifier.fillMaxWidth(),
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                     )
                 },
                 singleLine = true,

@@ -129,7 +129,7 @@ fun LoadingDialog() {
     ) {
         Box(
             modifier = Modifier
-                .wrapContentWidth()
+//                .wrapContentWidth()
                 .wrapContentHeight()
                 .background(AppBG, shape = RoundedCornerShape(10.dp))
         ) {

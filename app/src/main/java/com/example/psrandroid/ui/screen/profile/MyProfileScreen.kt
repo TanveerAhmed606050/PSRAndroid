@@ -1,5 +1,7 @@
 package com.example.psrandroid.ui.screen.profile
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -39,6 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,7 +63,9 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
 @Composable
 fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
@@ -111,13 +117,6 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                     .show()
         }
-//        base64String =
-//            capturedImageUri?.let {
-//                convertImageFileToBase64(
-//                    it,
-//                    contentResolver = context.contentResolver
-//                )
-//            }
     }
     val galleryLauncher =
         rememberLauncherForActivityResult(
@@ -127,13 +126,23 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             capturedImageUri = uri
         }
 
-    MyProfileScreen(profilePic = profilePic, onBottomSheetShow = {
+    MyProfileScreen(context = context, profilePic = profilePic, onBottomSheetShow = {
         openGallery(context, galleryLauncher, pickImageLauncher)
     },
         onItemClick = { screenRoute ->
-            if (screenRoute == "Logout")
+            if (screenRoute == context.getString(R.string.logout))
                 isLogout = true
-            else
+            else if (screenRoute == context.getString(R.string.language)) {
+                if (authVM.userPreferences.isUrduSelected) {
+                    switchLanguage(context, "en")
+                    authVM.userPreferences.isUrduSelected = false
+                } else {
+                    switchLanguage(context, "ur")
+                    authVM.userPreferences.isUrduSelected = true
+                }
+//                navController.popBackStack()
+                (context as? Activity)?.recreate()
+            } else
                 navController.navigate(screenRoute)
         },
         backClick = { navController.popBackStack() })
@@ -141,6 +150,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
 
 @Composable
 fun MyProfileScreen(
+    context: Context,
     profilePic: String,
     onItemClick: (String) -> Unit,
     onBottomSheetShow: () -> Unit,
@@ -187,7 +197,7 @@ fun MyProfileScreen(
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-            ProfileOptions(screenRoute = { route ->
+            ProfileOptions(context, screenRoute = { route ->
                 onItemClick(route)
             })
         }
@@ -196,6 +206,7 @@ fun MyProfileScreen(
 
 @Composable
 fun ProfileOptions(
+    context: Context,
     screenRoute: (String) -> Unit
 ) {
     val options = listOf(
@@ -208,19 +219,23 @@ fun ProfileOptions(
             stringResource(id = R.string.password_change),
         ),
         ProfileOption(
+            R.drawable.globe_ic,
+            stringResource(id = R.string.language)
+        ),
+        ProfileOption(
             R.drawable.baseline_privacy_tip_24,
             stringResource(id = R.string.privacy_policy),
         ),
         ProfileOption(
-            R.drawable.baseline_lock_24,
+            R.drawable.terms_conditions,
             stringResource(id = R.string.terms_condition),
         ),
         ProfileOption(
-            R.drawable.baseline_lock_24,
+            R.drawable.contact_us,
             stringResource(id = R.string.contact_us)
         ),
         ProfileOption(
-            R.drawable.baseline_lock_24,
+            R.drawable.logout,
             stringResource(id = R.string.logout)
         ),
     )
@@ -230,7 +245,7 @@ fun ProfileOptions(
             .background(color = Color.White)
     ) {
         options.forEach { option ->
-            ProfileOptionItem(option, screenRoute)
+            ProfileOptionItem(context, option, screenRoute)
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -243,10 +258,12 @@ fun ProfileOptions(
 
 @Composable
 fun ProfileOptionItem(
+    context: Context,
     option: ProfileOption,
     screenRoute: (String) -> Unit
 ) {
-    val context = LocalContext.current
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     var route = ""
     var encodedUrl = ""
     when (option.title) {
@@ -274,12 +291,16 @@ fun ProfileOptionItem(
             route = Screen.UpdatePasswordScreen.route
             encodedUrl = ""
         }
+        stringResource(id = R.string.language) -> {
+            route = stringResource(id = R.string.language)
+            encodedUrl = ""
+        }
     }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 20.dp, horizontal = 8.dp)
+            .padding(vertical = 14.dp, horizontal = 8.dp)
             .clickable {
                 if (encodedUrl.isNotEmpty()) {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(encodedUrl))
@@ -287,34 +308,52 @@ fun ProfileOptionItem(
                 } else if (route.isNotEmpty())
                     screenRoute(route)
                 else if (route.isEmpty())
-                    screenRoute("Logout")
-            }, verticalAlignment = Alignment.CenterVertically
+                    screenRoute(context.getString(R.string.logout))
+            },
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
-            painter = painterResource(option.iconId), contentDescription = null,
-            colorFilter = ColorFilter.tint(LightBlue)
+            painter = if (isRtl) painterResource(id = R.drawable.baseline_arrow_back_ios_24) else painterResource(
+                option.iconId
+            ), contentDescription = null,
+            colorFilter = ColorFilter.tint(LightBlue),
+            modifier = Modifier.size(if (isRtl) 20.dp else 30.dp)
         )
-
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = option.title,
-                fontSize = 16.sp,
-                fontFamily = regularFont,
-                color = option.color,
-            )
-        }
+        if (isRtl)
+            Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = option.title,
+            fontSize = 16.sp,
+            fontFamily = regularFont,
+            color = option.color,
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+        )
+        if (!isRtl)
+            Spacer(modifier = Modifier.weight(1f))
         Image(
-            painter = painterResource(id = R.drawable.next_blk), contentDescription = null,
-            colorFilter = ColorFilter.tint(LightBlue)
+            painter = if (isRtl) painterResource(option.iconId) else painterResource(id = R.drawable.next_blk),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(LightBlue),
+            modifier = Modifier.size(if (isRtl) 30.dp else 20.dp)
         )
     }
+}
+
+fun switchLanguage(context: Context, language: String) {
+    val locale = Locale(language)
+    Locale.setDefault(locale)
+    val configuration = context.resources.configuration
+    configuration.setLocale(locale)
+    context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
 }
 
 @Preview
 @Composable
 fun MyProfileScreenPreview() {
     MyProfileScreen(
+        context = LocalContext.current,
         onBottomSheetShow = {},
         profilePic = "",
         onItemClick = {},

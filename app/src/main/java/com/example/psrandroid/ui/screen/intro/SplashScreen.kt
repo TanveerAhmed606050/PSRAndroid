@@ -24,7 +24,7 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.screen.auth.AuthVM
-import com.example.psrandroid.ui.screen.auth.switchLanguage
+import com.example.psrandroid.ui.screen.profile.switchLanguage
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -53,6 +53,8 @@ fun SplashScreen(
 
     if (authViewModel.userPreferences.isUrduSelected)
         switchLanguage(context = context, "ur")
+    else
+        switchLanguage(context = context, "en")
     SplashScreen()
     LaunchedEffect(key1 = true) {
         delay(3000)

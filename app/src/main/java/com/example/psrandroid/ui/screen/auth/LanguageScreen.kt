@@ -37,6 +37,7 @@ import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.screen.home.HomeVM
+import com.example.psrandroid.ui.screen.profile.switchLanguage
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -152,14 +153,6 @@ fun LanguageScreen(
             }
         }
     }
-}
-
-fun switchLanguage(context: Context, language: String) {
-    val locale = Locale(language)
-    Locale.setDefault(locale)
-    val configuration = context.resources.configuration
-    configuration.setLocale(locale)
-    context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
 }
 
 @Preview

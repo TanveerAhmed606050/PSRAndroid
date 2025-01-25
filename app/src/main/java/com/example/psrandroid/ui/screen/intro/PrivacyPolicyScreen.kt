@@ -36,7 +36,7 @@ fun PrivacyPolicyScreen(navController: NavController, authVM: AuthVM) {
     PrivacyPolicyViews(onAgreeClick = {
         authVM.userPreferences.isTermsAccept = true
         navController.popBackStack()
-        navController.navigate(Screen.LanguagesScreen.route)
+        navController.navigate(Screen.LoginScreen.route)
     })
 }
 

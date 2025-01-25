@@ -82,6 +82,8 @@
     <string name="metals">دھاتیں</string>
     <string name="business_name">کاروبار کا نام</string>
     <string name="metal_type">دھات کی قسم</string>
+    <string name="no_ads">کوئی اشتہار نہیں۔</string>
+    <string name="file_size">زیادہ سے زیادہ فائل کا سائز 5MB درج ذیل فارمیٹس میں قبول کیا جاتا ہے: jpg, jpeg, png, .gif</string>
     <string name="description">تفصیل</string>
     <string name="see_all">سب دیکھیں</string>
     <string name="no_sms_error">کوئی SMS ایپ نہیں ملی</string>

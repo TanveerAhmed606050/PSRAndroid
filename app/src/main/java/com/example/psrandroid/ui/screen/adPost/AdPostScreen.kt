@@ -1,7 +1,9 @@
 package com.example.psrandroid.ui.screen.adPost
 
 import android.net.Uri
+import android.os.Build
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,15 +18,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,10 +40,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,12 +69,16 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
+    var search by remember { mutableStateOf(TextFieldValue("")) }
     var location by remember {
         mutableStateOf(
             adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
@@ -85,6 +100,7 @@ fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
                 .show()
     }
     AdPostScreen(
+        search = search,
         adsData = adsData?.data,
         cityList = locationData, onPlusIconClick = {
             navController.navigate(Screen.AdScreen.route)
@@ -99,17 +115,23 @@ fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
             val adDataJson = Gson().toJson(adData)
             val encodedJson = Uri.encode(adDataJson)
             navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
+        },
+        onSearch = {
+            search = it
         })
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AdPostScreen(
+    search: TextFieldValue,
     adsData: List<AdData>?,
     cityList: List<String>?,
     onPlusIconClick: () -> Unit,
     onCityItemClick: (String) -> Unit,
     onAdsClick: (AdData) -> Unit,
+    onSearch: (TextFieldValue) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -122,64 +144,17 @@ fun AdPostScreen(
                 .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Box(
-//                    modifier = Modifier
-//                        .weight(1f)
-//                        .fillMaxWidth(),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text(
-//                        text = stringResource(id = R.string.ad_post),
-//                        fontSize = 16.sp,
-//                        fontFamily = mediumFont,
-//                        color = DarkBlue
-//                    )
-//                }
-//                Box(modifier = Modifier) {
-//                    Image(
-//                        painter = painterResource(id = R.drawable.filter_ic),
-//                        contentDescription = "",
-//                        modifier = Modifier
-//                            .size(24.dp)
-//                            .clickable { onFilter() },
-//                        colorFilter = ColorFilter.tint(DarkBlue)
-//                    )
-//                    DropdownMenu(
-//                        expanded = expanded,
-//                        onDismissRequest = { expanded = false },
-//                        modifier = Modifier
-//                            .background(Color.White, RoundedCornerShape(8.dp))
-//                            .padding(8.dp)
-//                            .wrapContentWidth()
-//                            .align(Alignment.TopStart), // Position relative to Box
-//                    ) {
-//                        DropdownMenuItem(text = {
-//                            Text(
-//                                text = "Lahore",
-//                                fontSize = 16.sp, fontFamily = regularFont
-//                            )
-//                        }, onClick = { expanded = false })
-//                        Spacer(modifier = Modifier.height(8.dp))
-//                        DropdownMenuItem(text = {
-//                            Text(
-//                                text = "Karachi",
-//                                fontSize = 16.sp, fontFamily = regularFont
-//                            )
-//                        }, onClick = { expanded = false })
-//                    }
-//                }
-//            }
             // Header section
             HeaderSection(headerTitle = stringResource(id = R.string.ad_post), cityList = cityList,
                 onCityItemClick = { onCityItemClick(it) })
-            Spacer(modifier = Modifier.height(20.dp))
+            // Search bar
+            SearchBar(search,
+                onSearchClick = {
+                    onSearch(it)
+                })
+            Spacer(modifier = Modifier.height(10.dp))
             if (adsData?.isEmpty() == true)
-                NoProductView(msg = "No Ads", Color.White)
+                NoProductView(msg = stringResource(id = R.string.no_ads), DarkBlue)
             else {
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 0.dp),
@@ -198,7 +173,7 @@ fun AdPostScreen(
         }
         ExtendedFloatingActionButton(
             modifier = Modifier
-                .padding(bottom = 110.dp, end = 16.dp)
+                .padding(bottom = 130.dp, end = 16.dp)
                 .align(Alignment.BottomEnd),
             onClick = {
                 onPlusIconClick()
@@ -309,13 +284,117 @@ fun AdsItemsView(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun SearchBar(
+    search: TextFieldValue,
+    onSearchClick: (TextFieldValue) -> Unit,
+) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
+    var isFocused by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 0.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = search,
+            onValueChange = { value ->
+                // Update the search query with the new value and move cursor to the end
+                onSearchClick(value.copy(selection = TextRange(value.text.length)))
+            },
+            leadingIcon = if (!isRtl) {
+                {
+                    Icon(
+                        painterResource(id = R.drawable.search_ic),
+                        contentDescription = "",
+                        modifier = Modifier.size(24.dp),
+                        tint = DarkBlue,
+                    )
+                }
+            } else null,
+            trailingIcon = if (isRtl) {
+                {
+                    Icon(
+                        painterResource(id = R.drawable.search_ic),
+                        contentDescription = "",
+                        modifier = Modifier.size(24.dp),
+                        tint = DarkBlue,
+                    )
+                }
+            } else null,
+            textStyle = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = regularFont,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
+                color = DarkBlue,
+            ),
+            placeholder = {
+                Text(
+                    text = stringResource(id = R.string.search),
+                    fontFamily = regularFont,
+                    letterSpacing = 2.sp,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    color = DarkBlue,
+                    modifier = Modifier.fillMaxWidth(),
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                )
+            },
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = DarkBlue,
+                unfocusedBorderColor = Color.Transparent,
+                focusedLabelColor = Color.Transparent,
+                unfocusedLabelColor = Color.Transparent,
+                focusedTextColor = DarkBlue,
+                unfocusedTextColor = Color.Gray
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.White, shape = RoundedCornerShape(10))
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search // Set the IME action to 'Search'
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    keyboardController?.hide()
+                    onSearchClick(search)
+                },
+                onDone = {
+                    keyboardController?.hide()
+                    onSearchClick(search)
+                },
+                onGo = {
+                    keyboardController?.hide()
+                    onSearchClick(search)
+                },
+                onNext = {
+                    keyboardController?.hide()
+                    onSearchClick(search)
+                }
+            )
+        )
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        AdPostScreen(adsData = null,
+        AdPostScreen(search = TextFieldValue(""), adsData = null,
             cityList = listOf(), onPlusIconClick = {},
             onCityItemClick = {},
-            onAdsClick = {})
+            onAdsClick = {},
+            onSearch = {})
     }
 }

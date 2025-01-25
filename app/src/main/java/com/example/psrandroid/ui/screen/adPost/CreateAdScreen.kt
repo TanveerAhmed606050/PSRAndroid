@@ -58,10 +58,12 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,9 +89,11 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -233,6 +237,8 @@ fun AdScreenView(
     onSubMetalSearch: (TextFieldValue) -> Unit,
     onEnterSubMetalSearch: (TextFieldValue) -> Unit,
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     var expandedCity by remember { mutableStateOf(false) }
     var description by remember { mutableStateOf("") }
     var metalName by remember { mutableStateOf("") }
@@ -269,14 +275,14 @@ fun AdScreenView(
             onAddImageClick = { onAddImageClick() },
             onSelectedImageClick = { image -> onSelectedImageClick(image) })
         Spacer(modifier = Modifier.height(10.dp))
-//        VideoViewUI(context = context, videoUri = videoUri,
-//            onAddVideoClick = { onAddVideoClick() })
-//        Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(id = R.string.main_metal),
             color = DarkBlue,
             fontFamily = regularFont,
-            modifier = Modifier.padding(start = 20.dp)
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         )
         SearchBar(suggestedSearchList, search,
             onSearch = {
@@ -291,7 +297,10 @@ fun AdScreenView(
             text = stringResource(id = R.string.sub_metal),
             color = DarkBlue,
             fontFamily = regularFont,
-            modifier = Modifier.padding(start = 20.dp)
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         )
         SubMetalBar(suggestedSubMetalList, subMetalSearch,
             onSearch = {
@@ -305,7 +314,10 @@ fun AdScreenView(
             text = stringResource(id = R.string.name),
             color = DarkBlue,
             fontFamily = regularFont,
-            modifier = Modifier.padding(start = 20.dp)
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         CustomTextField(
@@ -324,7 +336,10 @@ fun AdScreenView(
             text = stringResource(id = R.string.price),
             color = DarkBlue,
             fontFamily = regularFont,
-            modifier = Modifier.padding(start = 20.dp)
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         CustomTextField(
@@ -343,7 +358,10 @@ fun AdScreenView(
             text = stringResource(id = R.string.city),
             color = DarkBlue,
             fontFamily = regularFont,
-            modifier = Modifier.padding(start = 20.dp)
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Row(
@@ -363,29 +381,45 @@ fun AdScreenView(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if (isRtl) {
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_location_pin_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(start = 8.dp),
+                    colorFilter = ColorFilter.tint(DarkBlue)
+                )
+                Spacer(modifier = Modifier.weight(1f))
+            }
             Text(
                 text = selectedCity,
                 color = DarkBlue,
                 fontSize = 14.sp,
                 letterSpacing = 2.sp,
                 fontFamily = regularFont,
-                modifier = Modifier.padding(horizontal = 12.dp)
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                modifier = Modifier.padding(horizontal = 20.dp)
             )
-            Spacer(modifier = Modifier.weight(1f))
-            Image(
-                painter = painterResource(id = R.drawable.baseline_location_pin_24),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(end = 8.dp),
-                colorFilter = ColorFilter.tint(DarkBlue)
-            )
+            if (!isRtl) {
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_location_pin_24),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(end = 8.dp),
+                    colorFilter = ColorFilter.tint(DarkBlue)
+                )
+            }
         }
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = stringResource(id = R.string.description),
-            color = Color.White,
+            color = DarkBlue,
             fontFamily = regularFont,
-            modifier = Modifier.padding(start = 20.dp)
+            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         CustomTextField(
@@ -455,7 +489,7 @@ fun ImagePickerUI(
             }
             // Instruction text
             Text(
-                text = "5MB maximum file size accepted in the\nfollowing formats: jpg, jpeg, png, .gif",
+                text = stringResource(id = R.string.file_size),
                 color = Color.Black,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -489,6 +523,8 @@ fun SubMetalBar(
     onSearchClick: (TextFieldValue) -> Unit,
     onSearch: (TextFieldValue) -> Unit,
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     var isFocused by remember { mutableStateOf(false) }
     var expandedDropDown by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -510,43 +546,59 @@ fun SubMetalBar(
             }) {
             OutlinedTextField(
                 value = search,
-                onValueChange = { value ->
-                    // Update the search query with the new value and move cursor to the end
-                    onSearch(value.copy(selection = TextRange(value.text.length)))
-                    if (value.text.length < search.text.length && !expandedDropDown) {
-                        // Backspace detected
-                        expandedDropDown = true
-                    }
-                },
-                leadingIcon = {
-                    Icon(
-                        painterResource(id = R.drawable.search_ic),
-                        contentDescription = "",
-                        modifier = Modifier.size(24.dp),
-                        tint = DarkBlue,
-                    )
+                onValueChange = {
+                    onSearch(it)
                 },
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.search),
-                        color = DarkBlue,
+                        fontFamily = regularFont,
                         letterSpacing = 2.sp,
                         fontSize = 14.sp,
+                        maxLines = 1,
+                        color = DarkBlue,
+                        modifier = Modifier.fillMaxWidth(),
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                     )
                 },
-                singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = DarkBlue,
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedLabelColor = Color.Transparent,
-                    unfocusedLabelColor = Color.Transparent,
+                    focusedBorderColor = DarkBlue, // Change focused border color
+                    unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
                     focusedTextColor = DarkBlue,
-                    unfocusedTextColor = Color.Gray
+                    unfocusedTextColor = DarkBlue
                 ),
+                singleLine = true,
+                leadingIcon = if (!isRtl) {
+                    {
+                        Icon(
+                            painterResource(id = R.drawable.search_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(24.dp),
+                            tint = DarkBlue,
+                        )
+                    }
+                } else null,
+                trailingIcon = if (isRtl) {
+                    {
+                        Icon(
+                            painterResource(id = R.drawable.search_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(24.dp),
+                            tint = DarkBlue,
+                        )
+                    }
+                } else null,
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = regularFont,
+                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
+                    color = DarkBlue,
+                ),
+                shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = Color.White, shape = RoundedCornerShape(10))
-                    .padding(0.dp)
+                    .background(Color.White)
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
                     }
