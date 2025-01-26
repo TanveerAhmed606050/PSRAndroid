@@ -59,7 +59,11 @@
     <string name="address">Address</string>
     <string name="profile">Profile</string>
     <string name="add">Add</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="ad_post">Ad Post</string>
+    <string name="all_post">All Post</string>
+    <string name="my_post">My Post</string>
     <string name="update">Update</string>
     <string name="add_profile">Add Profile</string>
     <string name="update_profile">Update Profile</string>

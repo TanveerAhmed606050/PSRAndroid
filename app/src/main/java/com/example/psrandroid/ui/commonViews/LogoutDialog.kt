@@ -1,6 +1,8 @@
 package com.example.psrandroid.ui.commonViews
 
 import android.net.Uri
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,17 +17,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -40,11 +47,30 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import java.util.Locale
 
 @Composable
-fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick: () -> Unit) {
+fun LogoutDialog(
+    onDismissRequest: () -> Unit, onOkClick: () -> Unit
+) {
+    var rotation by remember { mutableFloatStateOf(-90f) }
+    LaunchedEffect(Unit) {
+        rotation = -90f
+        androidx.compose.animation.core.animate(
+            initialValue = -90f,
+            targetValue = 0f,
+            animationSpec = tween(
+                durationMillis = 600,
+                easing = LinearOutSlowInEasing
+            )
+        ) { value, velocity ->
+            rotation = value
+        }
+    }
+
     Dialog(
         onDismissRequest = onDismissRequest, properties = DialogProperties(
             dismissOnBackPress = true, dismissOnClickOutside = true
@@ -54,6 +80,10 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .graphicsLayer {
+                    rotationX = rotation
+                    cameraDistance = 16f * density
+                }
                 .padding(16.dp)
                 .background(AppBG, shape = RoundedCornerShape(16.dp))
         ) {
@@ -82,7 +112,7 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick: () -> Unit) {
                     fontFamily = regularFont,
                     color = DarkBlue,
                 )
-                HorizontalDivider(thickness = 0.5.dp, color = Color.White)
+                HorizontalDivider(thickness = 0.5.dp, color = Color.DarkGray)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -92,7 +122,7 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick: () -> Unit) {
                         onClick = onDismissRequest, modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            stringResource(id = R.string.cancel),
+                            stringResource(id = R.string.no),
                             fontSize = 14.sp,
                             fontFamily = regularFont,
                             color = DarkBlue
@@ -102,13 +132,13 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick: () -> Unit) {
                         modifier = Modifier
                             .width(0.5.dp)
                             .height(50.dp)
-                            .background(Color.White)
+                            .background(Color.DarkGray)
                     )
                     TextButton(
                         onClick = onOkClick, modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            stringResource(id = R.string.logout),
+                            stringResource(id = R.string.yes),
                             color = DarkBlue,
                             fontSize = 16.sp,
                             fontFamily = mediumFont
@@ -122,6 +152,22 @@ fun LogoutDialog(onDismissRequest: () -> Unit, onOkClick: () -> Unit) {
 
 @Composable
 fun LoadingDialog() {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
+    var rotation by remember { mutableFloatStateOf(-90f) }
+    LaunchedEffect(Unit) {
+        rotation = -90f
+        androidx.compose.animation.core.animate(
+            initialValue = -90f,
+            targetValue = 0f,
+            animationSpec = tween(
+                durationMillis = 600,
+                easing = LinearOutSlowInEasing
+            )
+        ) { value, velocity ->
+            rotation = value
+        }
+    }
     Dialog(
         onDismissRequest = {}, properties = DialogProperties(
             dismissOnBackPress = false, dismissOnClickOutside = false
@@ -129,8 +175,11 @@ fun LoadingDialog() {
     ) {
         Box(
             modifier = Modifier
-//                .wrapContentWidth()
                 .wrapContentHeight()
+                .graphicsLayer {
+                    rotationX = rotation
+                    cameraDistance = 16f * density
+                }
                 .background(AppBG, shape = RoundedCornerShape(10.dp))
         ) {
             Row(
@@ -138,16 +187,27 @@ fun LoadingDialog() {
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.demo_scrap), contentDescription = "",
-                    modifier = Modifier
-                        .size(30.dp)
-                        .padding(horizontal = 8.dp)
-                )
+                if (!isRtl)
+                    Image(
+                        painter = painterResource(id = R.drawable.demo_scrap),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(30.dp)
+                            .padding(horizontal = 8.dp),
+                    )
                 Text(
                     text = stringResource(id = R.string.loading), color = Color.DarkGray,
-                    fontFamily = regularFont, fontSize = 14.sp
+                    fontFamily = regularFont, fontSize = 14.sp,
+                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start
                 )
+                if (isRtl)
+                    Image(
+                        painter = painterResource(id = R.drawable.demo_scrap),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .size(30.dp)
+                            .padding(horizontal = 8.dp),
+                    )
             }
         }
     }
@@ -158,15 +218,33 @@ fun FullScreenImageDialog(
     onDismissRequest: () -> Unit,
     imageList: List<Uri>,
 ) {
+    var rotation by remember { mutableFloatStateOf(-90f) }
+    LaunchedEffect(Unit) {
+        rotation = -90f
+        androidx.compose.animation.core.animate(
+            initialValue = -90f,
+            targetValue = 0f,
+            animationSpec = tween(
+                durationMillis = 600,
+                easing = LinearOutSlowInEasing
+            )
+        ) { value, velocity ->
+            rotation = value
+        }
+    }
     val pagerState = rememberPagerState()
     Dialog(
-        onDismissRequest = {onDismissRequest()}, properties = DialogProperties(
+        onDismissRequest = { onDismissRequest() }, properties = DialogProperties(
             dismissOnBackPress = true, dismissOnClickOutside = true
         )
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .graphicsLayer {
+                    rotationX = rotation
+                    cameraDistance = 16f * density
+                }
                 .padding(vertical = 20.dp)
                 .background(AppBG, shape = RoundedCornerShape(10.dp))
         ) {

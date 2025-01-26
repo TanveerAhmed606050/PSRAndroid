@@ -73,7 +73,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     val userData = authVM.userPreferences.getUserPreference()
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
     var base64String by remember { mutableStateOf<String?>(null) }
-    var isLogout by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     val userId = authVM.userPreferences.getUserPreference()?.id ?: 0
     val authData = authVM.loginData
     var profilePic = userData?.profilePic ?: ""
@@ -86,18 +86,19 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
         authVM.loginData = null
     }
-    //logout
-    if (isLogout) LogoutDialog(onOkClick = {
-        isLogout = false
-        authVM.userPreferences.clearStorage()
-        LogoutSession.clearError()
-        navController.navigate(Screen.LoginScreen.route) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
-        }
-    },
-        onDismissRequest = {
-            isLogout = false
-        })
+
+    if (showDialog)
+        LogoutDialog(onOkClick = {
+            showDialog = false
+            authVM.userPreferences.clearStorage()
+            LogoutSession.clearError()
+            navController.navigate(Screen.LoginScreen.route) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        },
+            onDismissRequest = {
+                showDialog = false
+            })
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress)
@@ -131,7 +132,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     },
         onItemClick = { screenRoute ->
             if (screenRoute == context.getString(R.string.logout))
-                isLogout = true
+                showDialog = true
             else if (screenRoute == context.getString(R.string.language)) {
                 if (authVM.userPreferences.isUrduSelected) {
                     switchLanguage(context, "en")
@@ -291,6 +292,7 @@ fun ProfileOptionItem(
             route = Screen.UpdatePasswordScreen.route
             encodedUrl = ""
         }
+
         stringResource(id = R.string.language) -> {
             route = stringResource(id = R.string.language)
             encodedUrl = ""

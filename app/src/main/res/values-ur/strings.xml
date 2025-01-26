@@ -16,7 +16,7 @@
     <string name="forgot_pass">پاس ورڈ بھول گئے۔</string>
     <string name="login_in">لاگ ان</string>
     <string name="logout">لاگ آؤٹ</string>
-    <string name="loading">لوڈ ہو رہا ہے...</string>
+    <string name="loading">…لوڈ ہو رہا ہے</string>
     <string name="password_change">پاس ورڈ تبدیل کریں۔</string>
     <string name="privacy_policy">رازداری کی پالیسیاں</string>
     <string name="terms_condition">شرائط و ضوابط</string>
@@ -92,5 +92,9 @@
     <string name="open_whatsApp_error">واٹس ایپ کھولنے میں ناکام۔</string>
     <string name="buy_sell">سکریپ خریدیں۔</string>
     <string name="select_city_error">براہ کرم ایک شہر منتخب کریں۔</string>
+    <string name="yes">ہاں</string>
+    <string name="no">نہیں</string>
+    <string name="all_post">تمام اشتہارات</string>
+    <string name="my_post">میرے اشتہارات</string>
 
 </resources>

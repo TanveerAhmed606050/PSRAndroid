@@ -47,6 +47,8 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.isRtlLocale
+import java.util.Locale
 
 @Composable
 fun PrimeUserScreen(navController: NavController, dashboardVM: RateVM) {
@@ -115,6 +117,8 @@ fun UserItemData(
     watchAd: Boolean, primeUserData: PrimeUserData,
     onShowContact: (String) -> Unit
 ) {
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -165,7 +169,8 @@ fun UserItemData(
                     fontSize = 12.sp,
                 )
                 Text(
-                    text = stringResource(id = R.string.phone_no),
+                    text =
+                        stringResource(id = R.string.show_no),
                     fontSize = 12.sp,
                     color = DarkBlue,
                     fontFamily = regularFont,
@@ -204,15 +209,14 @@ fun UserItemData(
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
                 Text(
-                    text = primeUserData.type,
+                    text =  primeUserData.type,
                     color = LightBlue,
                     fontFamily = mediumFont,
                     fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
-                Text(
-                    text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
+                Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
                     color = LightBlue,
                     fontFamily = mediumFont,
                     maxLines = 1,

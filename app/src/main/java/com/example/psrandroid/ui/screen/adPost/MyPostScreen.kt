@@ -59,10 +59,10 @@ import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
+import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
-import com.example.psrandroid.ui.screen.rate.HeaderSection
 import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -76,22 +76,14 @@ import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
+fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
-    var search by remember { mutableStateOf(TextFieldValue("")) }
-    var location by remember {
-        mutableStateOf(
-            adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
-        )
-    }
     val adsData = adPostVM.allAdsData
     var showProgress by remember { mutableStateOf(false) }
     showProgress = adPostVM.isLoading
     if (showProgress)
         LoadingDialog()
     val noInternetMessage = stringResource(id = R.string.network_error)
-    val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
-    val locationData = locationList.map { it.name }
     LaunchedEffect(Unit) {
         if (isNetworkAvailable(context))
             adPostVM.getAllAds()
@@ -99,39 +91,25 @@ fun AdPostScreen(navController: NavController, adPostVM: AdPostVM) {
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()
     }
-    AdPostScreen(
-        search = search,
+    MyPostScreen(
         adsData = adsData?.data,
-        cityList = locationData, onPlusIconClick = {
+        onPlusIconClick = {
             navController.navigate(Screen.AdScreen.route)
-        },
-        onCityItemClick = { locationName ->
-            location = locationName
-            val locationId = adPostVM.userPreferences.getLocationList()?.data?.find {
-                it.name.equals(locationName, ignoreCase = true)
-            }?.id ?: 0
         },
         onAdsClick = { adData ->
             val adDataJson = Gson().toJson(adData)
             val encodedJson = Uri.encode(adDataJson)
             navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
-        },
-        onSearch = {
-            search = it
         })
 
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AdPostScreen(
-    search: TextFieldValue,
+fun MyPostScreen(
     adsData: List<AdData>?,
-    cityList: List<String>?,
     onPlusIconClick: () -> Unit,
-    onCityItemClick: (String) -> Unit,
     onAdsClick: (AdData) -> Unit,
-    onSearch: (TextFieldValue) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -145,13 +123,9 @@ fun AdPostScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header section
-            HeaderSection(headerTitle = stringResource(id = R.string.ad_post), cityList = cityList,
-                onCityItemClick = { onCityItemClick(it) })
-            // Search bar
-            SearchBar(search,
-                onSearchClick = {
-                    onSearch(it)
-                })
+            Header(modifier = Modifier, headerText = stringResource(id = R.string.my_post)) {
+            }
+
             Spacer(modifier = Modifier.height(10.dp))
             if (adsData?.isEmpty() == true)
                 NoProductView(msg = stringResource(id = R.string.no_ads), DarkBlue)
@@ -298,7 +272,7 @@ fun SearchBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 0.dp),
+            .padding(horizontal = 0.dp, vertical = 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
@@ -391,10 +365,8 @@ fun SearchBar(
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        AdPostScreen(search = TextFieldValue(""), adsData = null,
-            cityList = listOf(), onPlusIconClick = {},
-            onCityItemClick = {},
-            onAdsClick = {},
-            onSearch = {})
+        MyPostScreen(adsData = null,
+            onPlusIconClick = {},
+            onAdsClick = {})
     }
 }

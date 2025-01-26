@@ -6,6 +6,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -32,8 +34,9 @@ import androidx.navigation.navArgument
 import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature
 import com.example.psp_android.R
-import com.example.psrandroid.ui.screen.adPost.AdPostScreen
+import com.example.psrandroid.ui.screen.adPost.MyPostScreen
 import com.example.psrandroid.ui.screen.adPost.AdPostVM
+import com.example.psrandroid.ui.screen.adPost.AllPostScreen
 import com.example.psrandroid.ui.screen.adPost.CreateAdScreen
 import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
 import com.example.psrandroid.ui.screen.adPost.models.AdData
@@ -139,8 +142,8 @@ fun PSRNavigation(
             R.drawable.calendar_ic
         ),
         BottomNavigationItem(
-            stringResource(id = R.string.ad_post),
-            Screen.AdPostScreen.route,
+            stringResource(id = R.string.my_post),
+            Screen.MyPostScreen.route,
             R.drawable.calendar_ic
         ),
         BottomNavigationItem(
@@ -313,108 +316,147 @@ fun PSRNavHost(
 
         composable(
             route = Screen.PrivacyPolicyScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             PrivacyPolicyScreen(navController, authViewModel)
         }
 
         composable(
             route = Screen.LanguagesScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             LanguageScreen(navController, homeVM)
         }
         composable(
             route = Screen.LoginScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             LoginScreen(navController, authViewModel)
         }
         composable(
             route = Screen.RegisterScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             SignupScreen(navController, authViewModel)
         }
         composable(
             route = Screen.AddProfileScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             UpdateProfileScreen(navController, authViewModel)
         }
         composable(
             route = Screen.RateScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             RateScreen(navController, rateVM, authViewModel)
         }
         composable(
             route = Screen.PrimeUserScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             PrimeUserScreen(navController = navController, rateVM)
         }
         composable(
             route = Screen.PasswordScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             PasswordScreen(navController)
         }
         composable(
             route = Screen.MyProfileScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             MyProfileScreen(navController, authViewModel)
         }
         composable(
             route = Screen.UpdatePasswordScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             UpdatePasswordScreen(navController)
         }
         composable(
             route = Screen.LmeScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             LmeScreen(navController, rateVM)
         }
         composable(
-            route = Screen.AdPostScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            route = Screen.MyPostScreen.route,
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
-            AdPostScreen(navController, adPostVM)
+            MyPostScreen(navController, adPostVM)
+        }
+        composable(
+            route = Screen.AllPostScreen.route,
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
+        ) {
+            AllPostScreen(navController, adPostVM)
         }
         composable(
             route = Screen.HomeScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             HomeScreen(navController, homeVM)
         }
         composable(
             route = Screen.AdScreen.route,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {
             CreateAdScreen(navController, adPostVM, rateVM = rateVM)
         }
         composable(
             route = Screen.AdDetailScreen.route + "Details/{data}",
             arguments = listOf(navArgument("data") { type = NavType.StringType }),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None }
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
         ) {  backStackEntry ->
             val encodedJson = backStackEntry.arguments?.getString("data")
             val userJson = encodedJson?.let { Uri.decode(it) }

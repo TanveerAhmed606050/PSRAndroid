@@ -81,7 +81,7 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
         onCityItemClick = { cityName ->
             selectedCity = cityName
         },
-        onSeeAllAds = { navController.navigate(Screen.AdPostScreen.route) },
+        onSeeAllAds = { navController.navigate(Screen.AllPostScreen.route) },
         onSeeAllRates = { navController.navigate(Screen.RateScreen.route) },
         onSeeAllLME = { navController.navigate(Screen.LmeScreen.route) },
         onAdsClick = { adData ->
