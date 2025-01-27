@@ -26,9 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,10 +39,11 @@ import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.GoogleAdBanner
 import com.example.psrandroid.ui.commonViews.LinearProgress
+import com.example.psrandroid.ui.screen.adPost.SearchBar
+import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
-import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
@@ -53,19 +54,29 @@ import com.example.psrandroid.utils.Utils.formatDateDisplay
 @Composable
 fun LmeScreen(navController: NavController, dashboardVM: RateVM) {
     var isRefreshing by remember { mutableStateOf(false) }
+    var search by remember { mutableStateOf(TextFieldValue("")) }
     if (!dashboardVM.isLoading)
         isRefreshing = false
-    val lmeData = dashboardVM.lmeMetalData
+    val lmeData = dashboardVM.searchLmeMetalData
 
     LaunchedEffect(Unit) {
         dashboardVM.getLMEMetals()
     }
-    LmeScreenView(lmeData?.data)
+    LmeScreenView(lmeData,
+        search = search,
+        onSearch = {
+            search = it
+            dashboardVM.searchLME(search.text)
+        })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun LmeScreenView(lmeData: List<LmeData>?) {
+fun LmeScreenView(
+    lmeData: List<LmeData>?,
+    search: TextFieldValue,
+    onSearch: (TextFieldValue) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -74,7 +85,7 @@ fun LmeScreenView(lmeData: List<LmeData>?) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 8.dp, horizontal = 0.dp),
+                .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
@@ -88,7 +99,15 @@ fun LmeScreenView(lmeData: List<LmeData>?) {
                 LinearProgress(modifier = Modifier.padding(vertical = 3.dp))
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            LmeList(lmeData = lmeData)
+            SearchBar(search,
+                onSearchClick = {
+                    onSearch(it)
+                })
+            Spacer(modifier = Modifier.padding(top = 20.dp))
+            if (lmeData?.isNotEmpty() == true)
+                LmeList(lmeData = lmeData)
+            else
+                NoProductView(msg = stringResource(id = R.string.no_lme), color = DarkBlue)
         }
     }
 }
@@ -116,7 +135,6 @@ fun LmeList(lmeData: List<LmeData>?) {
 fun LmeItem(lmeData: LmeData) {
     Column(
         modifier = Modifier
-            .padding(10.dp)
             .background(DarkBlue, RoundedCornerShape(10.dp))
     ) {
         Row(
@@ -198,6 +216,8 @@ fun LmeItem(lmeData: LmeData) {
 @Composable
 fun LmeScreenPreview() {
     PSP_AndroidTheme {
-        LmeScreenView(listOf())
+        LmeScreenView(listOf(),
+            search = TextFieldValue(""),
+            onSearch = {})
     }
 }

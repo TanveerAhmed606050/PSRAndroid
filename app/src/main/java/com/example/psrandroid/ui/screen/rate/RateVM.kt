@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.repository.RateRepository
 import com.example.psrandroid.response.DashboardMetal
+import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.PrimeUser
@@ -31,7 +32,8 @@ class RateVM @Inject constructor(
     var mainMetalData by mutableStateOf<DashboardMetal?>(null)
     var lmeMetalData by mutableStateOf<LmeResponse?>(null)
     var suggestMainMetals by mutableStateOf<List<MetalData>?>(null)
-    var suggestSubMetals by mutableStateOf<List<SubMetalData>?>(null)
+    private var suggestSubMetals by mutableStateOf<List<SubMetalData>?>(null)
+    var searchLmeMetalData by mutableStateOf<List<LmeData>?>(null)
 
 
     fun getPremiumUser() = viewModelScope.launch {
@@ -80,10 +82,15 @@ class RateVM @Inject constructor(
             val result = dashboardRepository.getLMEMetals()
             if (result is Result.Success) {
                 lmeMetalData = result.data
+                searchLmeMetalData = lmeMetalData?.data
             } else if (result is Result.Failure) {
                 error = result.exception.message ?: "Failure"
             }
         }
+    }
+
+    fun searchLME(search:String) = viewModelScope.launch {
+        searchLmeMetalData = lmeMetalData?.data?.filter { it.name.contains(search, ignoreCase = true) }
     }
 
     fun searchMainMetals(searchText: String) {

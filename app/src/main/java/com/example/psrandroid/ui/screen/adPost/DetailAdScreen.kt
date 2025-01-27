@@ -3,6 +3,7 @@ package com.example.psrandroid.ui.screen.adPost
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.psp_android.R
+import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.GoogleInterstitialAd
 import com.example.psrandroid.ui.commonViews.showInterstitialAd
 import com.example.psrandroid.ui.screen.adPost.models.AdData
@@ -64,6 +66,14 @@ fun DetailAdScreen(
     GoogleInterstitialAd(context = context, onAdClick = {
         showContact = "+923456982288"
     })
+    var showDialog by remember { mutableStateOf(false) }
+    if (showDialog)
+        FullScreenImageDialog(
+            serverImageList = adData?.photos, onDismissRequest = {
+                showDialog = false
+            },
+            imageList = listOf()
+        )
     DetailAdScreenViews(
         showContact = showContact.toString(),
         adsData = adData ?: AdData.mockup, backClick = {
@@ -79,20 +89,23 @@ fun DetailAdScreen(
             if (showContact == context.getText(R.string.show_no))
                 showInterstitialAd(context)
             else
-            openSMSApp(context, phoneNumber = showContact.toString(), message = "")
+                openSMSApp(context, phoneNumber = showContact.toString(), message = "")
         },
         onWhatsAppCallClick = {
             if (showContact == context.getText(R.string.show_no))
                 showInterstitialAd(context)
             else
-            openWhatsApp(context, showContact.toString())
+                openWhatsApp(context, showContact.toString())
         },
         onWhatsAppChatClick = {
             if (showContact == context.getText(R.string.show_no))
                 showInterstitialAd(context)
             else
-            openWhatsApp(context, showContact.toString())
+                openWhatsApp(context, showContact.toString())
 
+        },
+        onImageClick = {
+            showDialog = true
         }
     )
 }
@@ -106,6 +119,7 @@ fun DetailAdScreenViews(
     onSMSClick: () -> Unit,
     onWhatsAppChatClick: () -> Unit,
     onWhatsAppCallClick: () -> Unit,
+    onImageClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -123,18 +137,22 @@ fun DetailAdScreenViews(
                 contentDescription = "",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp),
+                    .height(400.dp)
+                    .clickable { onImageClick() },
                 contentScale = ContentScale.Crop,
             )
             Image(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(top = 24.dp, start = 12.dp)
-                    .size(30.dp)
-                    .padding(4.dp)
+                    .padding(16.dp)
+                    .background(
+                        color = Color.DarkGray.copy(0.6f),
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .size(32.dp) // Set the size for the background container
+                    .padding(8.dp)
                     .clickable { backClick() },
-                colorFilter = ColorFilter.tint(DarkBlue)
             )
         }
         Column(modifier = Modifier.padding(20.dp)) {
@@ -183,61 +201,63 @@ fun DetailAdScreenViews(
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { onSMSClick() }
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.sms_ic),
-                        contentDescription = "",
-                        modifier = Modifier.size(30.dp)
-                    )
-                    Text(
-                        text = stringResource(id = R.string.sms),
-                        fontSize = 14.sp, fontFamily = regularFont,
-                        modifier = Modifier.padding(start = 4.dp),
-                        color = DarkBlue
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
+            if (showContact != stringResource(id = R.string.show_no)) {
+                Spacer(modifier = Modifier.height(12.dp))
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { onWhatsAppChatClick() }
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.chat_ic),
-                        contentDescription = "",
-                        modifier = Modifier.size(30.dp)
-                    )
-                    Text(
-                        text = stringResource(id = R.string.chat),
-                        fontSize = 14.sp, fontFamily = regularFont,
-                        modifier = Modifier.padding(start = 4.dp),
-                        color = DarkBlue
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable { onWhatsAppCallClick() }
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.whatsapp_ic),
-                        contentDescription = "",
-                        modifier = Modifier.size(30.dp)
-                    )
-                    Text(
-                        text = stringResource(id = R.string.whats_app),
-                        fontSize = 14.sp, fontFamily = regularFont,
-                        modifier = Modifier.padding(start = 4.dp),
-                        color = DarkBlue
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { onSMSClick() }
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.sms_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(30.dp)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.sms),
+                            fontSize = 14.sp, fontFamily = regularFont,
+                            modifier = Modifier.padding(start = 4.dp),
+                            color = DarkBlue
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { onWhatsAppChatClick() }
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.chat_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(30.dp)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.chat),
+                            fontSize = 14.sp, fontFamily = regularFont,
+                            modifier = Modifier.padding(start = 4.dp),
+                            color = DarkBlue
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Row(verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.clickable { onWhatsAppCallClick() }
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.whatsapp_ic),
+                            contentDescription = "",
+                            modifier = Modifier.size(30.dp)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.whats_app),
+                            fontSize = 14.sp, fontFamily = regularFont,
+                            modifier = Modifier.padding(start = 4.dp),
+                            color = DarkBlue
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -264,12 +284,22 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
         } else {
-            Toasty.error(context, context.getText(R.string.no_whatsApp_error), Toast.LENGTH_SHORT, true)
+            Toasty.error(
+                context,
+                context.getText(R.string.no_whatsApp_error),
+                Toast.LENGTH_SHORT,
+                true
+            )
                 .show()
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        Toasty.error(context, context.getText(R.string.open_whatsApp_error), Toast.LENGTH_SHORT, true)
+        Toasty.error(
+            context,
+            context.getText(R.string.open_whatsApp_error),
+            Toast.LENGTH_SHORT,
+            true
+        )
             .show()
     }
 }
@@ -313,7 +343,8 @@ fun DetailAdScreenPreview() {
             showContact = "",
             onSMSClick = {},
             onWhatsAppCallClick = {},
-            onWhatsAppChatClick = {}
+            onWhatsAppChatClick = {},
+            onImageClick = {}
         )
     }
 }

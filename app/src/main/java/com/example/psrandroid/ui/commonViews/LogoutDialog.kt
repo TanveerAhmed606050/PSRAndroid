@@ -217,6 +217,7 @@ fun LoadingDialog() {
 fun FullScreenImageDialog(
     onDismissRequest: () -> Unit,
     imageList: List<Uri>,
+    serverImageList: List<String>?,
 ) {
     var rotation by remember { mutableFloatStateOf(-90f) }
     LaunchedEffect(Unit) {
@@ -234,9 +235,11 @@ fun FullScreenImageDialog(
     }
     val pagerState = rememberPagerState()
     Dialog(
-        onDismissRequest = { onDismissRequest() }, properties = DialogProperties(
-            dismissOnBackPress = true, dismissOnClickOutside = true
-        )
+        onDismissRequest = { onDismissRequest() },
+        properties = DialogProperties(
+            dismissOnBackPress = true, dismissOnClickOutside = true,
+            usePlatformDefaultWidth = false // Ensures the dialog can occupy the full screen
+        ),
     ) {
         Box(
             modifier = Modifier
@@ -245,24 +248,38 @@ fun FullScreenImageDialog(
                     rotationX = rotation
                     cameraDistance = 16f * density
                 }
-                .padding(vertical = 20.dp)
-                .background(AppBG, shape = RoundedCornerShape(10.dp))
+                .background(AppBG, shape = RoundedCornerShape(0.dp))
         ) {
             HorizontalPager(
-                count = imageList.size,
+                count = serverImageList?.size ?: imageList.size,
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
-                val uri = imageList[page]
-                Image(
-                    painter = rememberAsyncImagePainter(uri),
-                    contentDescription = "Selected Image $page",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable { },
-                    contentScale = ContentScale.Crop,
-                )
+                val uri = if (serverImageList != null) serverImageList[page] else imageList[page]
+                Box(modifier = Modifier) {
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = "Selected Image $page",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(0.dp))
+                            .clickable { },
+                        contentScale = ContentScale.Crop,
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
+                        contentDescription = "",
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .background(
+                                color = Color.DarkGray.copy(0.3f),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .size(32.dp) // Set the size for the background container
+                            .padding(8.dp)
+                            .clickable { onDismissRequest() }
+                    )
+                }
             }
         }
     }

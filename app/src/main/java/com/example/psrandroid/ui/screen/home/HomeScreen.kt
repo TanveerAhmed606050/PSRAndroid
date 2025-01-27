@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -115,7 +116,6 @@ fun HomeScreenViews(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Row(
@@ -126,7 +126,7 @@ fun HomeScreenViews(
                 verticalAlignment = Alignment.CenterVertically // Aligns content vertically centered
             ) {
                 Text(
-                    text = stringResource(id = R.string.home),
+                    text = stringResource(id = R.string.app_name),
                     fontSize = 16.sp,
                     fontFamily = mediumFont,
                     color = DarkBlue,
@@ -142,68 +142,76 @@ fun HomeScreenViews(
                     MyAsyncImage(imageUrl = userData.profilePic, 40.dp, true)
                 }
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            SeeAllView(stringResource(id = R.string.buy_sell), clickAllViews = { onSeeAllAds() })
-            Spacer(modifier = Modifier.height(0.dp))
-            LazyRow(
-                contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier.height(220.dp) // Explicit height for LazyRow
-            ) {
-                items(3) { index ->
-                    HomeAdsItems(
-                        adsData?.get(index) ?: AdData.mockup, modifier = Modifier
-                            .width(150.dp)
-                            .height(200.dp),
-                        onAdsClick = { onAdsClick(it) }
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            SeeAllView(
-                stringResource(id = R.string.scrap_rate),
-                clickAllViews = { onSeeAllRates() })
-
-            Spacer(modifier = Modifier.height(5.dp))
-            LazyRow(
-                contentPadding = PaddingValues(vertical = 8.dp),
-                modifier = Modifier.height(60.dp) // Explicit height for LazyRow
-            ) {
-                items(cityList?.size ?: 0) { index ->
-                    val cityName = cityList?.get(index) ?: ""
-                    CityItems(
-                        cityName = cityName,
-                        selectedCity = selectedCity, // Check if this city is selected
-                        onCityItemClick = { city ->
-                            onCityItemClick(city) // Trigger the callback
-                        }
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(0.dp))
-            LazyRow(
-                contentPadding = PaddingValues(vertical = 8.dp),
+            Column(
                 modifier = Modifier
-                    .height(200.dp)
-                    .fillMaxWidth() // Explicit height for LazyRow
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
-                items(3) { index ->
-                    ScrapRateItem(metalDetail = SubMetalData.mockup)
-                    Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+                SeeAllView(
+                    stringResource(id = R.string.buy_sell),
+                    clickAllViews = { onSeeAllAds() })
+                Spacer(modifier = Modifier.height(0.dp))
+                LazyRow(
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    modifier = Modifier.height(220.dp) // Explicit height for LazyRow
+                ) {
+                    items(3) { index ->
+                        HomeAdsItems(
+                            adsData?.get(index) ?: AdData.mockup, modifier = Modifier
+                                .width(150.dp)
+                                .height(200.dp),
+                            onAdsClick = { onAdsClick(it) }
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            SeeAllView(stringResource(id = R.string.lme), clickAllViews = { onSeeAllLME() })
-            Spacer(modifier = Modifier.height(10.dp))
-            LazyRow(
-                modifier = Modifier.height(100.dp) // Explicit height for LazyRow
-            ) {
-                items(3) { index ->
-                    HomeLmeItem(LmeData.mockup)
-                    Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+                SeeAllView(
+                    stringResource(id = R.string.scrap_rate),
+                    clickAllViews = { onSeeAllRates() })
+
+                Spacer(modifier = Modifier.height(5.dp))
+                LazyRow(
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    modifier = Modifier.height(60.dp) // Explicit height for LazyRow
+                ) {
+                    items(cityList?.size ?: 0) { index ->
+                        val cityName = cityList?.get(index) ?: ""
+                        CityItems(
+                            cityName = cityName,
+                            selectedCity = selectedCity, // Check if this city is selected
+                            onCityItemClick = { city ->
+                                onCityItemClick(city) // Trigger the callback
+                            }
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.height(0.dp))
+//                LazyRow(
+//                    contentPadding = PaddingValues(vertical = 8.dp),
+//                    modifier = Modifier
+//                        .height(200.dp)
+//                        .fillMaxWidth() // Explicit height for LazyRow
+//                ) {
+//                    items(3) { index ->
+                ScrapRateItem(metalDetail = SubMetalData.mockup)
+                Spacer(modifier = Modifier.width(10.dp))
+//                    }
+//                }
+                Spacer(modifier = Modifier.height(10.dp))
+                SeeAllView(stringResource(id = R.string.lme), clickAllViews = { onSeeAllLME() })
+                Spacer(modifier = Modifier.height(10.dp))
+                LazyRow(
+                    modifier = Modifier.height(100.dp) // Explicit height for LazyRow
+                ) {
+                    items(3) { index ->
+                        HomeLmeItem(LmeData.mockup)
+                        Spacer(modifier = Modifier.width(10.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(120.dp))
             }
-            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 }
@@ -218,10 +226,9 @@ fun CityItems(
     Box(
         modifier = Modifier
             .padding(horizontal = 8.dp)
-//            .border(width = 1.dp, color = Color.White, RoundedCornerShape(30.dp))
             .background(
                 if (isSelected) DarkBlue else Color.White,
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(10.dp)
             )
             .clickable { onCityItemClick(cityName) }
     ) {
@@ -230,7 +237,7 @@ fun CityItems(
             color = if (isSelected) Color.White else LightBlue,
             fontFamily = regularFont,
             fontSize = 14.sp,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }
@@ -314,7 +321,7 @@ fun HomeAdsItems(
 fun ScrapRateItem(metalDetail: SubMetalData?) {
     Card(
         modifier = Modifier
-            .height(180.dp)
+//            .height(180.dp)
             .fillMaxWidth() // Ensures the row takes the full width of the parent
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { },
@@ -324,33 +331,35 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(8.dp),
+                .padding(horizontal = 8.dp),
             verticalArrangement = Arrangement.SpaceAround,
         ) {
             Row(
-                modifier = Modifier,
+                modifier = Modifier.padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    modifier = Modifier.width(74.dp),
+                    modifier = Modifier,
                     text = "Iron",
                     color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
-//                Spacer(modifier = Modifier.weight(1f)) // Pushes the second Text to the end
                 Text(
-                    modifier = Modifier,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
                     text = "Rs. 2150", color = Color.DarkGray, fontSize = 12.sp,
-                    fontFamily = regularFont, textAlign = TextAlign.Center,
+                    fontFamily = regularFont, textAlign = TextAlign.End,
                 )
             }
+            HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             Row(
-                modifier = Modifier
+                modifier = Modifier.padding(vertical = 4.dp),
             ) {
                 Text(
-                    modifier = Modifier.width(74.dp),
+                    modifier = Modifier,
                     text = "Copper",
                     color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
@@ -358,16 +367,19 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
                 Text(
-                    modifier = Modifier, // Occupies 1x space
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
                     text = "Rs. 102", color = Color.DarkGray, fontSize = 12.sp,
                     fontFamily = regularFont, textAlign = TextAlign.End,
                 )
             }
+            HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             Row(
-                modifier = Modifier
+                modifier = Modifier.padding(vertical = 4.dp),
             ) {
                 Text(
-                    modifier = Modifier.width(74.dp),
+                    modifier = Modifier,
                     text = "Silver",
                     color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
@@ -375,20 +387,24 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
                 Text(
-                    modifier = Modifier.background(color= DarkBlue,
-                    RoundedCornerShape(4.dp)).padding(5.dp,0.dp,5.dp,0.dp),
-                    text = stringResource(id = R.string.watch_ad),
-                    color = Color.White,
-                    fontSize = 10.sp,
+//                    modifier = Modifier.background(color= DarkBlue,
+//                    RoundedCornerShape(4.dp)).padding(5.dp,0.dp,5.dp,0.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
+                    text = "Rs. 102",
+                    color = Color.DarkGray,
+                    fontSize = 12.sp,
                     fontFamily = regularFont,
                     textAlign = TextAlign.End
                 )
             }
+            HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             Row(
-                modifier = Modifier
+                modifier = Modifier.padding(vertical = 4.dp),
             ) {
                 Text(
-                    modifier = Modifier.width(74.dp),
+                    modifier = Modifier,
                     text = "Plastic",
                     color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                     textAlign = TextAlign.Start,
@@ -396,34 +412,36 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
                 Text(
-                    modifier = Modifier,
-                    text = "Rs. ****",
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
+                    text = "Rs. 120",
                     color = Color.DarkGray,
                     fontSize = 12.sp,
                     fontFamily = regularFont,
                     textAlign = TextAlign.End,
                 )
             }
-            Row(
-                modifier = Modifier
-            ) {
-                Text(
-                    modifier = Modifier.width(74.dp),
-                    text = "Nikal",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-                )
-                Text(
-                    modifier = Modifier,
-                    text = "Rs. ****",
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
-                    fontFamily = regularFont,
-                    textAlign = TextAlign.End,
-                )
-            }
+//            Row(
+//                modifier = Modifier
+//            ) {
+//                Text(
+//                    modifier = Modifier.width(74.dp),
+//                    text = "Nikal",
+//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
+//                    textAlign = TextAlign.Start,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+//                )
+//                Text(
+//                    modifier = Modifier,
+//                    text = "Rs. ****",
+//                    color = Color.DarkGray,
+//                    fontSize = 12.sp,
+//                    fontFamily = regularFont,
+//                    textAlign = TextAlign.End,
+//                )
+//            }
 //                Row(
 //                    modifier = Modifier.weight(3f),
 //                    verticalAlignment = Alignment.CenterVertically
@@ -522,12 +540,13 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
             text = text, color = Color.DarkGray,
             fontFamily = regularFont, fontSize = 16.sp,
         )
+        Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.see_all), color = DarkBlue,
             fontFamily = mediumFont, fontSize = 12.sp,
             textAlign = TextAlign.End,
             modifier = Modifier
-                .fillMaxWidth().padding(3.dp)
+                .padding(3.dp)
                 .clickable { clickAllViews() }
         )
     }

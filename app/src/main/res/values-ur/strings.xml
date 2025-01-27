@@ -96,5 +96,7 @@
     <string name="no">نہیں</string>
     <string name="all_post">تمام اشتہارات</string>
     <string name="my_post">میرے اشتہارات</string>
+    <string name="no_metal">کوئی دھات نہیں ملی</string>
+    <string name="no_lme">کوئی LME نہیں ملا</string>
 
 </resources>

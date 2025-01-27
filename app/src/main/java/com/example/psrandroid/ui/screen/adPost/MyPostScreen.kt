@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -100,7 +101,8 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
             val adDataJson = Gson().toJson(adData)
             val encodedJson = Uri.encode(adDataJson)
             navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
-        })
+        },
+        onBackClick = { navController.popBackStack() })
 
 }
 
@@ -110,6 +112,7 @@ fun MyPostScreen(
     adsData: List<AdData>?,
     onPlusIconClick: () -> Unit,
     onAdsClick: (AdData) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -122,9 +125,10 @@ fun MyPostScreen(
                 .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.statusBarsPadding())
             // Header section
-            Header(modifier = Modifier, headerText = stringResource(id = R.string.my_post)) {
-            }
+            Header(modifier = Modifier, headerText = stringResource(id = R.string.my_post),
+                backClick = { onBackClick() })
 
             Spacer(modifier = Modifier.height(10.dp))
             if (adsData?.isEmpty() == true)
@@ -207,7 +211,6 @@ fun AdsItemsView(
                 Column(
                     modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-//                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -367,6 +370,7 @@ fun HomeScreenPreview() {
     PSP_AndroidTheme {
         MyPostScreen(adsData = null,
             onPlusIconClick = {},
-            onAdsClick = {})
+            onAdsClick = {},
+            onBackClick = {})
     }
 }

@@ -183,7 +183,7 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
 fun DashBoardScreen(
     search: TextFieldValue,
     name: String,
-    address: String,
+    selectedCity: String,
     phone: String,
     cityList: List<String>?,
     productList: List<SubMetalData>?,
@@ -209,13 +209,18 @@ fun DashBoardScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(16.dp)
                     .padding(bottom = 100.dp)
             ) {
-                // Header section
-                HeaderSection(headerTitle = stringResource(id = R.string.rate), cityList = cityList,
-                    onCityItemClick = { onCityItemClick(it) })
-
-                Spacer(modifier = Modifier.height(0.dp))
+                Spacer(modifier = Modifier.statusBarsPadding())
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(id = R.string.rate), fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = DarkBlue,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(10.dp))
                 // Search bar
                 SearchBar(suggestedSearchList, search,
                     onSearch = {
@@ -224,6 +229,21 @@ fun DashBoardScreen(
                     onSearchClick = { value ->
                         onSearchClick(value)
                     })
+                LazyRow(
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    modifier = Modifier.height(60.dp) // Explicit height for LazyRow
+                ) {
+                    items(cityList?.size ?: 0) { index ->
+                        val cityName = cityList?.get(index) ?: ""
+                        CityItems(
+                            cityName = cityName,
+                            selectedCity = selectedCity, // Check if this city is selected
+                            onCityItemClick = { city ->
+                                onCityItemClick(city) // Trigger the callback
+                            }
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(0.dp))
                 Row(
@@ -247,7 +267,7 @@ fun DashBoardScreen(
                     )
                 }
                 if (productList?.isEmpty() != false)
-                    NoProductView("No metal found", DarkBlue)
+                    NoProductView(stringResource(id = R.string.no_metal), DarkBlue)
                 else
                     ProductList(productList)
                 Spacer(modifier = Modifier.height(120.dp))
@@ -391,7 +411,7 @@ fun SearchBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .padding(horizontal = 0.dp, vertical = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ExposedDropdownMenuBox(

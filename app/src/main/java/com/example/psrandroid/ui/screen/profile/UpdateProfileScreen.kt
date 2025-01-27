@@ -25,9 +25,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,11 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -60,15 +57,17 @@ import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.commonViews.ProfileInputField
+import com.example.psrandroid.ui.commonViews.MyTextFieldWithBorder
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.AppBG
-import com.example.psrandroid.ui.theme.LightBlue
+import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
+import com.example.psrandroid.utils.Utils.isRtlLocale
 import es.dmoral.toasty.Toasty
+import java.util.Locale
 
 @Composable
 fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
@@ -138,8 +137,6 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
                 address = sharedPreferences.getUserPreference()?.location ?: ""
             if (name.isEmpty())
                 name = sharedPreferences.getUserPreference()?.name ?: ""
-//            if (phone.isEmpty())
-//                phone = sharedPreferences.getUserPreference()?.phone ?: ""
             if (isNetworkAvailable(context))
                 authVM.updateUserData(
                     UserCredential(
@@ -151,7 +148,7 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
             else
                 Toasty.error(
                     context,
-                    "No internet connection. Please check your network settings.",
+                    context.getString(R.string.network_error),
                     Toast.LENGTH_SHORT,
                     true
                 )
@@ -177,7 +174,8 @@ fun UpdateProfileScreen(
 ) {
     var expandedCity by remember { mutableStateOf(false) }
     val locationData = locationList.map { it.name }
-//    var city by remember { mutableStateOf("City") }
+    val currentLocale = Locale.getDefault()
+    val isRtl = isRtlLocale(currentLocale)
 
     if (expandedCity) {
         ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
@@ -221,84 +219,75 @@ fun UpdateProfileScreen(
                         .border(1.dp, Color.LightGray, CircleShape)
                 )
                 Spacer(modifier = Modifier.height(30.dp))
-                ProfileInputField(
-                    name,
-                    KeyboardType.Text,
-                    ImeAction.Next,
+                MyTextFieldWithBorder(
+                    value = name,
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next,
+                    placeholder = stringResource(id = R.string.name),
                     onValueChange = { value ->
                         onName(value)
                     },
-                    icon = Icons.Default.Person,
-                    placeholder = stringResource(id = R.string.name)
+                    imageId = R.drawable.baseline_person_24
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                ProfileInputField(
-                    phone,
-                    KeyboardType.Number,
-                    ImeAction.Next,
-                    onValueChange = { value ->
-                        onPhone(value)
-                    },
-                    icon = Icons.Default.Phone,
+                MyTextFieldWithBorder(
+                    value = phone,
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next,
                     placeholder = stringResource(id = R.string.phone),
-                    enabled = false
+                    onValueChange = { onPhone(it) },
+                    imageId = R.drawable.baseline_phone_24,
+                    isEnable = false,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { expandedCity = true }
-                        .height(60.dp)
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(LightBlue, Color.White)
-                            ),
-                            shape = RoundedCornerShape(50) // Rounded corners for background
+                        .clickable {
+                            if (locationList.isNotEmpty())
+                                expandedCity = true
+                            else
+                                onCitySelect("empty")
+                        }
+                        .height(50.dp)
+                        .border(
+                            width = 1.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            color = colorResource(id = R.color.text_grey)
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (!isRtl) {
+                        Text(
+                            text = address,
+                            color = DarkBlue,
+                            fontSize = 14.sp,
+                            fontFamily = regularFont,
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp),
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                     Image(
                         painter = painterResource(id = R.drawable.baseline_location_pin_24),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(horizontal = 12.dp),
-                        colorFilter = ColorFilter.tint(Color.White),
+                            .padding(horizontal = 8.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue),
                     )
-                    Text(
-                        text = address,
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontFamily = regularFont,
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
+                    if (isRtl) {
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = address,
+                            color = DarkBlue,
+                            fontSize = 14.sp,
+                            fontFamily = regularFont,
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp),
+                        )
+                    }
                 }
-                //                ProfileInputField(
-//                    address,
-//                    KeyboardType.Text,
-//                    ImeAction.Done,
-//                    onValueChange = { value ->
-//                        onAddress(value)
-//                    },
-//                    icon = Icons.Default.LocationOn,
-//                    placeholder = stringResource(id = R.string.address)
-//                )
                 Spacer(modifier = Modifier.height(32.dp))
-                // Add button
-//                Button(
-//                    onClick = { updateButtonClick() },
-//                    modifier = Modifier
-//                        .fillMaxWidth(0.8f)
-//                        .height(48.dp)
-//                        .padding(horizontal = 24.dp),
-//                    shape = RoundedCornerShape(16.dp),
-//                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-//                ) {
-//                    Text(
-//                        text = stringResource(id = R.string.update_profile),
-//                        color = LightBlue,
-//                        style = MaterialTheme.typography.bodyLarge
-//                    )
-//                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -312,100 +301,6 @@ fun UpdateProfileScreen(
                 Spacer(modifier = Modifier.height(30.dp))
             }
         }
-        /*
-        Column(
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        ) {
-            Spacer(modifier = Modifier.height(40.dp))
-            Header(
-                modifier = null,
-                stringResource(id = R.string.add_profile),
-                backClick = { backClick() })
-            Spacer(modifier = Modifier.height(50.dp))
-            AsyncImage(
-                model = imageUri,
-                placeholder = painterResource(id = R.drawable.user_placeholder),
-                error = painterResource(id = R.drawable.user_placeholder),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(100.dp)
-                    .clip(shape = CircleShape)
-                    .border(1.dp, Color.LightGray, CircleShape)
-                    .clickable { onImageClick() }
-            )
-            Spacer(modifier = Modifier.height(50.dp))
-// Input fields
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth(0.8f)
-            ) {
-                ProfileInputField(
-                    name,
-                    KeyboardType.Text,
-                    ImeAction.Next,
-                    onValueChange = { value ->
-                        onName(value)
-                    },
-                    icon = Icons.Default.Person,
-                    placeholder = stringResource(id = R.string.name)
-                )
-                ProfileInputField(
-                    email,
-                    KeyboardType.Email,
-                    ImeAction.Next,
-                    onValueChange = { value ->
-                        onEmail(value)
-                    },
-                    icon = Icons.Default.Email,
-                    placeholder = stringResource(id = R.string.email)
-                )
-                ProfileInputField(
-                    phone,
-                    KeyboardType.Number,
-                    ImeAction.Next,
-                    onValueChange = { value ->
-                        onPhone(value)
-                    },
-                    icon = Icons.Default.Phone,
-                    placeholder = stringResource(id = R.string.phone)
-                )
-                ProfileInputField(
-                    address,
-                    KeyboardType.Text,
-                    ImeAction.Done,
-                    onValueChange = { value ->
-                        onAddress(value)
-                    },
-                    icon = Icons.Default.LocationOn,
-                    placeholder = stringResource(id = R.string.address)
-                )
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Add button
-            Button(
-                onClick = { addButtonClick() },
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .height(48.dp)
-                    .padding(horizontal = 24.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.add),
-                    color = LightBlue,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-        }*/
     }
 }
 

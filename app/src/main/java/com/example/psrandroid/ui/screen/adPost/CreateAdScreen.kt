@@ -131,7 +131,7 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     if (showDialog)
         FullScreenImageDialog(imageList = selectedImages, onDismissRequest = {
             showDialog = false
-        })
+        }, serverImageList = null)
     var showProgress by remember { mutableStateOf(false) }
     showProgress = rateVM.isLoading
     if (showProgress)

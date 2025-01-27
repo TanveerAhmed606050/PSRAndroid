@@ -116,6 +116,7 @@ fun MyTextFieldWithBorder(
     placeholder: String,
     onValueChange: (String) -> Unit,
     imageId: Int,
+    isEnable: Boolean = true,
 ) {
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
@@ -140,6 +141,7 @@ fun MyTextFieldWithBorder(
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             )
         },
+        enabled = isEnable,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = DarkBlue, // Change focused border color
             unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
@@ -180,7 +182,7 @@ fun MyTextFieldWithBorder(
         shape = RoundedCornerShape(12.dp),
         modifier = modifier
             .fillMaxWidth()
-            .background(Color.Transparent)
+            .background(Color.Transparent),
     )
 }
 

@@ -146,7 +146,7 @@ fun UserItemData(
             ) {
                 Text(
                     text = stringResource(id = R.string.name),
-                    color = DarkBlue,
+                    color = Color.DarkGray,
                     fontFamily = regularFont,
                     fontSize = 12.sp,
                 )
@@ -154,25 +154,25 @@ fun UserItemData(
                     text = stringResource(id = R.string.business_name),
                     fontSize = 12.sp,
                     fontFamily = regularFont,
-                    color = DarkBlue,
+                    color = Color.DarkGray,
                 )
                 Text(
                     text = stringResource(id = R.string.address),
                     fontFamily = regularFont,
-                    color = DarkBlue,
+                    color = Color.DarkGray,
                     fontSize = 12.sp,
                 )
                 Text(
                     text = stringResource(id = R.string.metals),
                     fontFamily = regularFont,
-                    color = DarkBlue,
+                    color = Color.DarkGray,
                     fontSize = 12.sp,
                 )
                 Text(
                     text =
                         stringResource(id = R.string.show_no),
                     fontSize = 12.sp,
-                    color = DarkBlue,
+                    color = Color.DarkGray,
                     fontFamily = regularFont,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -186,7 +186,7 @@ fun UserItemData(
             ) {
                 Text(
                     text = primeUserData.name,
-                    color = LightBlue,
+                    color = Color.DarkGray,
                     fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
@@ -194,7 +194,7 @@ fun UserItemData(
                 )
                 Text(
                     text = primeUserData.businessName,
-                    color = LightBlue,
+                    color = Color.DarkGray,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                     fontSize = 14.sp,
@@ -202,7 +202,7 @@ fun UserItemData(
                 )
                 Text(
                     text = primeUserData.location,
-                    color = LightBlue,
+                    color = Color.DarkGray,
                     fontFamily = mediumFont,
                     fontSize = 14.sp,
                     maxLines = 1,
@@ -210,14 +210,14 @@ fun UserItemData(
                 )
                 Text(
                     text =  primeUserData.type,
-                    color = LightBlue,
+                    color = Color.DarkGray,
                     fontFamily = mediumFont,
                     fontSize = 14.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
                 Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
-                    color = LightBlue,
+                    color = Color.DarkGray,
                     fontFamily = mediumFont,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
