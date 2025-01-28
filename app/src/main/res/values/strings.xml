@@ -94,7 +94,7 @@
     <string name="no_call_app">No Call app</string>
     <string name="no_whatsApp_error">WhatsApp is not installed.</string>
     <string name="open_whatsApp_error">Failed to open WhatsApp.</string>
-    <string name="buy_sell">Buy Scrap</string>
+    <string name="buy_sell">Buy/Sell Scrap</string>
     <string name="no_metal">No metal found</string>
     <string name="select_city_error">Please select a city</string>
     <string name="no_lme">No LME Found</string>

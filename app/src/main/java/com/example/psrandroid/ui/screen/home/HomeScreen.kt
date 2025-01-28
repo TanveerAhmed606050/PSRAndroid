@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,6 +58,7 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
+import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.formatDateDisplay
@@ -293,7 +295,7 @@ fun HomeAdsItems(
                         modifier = Modifier.fillMaxWidth(),
                         text = "PKR ${adData.price}",
                         fontSize = 14.sp,
-                        fontFamily = regularFont,
+                        fontFamily = boldFont,
                         color = Color.DarkGray,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
@@ -351,10 +353,10 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                         .weight(1f)
                         .padding(horizontal = 8.dp),
                     text = "Rs. 2150", color = Color.DarkGray, fontSize = 12.sp,
-                    fontFamily = regularFont, textAlign = TextAlign.End,
+                    fontFamily = boldFont, textAlign = TextAlign.End,
                 )
             }
-            HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+           // HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             Row(
                 modifier = Modifier.padding(vertical = 4.dp),
             ) {
@@ -371,10 +373,10 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                         .weight(1f)
                         .padding(horizontal = 8.dp),
                     text = "Rs. 102", color = Color.DarkGray, fontSize = 12.sp,
-                    fontFamily = regularFont, textAlign = TextAlign.End,
+                    fontFamily = boldFont, textAlign = TextAlign.End,
                 )
             }
-            HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+           // HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             Row(
                 modifier = Modifier.padding(vertical = 4.dp),
             ) {
@@ -395,11 +397,11 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                     text = "Rs. 102",
                     color = Color.DarkGray,
                     fontSize = 12.sp,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                     textAlign = TextAlign.End
                 )
             }
-            HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+          //  HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
             Row(
                 modifier = Modifier.padding(vertical = 4.dp),
             ) {
@@ -418,7 +420,7 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                     text = "Rs. 120",
                     color = Color.DarkGray,
                     fontSize = 12.sp,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                     textAlign = TextAlign.End,
                 )
             }
@@ -512,11 +514,11 @@ fun HomeLmeItem(lmeData: LmeData) {
 //                modifier = Modifier.padding(4.dp),
             ) {
                 Text(
-                    text = "Rs. ${lmeData.price}",
+                    text = "Rs. 121299999",
                     modifier = Modifier
                         .align(Alignment.End),
                     fontSize = 14.sp,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                     color = Color.DarkGray,
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
@@ -538,12 +540,12 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = text, color = Color.DarkGray,
-            fontFamily = regularFont, fontSize = 16.sp,
+            fontFamily = regularFont, fontSize = 17.sp,
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.see_all), color = DarkBlue,
-            fontFamily = mediumFont, fontSize = 12.sp,
+            fontFamily = boldFont, fontSize = 12.sp,
             textAlign = TextAlign.End,
             modifier = Modifier
                 .padding(3.dp)
