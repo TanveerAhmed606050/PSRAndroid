@@ -69,7 +69,7 @@ fun DetailAdScreen(
     var showDialog by remember { mutableStateOf(false) }
     if (showDialog)
         FullScreenImageDialog(
-            serverImageList = adData?.photos, onDismissRequest = {
+            serverImageList = null, onDismissRequest = {
                 showDialog = false
             },
             imageList = listOf()

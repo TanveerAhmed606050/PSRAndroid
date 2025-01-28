@@ -35,7 +35,8 @@
     <string name="enter_verify">Enter your Verification</string>
     <string name="enter_pin">Enter your Pin</string>
     <string name="name">Name</string>
-    <string name="prime_user">Premium User</string>
+    <string name="selected_language">English</string>
+    <string name="prime_user">Premium</string>
     <string name="lme">LME</string>
     <string name="sms">SMS</string>
     <string name="chat">Chat</string>
@@ -63,6 +64,7 @@
     <string name="no">No</string>
     <string name="ad_post">Ad Post</string>
     <string name="all_post">All Post</string>
+    <string name="post">Post</string>
     <string name="my_post">My Post</string>
     <string name="update">Update</string>
     <string name="add_profile">Add Profile</string>

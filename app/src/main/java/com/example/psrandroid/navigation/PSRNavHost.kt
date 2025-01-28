@@ -142,7 +142,7 @@ fun PSRNavigation(
             R.drawable.calendar_ic
         ),
         BottomNavigationItem(
-            stringResource(id = R.string.my_post),
+            stringResource(id = R.string.post),
             Screen.MyPostScreen.route,
             R.drawable.calendar_ic
         ),
@@ -155,6 +155,11 @@ fun PSRNavigation(
             stringResource(id = R.string.lme),
             Screen.LmeScreen.route,
             R.drawable.baseline_location_pin_24
+        ),
+        BottomNavigationItem(
+            stringResource(id = R.string.profile),
+            Screen.MyProfileScreen.route,
+            R.drawable.home_ic
         ),
     )
 

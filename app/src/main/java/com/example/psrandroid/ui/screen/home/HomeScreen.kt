@@ -57,6 +57,7 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
+import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.formatDateDisplay
@@ -133,14 +134,14 @@ fun HomeScreenViews(
                     modifier = Modifier.weight(1f), // Takes equal space and helps centering
                     textAlign = TextAlign.Center,
                 )
-                Row(
-                    modifier = Modifier
-                        .padding(start = 0.dp)
-                        .clickable { onProfileImageClick() },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    MyAsyncImage(imageUrl = userData.profilePic, 40.dp, true)
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .padding(start = 0.dp)
+//                        .clickable { onProfileImageClick() },
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    MyAsyncImage(imageUrl = userData.profilePic, 40.dp, true)
+//                }
             }
             Column(
                 modifier = Modifier
@@ -321,7 +322,6 @@ fun HomeAdsItems(
 fun ScrapRateItem(metalDetail: SubMetalData?) {
     Card(
         modifier = Modifier
-//            .height(180.dp)
             .fillMaxWidth() // Ensures the row takes the full width of the parent
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { },
@@ -351,7 +351,7 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                         .weight(1f)
                         .padding(horizontal = 8.dp),
                     text = "Rs. 2150", color = Color.DarkGray, fontSize = 12.sp,
-                    fontFamily = regularFont, textAlign = TextAlign.End,
+                    fontFamily = boldFont, textAlign = TextAlign.End,
                 )
             }
             HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
@@ -371,7 +371,7 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                         .weight(1f)
                         .padding(horizontal = 8.dp),
                     text = "Rs. 102", color = Color.DarkGray, fontSize = 12.sp,
-                    fontFamily = regularFont, textAlign = TextAlign.End,
+                    fontFamily = boldFont, textAlign = TextAlign.End,
                 )
             }
             HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
@@ -386,16 +386,20 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                 )
+                Spacer(modifier = Modifier.weight(1f))
                 Text(
-//                    modifier = Modifier.background(color= DarkBlue,
-//                    RoundedCornerShape(4.dp)).padding(5.dp,0.dp,5.dp,0.dp),
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    text = "Rs. 102",
-                    color = Color.DarkGray,
+                        .background(
+                            color = DarkBlue,
+                            RoundedCornerShape(4.dp)
+                        )
+                        .padding(horizontal = 8.dp, vertical = 0.dp),
+//                    modifier = Modifier
+//                        .padding(horizontal = 8.dp),
+                    text = stringResource(id = R.string.watch_ad),
+                    color = Color.White,
                     fontSize = 12.sp,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                     textAlign = TextAlign.End
                 )
             }
@@ -415,10 +419,10 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 8.dp),
-                    text = "Rs. 120",
+                    text = "Rs.****",
                     color = Color.DarkGray,
                     fontSize = 12.sp,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                     textAlign = TextAlign.End,
                 )
             }

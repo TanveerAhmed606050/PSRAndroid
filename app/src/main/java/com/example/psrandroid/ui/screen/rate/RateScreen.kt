@@ -405,13 +405,13 @@ fun SearchBar(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Observe the search text and update dropdown state based on focus and list availability
-    LaunchedEffect(isFocused, suggestedSearchList) {
+    LaunchedEffect(isFocused) {
         expandedDropDown = isFocused && (suggestedSearchList?.isNotEmpty() == true)
     }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 0.dp, vertical = 10.dp),
+            .padding(horizontal = 0.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ExposedDropdownMenuBox(
@@ -480,7 +480,6 @@ fun SearchBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = Color.White, shape = RoundedCornerShape(10))
-                    .padding(0.dp)
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
                     }
