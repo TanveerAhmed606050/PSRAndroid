@@ -3,9 +3,11 @@ package com.example.psrandroid.network
 import com.example.psrandroid.dto.ImageUpdate
 import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.dto.UserCredential
+import com.example.psrandroid.repository.HomeRepository
+import com.example.psrandroid.repository.HomeRepository_Factory
 import com.example.psrandroid.response.AuthResponse
-import com.example.psrandroid.response.DashboardMetal
-import com.example.psrandroid.response.DashboardResponse
+import com.example.psrandroid.response.RateMetal
+import com.example.psrandroid.response.RateScreenResponse
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.LocationResponse
@@ -14,6 +16,7 @@ import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.ui.screen.adPost.models.AllAds
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
 import com.example.psrandroid.ui.screen.adPost.models.CreatePostResponse
+import com.example.psrandroid.ui.screen.home.model.HomeResponse
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -42,7 +45,7 @@ interface ApiInterface {
     suspend fun getDashboardData(
         @Query("location_id") locationId: String,
         @Query("date") date: String
-    ): DashboardResponse
+    ): RateScreenResponse
 
     @POST("updateLocation")
     suspend fun updateUserLocation(
@@ -66,7 +69,7 @@ interface ApiInterface {
     suspend fun getSearchMetals(
         @Query("location_id") locationId: String,
         @Query("metal_name") metalName: String,
-    ): DashboardMetal
+    ): RateMetal
 
     @GET("search")
     suspend fun getSubMetals(
@@ -87,6 +90,11 @@ interface ApiInterface {
         @Query("location") location: String,
     ): AllAds
 
+    @GET("Ads/getAdsByUser")
+    suspend fun getAdsByUser(
+        @Query("user_id") location: String,
+    ): AllAds
+
     @GET("Ads/getSubmetals")
     suspend fun getAllSubMetals(): AllSubMetalData
 
@@ -94,4 +102,9 @@ interface ApiInterface {
     suspend fun createPost(
         @Body createPost: CreatePost
     ): CreatePostResponse
+
+    @GET("Dashboard/index")
+    suspend fun getHomeData(
+        @Query("location_id") locationId: String,
+    ): HomeResponse
 }

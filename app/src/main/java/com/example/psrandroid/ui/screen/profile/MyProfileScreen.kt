@@ -82,6 +82,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         ListDialog(dataList = languageList, onDismiss = { expandedLang = false },
             onConfirm = { selectedLanguage ->
                 authVM.userPreferences.isUrduSelected = selectedLanguage == "اردو"
+                expandedLang = false
                 if (authVM.userPreferences.isUrduSelected) {
                     switchLanguage(context, "ur")
 //                    authVM.userPreferences.isUrduSelected = false
@@ -90,7 +91,6 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
 //                    authVM.userPreferences.isUrduSelected = true
                 }
                 (context as? Activity)?.recreate()
-                expandedLang = false
             })
     }
     val userId = authVM.userPreferences.getUserPreference()?.id ?: 0

@@ -2,9 +2,11 @@
     <string name="app_name">PSR</string>
     <string name="scrap_rate">Scrap Rates</string>
     <string name="rate">Rate</string>
+    <string name="no_rate">No Rate</string>
     <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="rewarded_ad_unit_id">ca-app-pub-3940256099942544/5224354917</string>
     <string name="from">Powered by</string>
     <string name="privacy_terms">By proceeding you agree with terms and privacy policy</string>
     <string name="agree_continue">Agree And Continue</string>
@@ -100,5 +102,6 @@
     <string name="no_metal">No metal found</string>
     <string name="select_city_error">Please select a city</string>
     <string name="no_lme">No LME Found</string>
+    <string name="call_permission_error">Call Permission Denied</string>
 
 </resources>

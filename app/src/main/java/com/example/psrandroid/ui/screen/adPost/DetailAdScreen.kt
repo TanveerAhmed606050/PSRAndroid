@@ -1,10 +1,15 @@
 package com.example.psrandroid.ui.screen.adPost
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,13 +44,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
-import com.example.psrandroid.ui.commonViews.GoogleInterstitialAd
-import com.example.psrandroid.ui.commonViews.showInterstitialAd
+import com.example.psrandroid.ui.commonViews.showRewardedAd
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
+import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -58,14 +65,26 @@ import es.dmoral.toasty.Toasty
 @Composable
 fun DetailAdScreen(
     navController: NavController,
-    homeVM: AdPostVM,
+    rateVM: RateVM,
     adData: AdData?
 ) {
     val context = LocalContext.current
     var showContact by remember { mutableStateOf(context.getText(R.string.show_no)) }
-    GoogleInterstitialAd(context = context, onAdClick = {
-        showContact = "+923456982288"
-    })
+    val callPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, make the call
+            openCallApp(context, showContact.toString())
+        } else {
+            Toasty.error(
+                context,
+                context.getString(R.string.call_permission_error),
+                Toast.LENGTH_SHORT,
+                true
+            ).show()
+        }
+    }
     var showDialog by remember { mutableStateOf(false) }
     if (showDialog)
         FullScreenImageDialog(
@@ -80,26 +99,42 @@ fun DetailAdScreen(
             navController.popBackStack()
         },
         onShowNoClick = { number ->
-            if (showContact == context.getText(R.string.show_no))
-                showInterstitialAd(context)
-            else
-                openCallApp(context, number)
+            if (showContact == context.getText(R.string.show_no)) {
+                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
+                    onAdClick = {
+                        showContact = "+923456982288"
+                    })
+                Log.d("RewardedAd", "Add Click")
+            } else {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE)
+                    == PackageManager.PERMISSION_GRANTED
+                ) {
+                    openCallApp(context, number)
+                    Log.d("RewardedAd", "Permission Granted")
+                } else {
+                    callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+                    Log.d("RewardedAd", "callPermissionLauncher")
+                }
+            }
         },
         onSMSClick = {
             if (showContact == context.getText(R.string.show_no))
-                showInterstitialAd(context)
+                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
+                    onAdClick = {})
             else
                 openSMSApp(context, phoneNumber = showContact.toString(), message = "")
         },
         onWhatsAppCallClick = {
             if (showContact == context.getText(R.string.show_no))
-                showInterstitialAd(context)
+                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
+                    onAdClick = {})
             else
                 openWhatsApp(context, showContact.toString())
         },
         onWhatsAppChatClick = {
             if (showContact == context.getText(R.string.show_no))
-                showInterstitialAd(context)
+                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
+                    onAdClick = {})
             else
                 openWhatsApp(context, showContact.toString())
 
@@ -168,7 +203,7 @@ fun DetailAdScreenViews(
                 fontFamily = regularFont,
             )
             Text(
-                text = adsData.price,
+                text = "Rs. $${adsData.price}",
                 color = Color.DarkGray, fontSize = 14.sp,
                 fontFamily = mediumFont,
             )
@@ -225,23 +260,23 @@ fun DetailAdScreenViews(
                             color = DarkBlue
                         )
                     }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { onWhatsAppChatClick() }
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.chat_ic),
-                            contentDescription = "",
-                            modifier = Modifier.size(30.dp)
-                        )
-                        Text(
-                            text = stringResource(id = R.string.chat),
-                            fontSize = 14.sp, fontFamily = regularFont,
-                            modifier = Modifier.padding(start = 4.dp),
-                            color = DarkBlue
-                        )
-                    }
+//                    Spacer(modifier = Modifier.weight(1f))
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        modifier = Modifier.clickable { onWhatsAppChatClick() }
+//                    ) {
+//                        Image(
+//                            painter = painterResource(id = R.drawable.chat_ic),
+//                            contentDescription = "",
+//                            modifier = Modifier.size(30.dp)
+//                        )
+//                        Text(
+//                            text = stringResource(id = R.string.chat),
+//                            fontSize = 14.sp, fontFamily = regularFont,
+//                            modifier = Modifier.padding(start = 4.dp),
+//                            color = DarkBlue
+//                        )
+//                    }
                     Spacer(modifier = Modifier.weight(1f))
                     Row(verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable { onWhatsAppCallClick() }
@@ -320,17 +355,23 @@ fun openSMSApp(context: Context, phoneNumber: String, message: String) {
 }
 
 fun openCallApp(context: Context, phoneNumber: String) {
-    val intent = Intent(Intent.ACTION_DIAL).apply {
+    val callIntent = Intent(Intent.ACTION_DIAL).apply {
         data = Uri.parse("tel:$phoneNumber")
     }
 
-    // Start the phone dialer
-    if (intent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(intent)
+    if (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CALL_PHONE
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        context.startActivity(callIntent)
     } else {
-        Toasty.error(context, context.getText(R.string.no_call_app), Toast.LENGTH_SHORT, true)
-            .show()
+        // Request permission
+        ActivityCompat.requestPermissions(
+            context as Activity, arrayOf(Manifest.permission.CALL_PHONE), 1223
+        )
     }
+
 }
 
 @Preview

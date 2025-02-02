@@ -160,7 +160,7 @@ fun AllPostScreenUI(
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         if (index + 1 == adsData?.size)
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(50.dp))
                     }
                 }
             }

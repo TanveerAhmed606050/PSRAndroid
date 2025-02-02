@@ -2,6 +2,7 @@ package com.example.psrandroid.ui.commonViews
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -244,7 +245,11 @@ fun PasswordTextFields(
                 Image(
                     painter = passwordIcon, // Using the provided icon
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(DarkBlue)
+                    colorFilter = ColorFilter.tint(DarkBlue),
+                    modifier = Modifier
+                        .clickable {
+                            passwordVisible = !passwordVisible
+                        }
                 )
             }
         } else null,
@@ -253,7 +258,11 @@ fun PasswordTextFields(
                 Image(
                     painter = passwordIcon, // Using the provided icon
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(DarkBlue)
+                    colorFilter = ColorFilter.tint(DarkBlue),
+                    modifier = Modifier
+                        .clickable {
+                            passwordVisible = !passwordVisible
+                        }
                 )
             }
         } else null,
@@ -293,7 +302,9 @@ fun PhoneTextField(
     OutlinedTextField(
         value = value,
         onValueChange = {
-            onValueChange(it)
+            if (it.length <= 11) { // Restrict input length
+                onValueChange(it)
+            }
         },
         placeholder = {
             Text(

@@ -43,9 +43,9 @@ class AdPostVM @Inject constructor(
         }
     }
 
-    fun getAdsByLocation(location: String) = viewModelScope.launch {
+    fun getAdsByUserid(userId: String) = viewModelScope.launch {
         isLoading = true
-        val result = homeRepository.getAdsByLocation(location)
+        val result = homeRepository.getAdsByUser(userId)
         isLoading = false
         if (result is Result.Success) {
             allAdsData = result.data

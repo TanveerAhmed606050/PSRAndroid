@@ -5,23 +5,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.psrandroid.dto.UserCredential
-import com.example.psrandroid.repository.AuthRepository
-import com.example.psrandroid.response.AuthResponse
+import com.example.psrandroid.repository.HomeRepository
 import com.example.psrandroid.storage.UserPreferences
+import com.example.psrandroid.ui.screen.home.model.HomeResponse
+import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeVM @Inject constructor(
-    private val authRepository: AuthRepository,
+    private val homeRepository: HomeRepository,
     val userPreferences: UserPreferences
 ) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
-    var homeData by mutableStateOf<AuthResponse?>(null)
-    fun login(userCredential: UserCredential) = viewModelScope.launch {
+    var homeResponse by mutableStateOf<HomeResponse?>(null)
+    fun getHomeData(userId: String) = viewModelScope.launch {
+        isLoading = true
+        val result = homeRepository.getHomeData(userId)
+        isLoading = false
+        if (result is Result.Success) {
+            homeResponse = result.data
+        } else if (result is Result.Failure) {
+            error = result.exception.message ?: "Failure"
+        }
     }
 
 }

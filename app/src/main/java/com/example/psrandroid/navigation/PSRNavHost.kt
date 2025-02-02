@@ -466,7 +466,7 @@ fun PSRNavHost(
             val encodedJson = backStackEntry.arguments?.getString("data")
             val userJson = encodedJson?.let { Uri.decode(it) }
             val adData = userJson?.let { Gson().fromJson(it, AdData::class.java) }
-            DetailAdScreen(navController, adPostVM, adData)
+            DetailAdScreen(navController, rateVM, adData)
         }
     }
 }

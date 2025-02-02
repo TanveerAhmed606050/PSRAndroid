@@ -2,12 +2,12 @@ package com.example.psrandroid.response
 
 import com.google.gson.annotations.SerializedName
 
-data class DashboardMetal(
+data class RateMetal(
     val data: List<MetalData>,
     val message: String,
     val status: Boolean
 ){companion object}
-val DashboardMetal.Companion.mockup by lazy { DashboardMetal(
+val RateMetal.Companion.mockup by lazy { RateMetal(
     data = listOf(),
     message = "hinc",
     status = false
