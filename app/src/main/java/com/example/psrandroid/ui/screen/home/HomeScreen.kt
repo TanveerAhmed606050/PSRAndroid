@@ -2,6 +2,7 @@ package com.example.psrandroid.ui.screen.home
 
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +29,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,13 +50,16 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
+import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.AuthData
 import com.example.psrandroid.response.LmeData
-import com.example.psrandroid.response.SubMetalData
+import com.example.psrandroid.response.SubMetal
 import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
+import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -63,26 +69,49 @@ import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.formatDateDisplay
 import com.google.gson.Gson
+import es.dmoral.toasty.Toasty
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(navController: NavController, homeVM: HomeVM) {
+    val context = LocalContext.current
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = homeVM.isLoading
+    if (showProgress)
+        LoadingDialog()
+
     var selectedCity by remember {
         mutableStateOf(
             homeVM.userPreferences.getUserPreference()?.location ?: "Lahore"
         )
     }
+    val noInternetMessage = stringResource(id = R.string.network_error)
+
     val cityList =
         homeVM.userPreferences.getLocationList()?.data?.map { "${it.name}" }
+    var locationId = homeVM.userPreferences.getLocationList()?.data?.find {
+        it.name.equals(homeVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
+    }?.id ?: 0 // get location id
+    val homeResponse = homeVM.homeResponse
+    if (isNetworkAvailable(context)) {
+        LaunchedEffect(Unit) {
+            homeVM.getHomeData("$locationId")
+        }
+    } else
+        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+            .show()
+
     HomeScreenViews(selectedCity = selectedCity,
-        userData = homeVM.userPreferences.getUserPreference() ?: AuthData.mockup,
-        adsData = null,
-        onProfileImageClick = {
-            navController.navigate(Screen.MyProfileScreen.route)
-        },
+        adsData = homeResponse?.data?.Ads,
+        rateData = homeResponse?.data?.subMetals,
+        lmeData = homeResponse?.data?.LMEMetals,
         cityList = cityList,
         onCityItemClick = { cityName ->
             selectedCity = cityName
+            locationId = homeVM.userPreferences.getLocationList()?.data?.find {
+                it.name.equals(selectedCity, ignoreCase = true)
+            }?.id ?: 0
+            homeVM.getHomeData("$locationId")
         },
         onSeeAllAds = { navController.navigate(Screen.AllPostScreen.route) },
         onSeeAllRates = { navController.navigate(Screen.RateScreen.route) },
@@ -98,10 +127,10 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
 @Composable
 fun HomeScreenViews(
     selectedCity: String,
-    userData: AuthData,
     adsData: List<AdData>?,
+    rateData: List<SubMetal>?,
+    lmeData: List<LmeData>?,
     cityList: List<String>?,
-    onProfileImageClick: () -> Unit,
     onCityItemClick: (String) -> Unit,
     onSeeAllAds: () -> Unit,
     onSeeAllRates: () -> Unit,
@@ -135,14 +164,14 @@ fun HomeScreenViews(
                     modifier = Modifier.weight(1f), // Takes equal space and helps centering
                     textAlign = TextAlign.Center,
                 )
-                Row(
-                    modifier = Modifier
-                        .padding(start = 0.dp)
-                        .clickable { onProfileImageClick() },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    MyAsyncImage(imageUrl = userData.profilePic, 40.dp, true)
-                }
+//                Row(
+//                    modifier = Modifier
+//                        .padding(start = 0.dp)
+//                        .clickable { onProfileImageClick() },
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    MyAsyncImage(imageUrl = userData.profilePic, 40.dp, true)
+//                }
             }
             Column(
                 modifier = Modifier
@@ -154,18 +183,22 @@ fun HomeScreenViews(
                     stringResource(id = R.string.buy_sell),
                     clickAllViews = { onSeeAllAds() })
                 Spacer(modifier = Modifier.height(0.dp))
-                LazyRow(
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    modifier = Modifier.height(220.dp) // Explicit height for LazyRow
-                ) {
-                    items(3) { index ->
-                        HomeAdsItems(
-                            adsData?.get(index) ?: AdData.mockup, modifier = Modifier
-                                .width(150.dp)
-                                .height(200.dp),
-                            onAdsClick = { onAdsClick(it) }
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
+                if (adsData?.isEmpty() == true)
+                    NoProductView(msg = stringResource(id = R.string.no_ads), color = DarkBlue)
+                else {
+                    LazyRow(
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                        modifier = Modifier.height(220.dp) // Explicit height for LazyRow
+                    ) {
+                        items(adsData?.size ?: 0) { index ->
+                            HomeAdsItems(
+                                adsData?.get(index) ?: AdData.mockup, modifier = Modifier
+                                    .width(150.dp)
+                                    .height(200.dp),
+                                onAdsClick = { onAdsClick(it) }
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
@@ -189,26 +222,43 @@ fun HomeScreenViews(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(0.dp))
-//                LazyRow(
-//                    contentPadding = PaddingValues(vertical = 8.dp),
-//                    modifier = Modifier
-//                        .height(200.dp)
-//                        .fillMaxWidth() // Explicit height for LazyRow
-//                ) {
-//                    items(3) { index ->
-                ScrapRateItem(metalDetail = SubMetalData.mockup)
-                Spacer(modifier = Modifier.width(10.dp))
-//                    }
-//                }
-                Spacer(modifier = Modifier.height(10.dp))
+                if (rateData?.isEmpty() == true)
+                    NoProductView(msg = stringResource(id = R.string.no_rate), color = DarkBlue)
+                else {
+                    Spacer(modifier = Modifier.height(0.dp))
+                    Card(
+                        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
+                        colors = CardDefaults.cardColors(containerColor = Color.White), // Set the background color
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .height(170.dp)
+                            .fillMaxWidth()
+                    ) {
+                        LazyColumn(
+                            contentPadding = PaddingValues(horizontal = 8.dp),
+                        ) {
+                            items(rateData?.size ?: 0) { index ->
+                                ScrapRateItem(
+                                    rateData = rateData?.get(index) ?: SubMetal(
+                                        "",
+                                        "",
+                                        ""
+                                    )
+                                )
+                                if (index != (rateData?.size?.minus(1) ?: 0))
+                                    HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
                 SeeAllView(stringResource(id = R.string.lme), clickAllViews = { onSeeAllLME() })
                 Spacer(modifier = Modifier.height(10.dp))
                 LazyRow(
                     modifier = Modifier.height(100.dp) // Explicit height for LazyRow
                 ) {
-                    items(3) { index ->
-                        HomeLmeItem(LmeData.mockup)
+                    items(lmeData?.size ?: 0) { index ->
+                        HomeLmeItem(lmeData = lmeData?.get(index) ?: LmeData.mockup)
                         Spacer(modifier = Modifier.width(10.dp))
                     }
                 }
@@ -320,110 +370,105 @@ fun HomeAdsItems(
 }
 
 @Composable
-fun ScrapRateItem(metalDetail: SubMetalData?) {
-    Card(
+fun ScrapRateItem(rateData: SubMetal) {
+
+    Column(
         modifier = Modifier
-//            .height(180.dp)
-            .fillMaxWidth() // Ensures the row takes the full width of the parent
-            .background(Color.White, RoundedCornerShape(10.dp))
-            .clickable { },
-        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
+            .fillMaxHeight()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalArrangement = Arrangement.SpaceAround,
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.SpaceAround,
+        Row(
+            modifier = Modifier.padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "Iron",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    text = "Rs. 2150", color = Color.DarkGray, fontSize = 12.sp,
-                    fontFamily = boldFont, textAlign = TextAlign.End,
-                )
-            }
-           // HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-            Row(
-                modifier = Modifier.padding(vertical = 4.dp),
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "Copper",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    text = "Rs. 102", color = Color.DarkGray, fontSize = 12.sp,
-                    fontFamily = boldFont, textAlign = TextAlign.End,
-                )
-            }
-           // HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-            Row(
-                modifier = Modifier.padding(vertical = 4.dp),
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "Silver",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-                )
-                Text(
-//                    modifier = Modifier.background(color= DarkBlue,
-//                    RoundedCornerShape(4.dp)).padding(5.dp,0.dp,5.dp,0.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    text = "Rs. 102",
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
-                    fontFamily = boldFont,
-                    textAlign = TextAlign.End
-                )
-            }
-          //  HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-            Row(
-                modifier = Modifier.padding(vertical = 4.dp),
-            ) {
-                Text(
-                    modifier = Modifier,
-                    text = "Plastic",
-                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-                    textAlign = TextAlign.Start,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-                )
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
-                    text = "Rs. 120",
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
-                    fontFamily = boldFont,
-                    textAlign = TextAlign.End,
-                )
-            }
+            Text(
+                modifier = Modifier,
+                text = rateData.name,
+                color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
+                textAlign = TextAlign.Start,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+            )
+            Text(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp),
+                text = "Rs. ${rateData.price}", color = Color.DarkGray, fontSize = 12.sp,
+                fontFamily = boldFont, textAlign = TextAlign.End,
+            )
+        }
+//            Row(
+//                modifier = Modifier.padding(vertical = 4.dp),
+//            ) {
+//                Text(
+//                    modifier = Modifier,
+//                    text = rateData?.get(1)?.name ?: "",
+//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
+//                    textAlign = TextAlign.Start,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+//                )
+//                Text(
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .padding(horizontal = 8.dp),
+//                    text = rateData?.get(1)?.price ?: "", color = Color.DarkGray, fontSize = 12.sp,
+//                    fontFamily = boldFont, textAlign = TextAlign.End,
+//                )
+//            }
+        // HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+//            Row(
+//                modifier = Modifier.padding(vertical = 4.dp),
+//            ) {
+//                Text(
+//                    modifier = Modifier,
+//                    text = rateData?.get(2)?.name ?: "",
+//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
+//                    textAlign = TextAlign.Start,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+//                )
+//                Spacer(modifier = Modifier.weight(1f))
+//                Text(
+//                    modifier = Modifier
+//                        .background(
+//                            color = DarkBlue,
+//                            RoundedCornerShape(4.dp)
+//                        )
+//                        .padding(horizontal = 8.dp, vertical = 0.dp),
+////                    modifier = Modifier
+////                        .padding(horizontal = 8.dp),
+//                    text = stringResource(id = R.string.watch_ad),
+//                    color = Color.White,
+//                    fontSize = 12.sp,
+//                    fontFamily = boldFont,
+//                    textAlign = TextAlign.End
+//                )
+//            }
+        //  HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
+//            Row(
+//                modifier = Modifier.padding(vertical = 4.dp),
+//            ) {
+//                Text(
+//                    modifier = Modifier,
+//                    text = rateData?.get(3)?.name ?: "",
+//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
+//                    textAlign = TextAlign.Start,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+//                )
+//                Text(
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .padding(horizontal = 8.dp),
+//                    text = "Rs.****",
+//                    color = Color.DarkGray,
+//                    fontSize = 12.sp,
+//                    fontFamily = boldFont,
+//                    textAlign = TextAlign.End,
+//                )
+//            }
 //            Row(
 //                modifier = Modifier
 //            ) {
@@ -464,7 +509,6 @@ fun ScrapRateItem(metalDetail: SubMetalData?) {
 //                        textAlign = TextAlign.Center,
 //                    )
 //                }
-        }
     }
 }
 
@@ -605,9 +649,9 @@ fun ProfileImageView(userData: AuthData, onClick: () -> Unit) {
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        HomeScreenViews(selectedCity = "",
-            AuthData.mockup, onProfileImageClick = {}, cityList = listOf(),
-            onCityItemClick = {}, adsData = null,
+        HomeScreenViews(selectedCity = "", cityList = listOf(),
+            onCityItemClick = {}, adsData = listOf(AdData.mockup),
+            lmeData = listOf(LmeData.mockup), rateData = listOf(),
             onSeeAllAds = {},
             onSeeAllRates = {},
             onSeeAllLME = {},

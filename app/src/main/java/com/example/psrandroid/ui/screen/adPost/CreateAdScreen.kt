@@ -124,9 +124,20 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
         navController.popBackStack()
         adPostVM.adPostResponse = null
     }
+    var locationId = rateVM.userPreferences.getLocationList()?.data?.find {
+        it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
+    }?.id ?: 0 // get location id
     LaunchedEffect(Unit) {
         adPostVM.getAllSubMetals()
     }
+    if (isNetworkAvailable(context)) {
+        LaunchedEffect(key1 = Unit) {
+            rateVM.getMainMetals("$locationId", "")
+        }
+    } else
+        Toasty.error(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT, true)
+            .show()
+
     var showDialog by remember { mutableStateOf(false) }
     if (showDialog)
         FullScreenImageDialog(imageList = selectedImages, onDismissRequest = {
@@ -269,7 +280,7 @@ fun AdScreenView(
                 backClick = {
                     onBackClick()
                 })
-        }
+            Spacer(modifier = Modifier.height(10.dp))
         //add image view
         ImagePickerUI(selectedImages,
             onAddImageClick = { onAddImageClick() },
@@ -282,7 +293,7 @@ fun AdScreenView(
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
         )
         SearchBar(suggestedSearchList, search,
             onSearch = {
@@ -300,7 +311,7 @@ fun AdScreenView(
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
         )
         SubMetalBar(suggestedSubMetalList, subMetalSearch,
             onSearch = {
@@ -317,13 +328,13 @@ fun AdScreenView(
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         CustomTextField(
             modifier = Modifier
                 .height(52.dp)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 0.dp),
             value = metalName,
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Next,
@@ -339,13 +350,13 @@ fun AdScreenView(
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         CustomTextField(
             modifier = Modifier
                 .height(52.dp)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 0.dp),
             value = price,
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Next,
@@ -361,13 +372,13 @@ fun AdScreenView(
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
                 .clickable {
                     if (locationList.isNotEmpty())
                         expandedCity = true
@@ -377,7 +388,7 @@ fun AdScreenView(
                 .border(
                     width = 1.dp,
                     shape = RoundedCornerShape(12.dp),
-                    color = colorResource(id = R.color.text_grey)
+                    color = Color.White
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -419,12 +430,12 @@ fun AdScreenView(
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         CustomTextField(
             modifier = Modifier
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 0.dp)
                 .height(300.dp),
             value = description,
             keyboardType = KeyboardType.Text,
@@ -437,11 +448,12 @@ fun AdScreenView(
         AppButton(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 30.dp, start = 20.dp, end = 20.dp),
+                .padding(bottom = 30.dp),
             text = stringResource(id = R.string.ad_post),
             onButtonClick = { onAdPostClick(metalName, description, price) })
         Spacer(modifier = Modifier.height(20.dp))
     }
+        }
 }
 
 @Composable
@@ -455,7 +467,6 @@ fun ImagePickerUI(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .background(Color.White, RoundedCornerShape(12.dp)) // Dark background
     ) {
         Column(
@@ -530,13 +541,13 @@ fun SubMetalBar(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Observe the search text and update dropdown state based on focus and list availability
-    LaunchedEffect(isFocused, suggestedSearchList) {
+    LaunchedEffect(isFocused) {
         expandedDropDown = isFocused && (suggestedSearchList?.isNotEmpty() == true)
     }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+            .padding(horizontal = 0.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ExposedDropdownMenuBox(
@@ -548,6 +559,10 @@ fun SubMetalBar(
                 value = search,
                 onValueChange = {
                     onSearch(it)
+                    if (it.text.length < search.text.length && !expandedDropDown) {
+                        // Backspace detected
+                        expandedDropDown = true
+                    }
                 },
                 placeholder = {
                     Text(
@@ -564,7 +579,7 @@ fun SubMetalBar(
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = DarkBlue, // Change focused border color
-                    unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
+                    unfocusedBorderColor = Color.White, // Change unfocused border color
                     focusedTextColor = DarkBlue,
                     unfocusedTextColor = DarkBlue
                 ),
@@ -595,10 +610,10 @@ fun SubMetalBar(
                     textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
                     color = DarkBlue,
                 ),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(Color.White, RoundedCornerShape(10.dp))
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
                     }

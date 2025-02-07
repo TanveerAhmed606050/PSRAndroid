@@ -1,5 +1,7 @@
 package com.example.psrandroid.ui.screen.lme
 
+import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,10 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,36 +34,39 @@ import com.example.psp_android.R
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.PrimeUserData
 import com.example.psrandroid.response.mockup
-import com.example.psrandroid.ui.commonViews.GoogleInterstitialAd
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
-import com.example.psrandroid.ui.commonViews.showInterstitialAd
+import com.example.psrandroid.ui.commonViews.showRewardedAd
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
-import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.isRtlLocale
+import com.google.android.gms.ads.MobileAds
 import java.util.Locale
 
 @Composable
-fun PrimeUserScreen(navController: NavController, dashboardVM: RateVM) {
+fun PrimeUserScreen(navController: NavController, rateVm: RateVM) {
     val context = LocalContext.current
-    val primeUserData = dashboardVM.premiumUserData
-    var watchAd by remember { mutableStateOf(false) }
-    GoogleInterstitialAd(context = context, onAdClick = {
-    })
+    MobileAds.initialize(context) { initializationStatus ->
+        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
+    }
+    val primeUserData = rateVm.premiumUserData
+//    GoogleInterstitialAd(context = context, onAdClick = {
+//    })
 
     LaunchedEffect(Unit) {
-        dashboardVM.getPremiumUser()
+        rateVm.getPremiumUser()
     }
-    PrimeUserScreen(watchAd, primeUserData,
+    PrimeUserScreen(rateVm.watchAd, primeUserData,
         onShowContact = { contact ->
             if (contact == context.getString(R.string.show_no))
-                showInterstitialAd(context)
-            watchAd = true
+                showRewardedAd(context as Activity, rewardedAd = rateVm.rewardedAd,
+                    onAdClick = {
+                        rateVm.watchAd = true
+                    })
         })
 }
 
@@ -119,6 +120,7 @@ fun UserItemData(
 ) {
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,7 +172,7 @@ fun UserItemData(
                 )
                 Text(
                     text =
-                        stringResource(id = R.string.show_no),
+                    stringResource(id = R.string.show_no),
                     fontSize = 12.sp,
                     color = Color.DarkGray,
                     fontFamily = regularFont,
@@ -209,7 +211,7 @@ fun UserItemData(
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
                 Text(
-                    text =  primeUserData.type,
+                    text = primeUserData.type,
                     color = Color.DarkGray,
                     fontFamily = mediumFont,
                     fontSize = 14.sp,
@@ -222,7 +224,11 @@ fun UserItemData(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                     fontSize = 14.sp,
-                    modifier = Modifier.clickable { onShowContact(primeUserData.whatsapp) }
+                    modifier = Modifier.clickable {
+                        onShowContact(
+                            if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
+                        )
+                    }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }

@@ -2,6 +2,7 @@ package com.example.psrandroid
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,17 +22,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.psp_android.R
 import com.example.psrandroid.navigation.PSRNavigation
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.ui.commonViews.LogoutDialog
+import com.example.psrandroid.ui.commonViews.loadRewardedAd
+import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.actionBar
 import com.google.accompanist.adaptive.calculateDisplayFeatures
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,6 +53,21 @@ class MainActivity : ComponentActivity() {
         actionBar(this)
         enableEdgeToEdge()
         setContent {
+            //Load Rewarded Ads Launch Effect
+            val rateVm = hiltViewModel<RateVM>()
+            loadRewardedAd(
+                context = this,
+                getString(R.string.rewarded_ad_unit_id),
+                onAdLoaded = {
+                    rateVm.rewardedAd = it
+                })
+            if (rateVm.watchAd) {
+                LaunchedEffect(key1 = rateVm.watchAd) {
+                    delay(15 * 60 * 1000) // 15 minutes delay
+                    rateVm.watchAd = false // Reset watchAd to false
+                }
+            }
+
             val scope = rememberCoroutineScope()
             val navController = rememberNavController()
             val windowSize = calculateWindowSizeClass(this)

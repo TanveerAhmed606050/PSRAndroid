@@ -14,10 +14,19 @@ class HomeRepository @Inject constructor(private val apiInterface: ApiInterface)
         apiInterface.getAdsByLocation(location)
     }
 
+    suspend fun getAdsByUser(userId: String) = loadResource {
+        apiInterface.getAdsByUser(userId)
+    }
+
     suspend fun getAllSubMetals() = loadResource {
         apiInterface.getAllSubMetals()
     }
+
     suspend fun createPost(createPost: CreatePost) = loadResource {
         apiInterface.createPost(createPost)
+    }
+
+    suspend fun getHomeData(locationId: String) = loadResource {
+        apiInterface.getHomeData(locationId)
     }
 }

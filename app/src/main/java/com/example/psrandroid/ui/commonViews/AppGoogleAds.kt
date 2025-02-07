@@ -18,6 +18,9 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 
 @Composable
 fun GoogleAdBanner() {
@@ -36,6 +39,52 @@ fun GoogleAdBanner() {
             }
         }
     )
+}
+
+fun loadRewardedAd(context: Context, adUnitId: String, onAdLoaded: (RewardedAd) -> Unit) {
+    val adRequest = AdRequest.Builder().build()
+    RewardedAd.load(context, adUnitId, adRequest, object : RewardedAdLoadCallback() {
+        override fun onAdLoaded(ad: RewardedAd) {
+            Log.d("lsajg", "onAdLoaded: ")
+            onAdLoaded(ad)
+        }
+
+        override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+            // Handle the error
+            Log.d("lsajg", "onAdFailedToLoad: ")
+        }
+    })
+}
+
+fun showRewardedAd(
+    activity: Activity,
+    rewardedAd: RewardedAd?,
+    onAdClick: () -> Unit
+) {
+    rewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+        override fun onAdShowedFullScreenContent() {
+            onAdClick()
+            Log.d("RewardedAd", "Ad is shown in full screen.")
+        }
+
+        override fun onAdClicked() {
+            onAdClick()
+            Log.d("RewardedAd", "User clicked the rewarded ad.")
+        }
+
+        override fun onAdDismissedFullScreenContent() {
+            onAdClick()
+            Log.d("RewardedAd", "User closed the rewarded ad without completing it.")
+            // You can reload a new ad here if needed
+        }
+
+    }
+
+    rewardedAd?.show(activity) { rewardItem: RewardItem ->
+        // This callback is invoked when the user earns the reward.
+        Log.d("RewardedAd", "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
+        // Here, you can update your app state to reflect the reward.
+    }
 }
 
 var interstitialAd: InterstitialAd? = null

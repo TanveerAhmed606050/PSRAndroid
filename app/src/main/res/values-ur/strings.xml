@@ -2,9 +2,11 @@
     <string name="app_name">PSR</string>
     <string name="scrap_rate">سکریپ کے نرخ</string>
     <string name="rate">نرخ</string>
+    <string name="no_rate">کوئی نرخ نہیں۔</string>
     <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="rewarded_ad_unit_id">ca-app-pub-3940256099942544/5224354917</string>
     <string name="from">ذریعہ تقویت یافتہ</string>
     <string name="privacy_terms">آگے بڑھ کر آپ شرائط اور رازداری کی پالیسی سے اتفاق کرتے ہیں۔</string>
     <string name="agree_continue">اتفاق کریں اور جاری رکھیں</string>
@@ -95,8 +97,11 @@
     <string name="yes">ہاں</string>
     <string name="no">نہیں</string>
     <string name="all_post">تمام اشتہارات</string>
+    <string name="post">اشتہارات</string>
     <string name="my_post">میرے اشتہارات</string>
     <string name="no_metal">کوئی دھات نہیں ملی</string>
     <string name="no_lme">کوئی LME نہیں ملا</string>
+    <string name="selected_language">اردو</string>
+    <string name="call_permission_error">کال کی اجازت مسترد کر دی گئی۔</string>
 
 </resources>

@@ -142,7 +142,7 @@ fun PSRNavigation(
             R.drawable.calendar_ic
         ),
         BottomNavigationItem(
-            stringResource(id = R.string.my_post),
+            stringResource(id = R.string.post),
             Screen.MyPostScreen.route,
             R.drawable.calendar_ic
         ),
@@ -155,6 +155,11 @@ fun PSRNavigation(
             stringResource(id = R.string.lme),
             Screen.LmeScreen.route,
             R.drawable.baseline_location_pin_24
+        ),
+        BottomNavigationItem(
+            stringResource(id = R.string.profile),
+            Screen.MyProfileScreen.route,
+            R.drawable.home_ic
         ),
     )
 
@@ -461,7 +466,7 @@ fun PSRNavHost(
             val encodedJson = backStackEntry.arguments?.getString("data")
             val userJson = encodedJson?.let { Uri.decode(it) }
             val adData = userJson?.let { Gson().fromJson(it, AdData::class.java) }
-            DetailAdScreen(navController, adPostVM, adData)
+            DetailAdScreen(navController, rateVM, adData)
         }
     }
 }

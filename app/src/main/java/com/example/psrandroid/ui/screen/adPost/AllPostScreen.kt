@@ -22,7 +22,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -50,11 +49,12 @@ import es.dmoral.toasty.Toasty
 fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
     var search by remember { mutableStateOf(TextFieldValue("")) }
-    var location by remember {
+    var selectedCity by remember {
         mutableStateOf(
             adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
         )
     }
+
     val adsData = adPostVM.allAdsData
     var showProgress by remember { mutableStateOf(false) }
     showProgress = adPostVM.isLoading
@@ -70,12 +70,12 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()
     }
-    AllPostScreenUI(
+    AllPostScreenUI(selectedCity = selectedCity,
         search = search,
         adsData = adsData?.data,
         cityList = locationData,
         onCityItemClick = { locationName ->
-            location = locationName
+            selectedCity = locationName
             val locationId = adPostVM.userPreferences.getLocationList()?.data?.find {
                 it.name.equals(locationName, ignoreCase = true)
             }?.id ?: 0
@@ -97,6 +97,7 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AllPostScreenUI(
+    selectedCity: String,
     search: TextFieldValue,
     adsData: List<AdData>?,
     cityList: List<String>?,
@@ -105,7 +106,6 @@ fun AllPostScreenUI(
     onSearch: (TextFieldValue) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    var selectedCity by remember { mutableStateOf<String?>(null) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -140,7 +140,6 @@ fun AllPostScreenUI(
                         cityName = cityName,
                         selectedCity = selectedCity ?: "Lahore", // Check if this city is selected
                         onCityItemClick = { city ->
-                            selectedCity = city // Update the selected city
                             onCityItemClick(city) // Trigger the callback
                         }
                     )
@@ -161,7 +160,7 @@ fun AllPostScreenUI(
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         if (index + 1 == adsData?.size)
-                            Spacer(modifier = Modifier.height(20.dp))
+                            Spacer(modifier = Modifier.height(50.dp))
                     }
                 }
             }
@@ -174,7 +173,7 @@ fun AllPostScreenUI(
 @Composable
 fun AllPostScreenPreview() {
     PSP_AndroidTheme {
-        AllPostScreenUI(search = TextFieldValue(""), adsData = null,
+        AllPostScreenUI(selectedCity = "", search = TextFieldValue(""), adsData = null,
             cityList = listOf(),
             onCityItemClick = {},
             onAdsClick = {},

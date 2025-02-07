@@ -57,6 +57,7 @@ import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.LogoutDialog
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -74,6 +75,24 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
     var base64String by remember { mutableStateOf<String?>(null) }
     var showDialog by remember { mutableStateOf(false) }
+    var isUrduSelected by remember { mutableStateOf(authVM.userPreferences.isUrduSelected) }
+    var expandedLang by remember { mutableStateOf(false) }
+    val languageList = listOf("اردو", "English")
+    if (expandedLang) {
+        ListDialog(dataList = languageList, onDismiss = { expandedLang = false },
+            onConfirm = { selectedLanguage ->
+                authVM.userPreferences.isUrduSelected = selectedLanguage == "اردو"
+                expandedLang = false
+                if (authVM.userPreferences.isUrduSelected) {
+                    switchLanguage(context, "ur")
+//                    authVM.userPreferences.isUrduSelected = false
+                } else {
+                    switchLanguage(context, "en")
+//                    authVM.userPreferences.isUrduSelected = true
+                }
+                (context as? Activity)?.recreate()
+            })
+    }
     val userId = authVM.userPreferences.getUserPreference()?.id ?: 0
     val authData = authVM.loginData
     var profilePic = userData?.profilePic ?: ""
@@ -127,22 +146,17 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             capturedImageUri = uri
         }
 
-    MyProfileScreen(context = context, profilePic = profilePic, onBottomSheetShow = {
-        openGallery(context, galleryLauncher, pickImageLauncher)
-    },
+    MyProfileScreen(context = context,
+        isUrduSelected = isUrduSelected,
+        profilePic = profilePic,
+        onBottomSheetShow = {
+            openGallery(context, galleryLauncher, pickImageLauncher)
+        },
         onItemClick = { screenRoute ->
             if (screenRoute == context.getString(R.string.logout))
                 showDialog = true
-            else if (screenRoute == context.getString(R.string.language)) {
-                if (authVM.userPreferences.isUrduSelected) {
-                    switchLanguage(context, "en")
-                    authVM.userPreferences.isUrduSelected = false
-                } else {
-                    switchLanguage(context, "ur")
-                    authVM.userPreferences.isUrduSelected = true
-                }
-//                navController.popBackStack()
-                (context as? Activity)?.recreate()
+            else if (screenRoute == context.getString(R.string.selected_language)) {
+                expandedLang = true
             } else
                 navController.navigate(screenRoute)
         },
@@ -152,6 +166,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
 @Composable
 fun MyProfileScreen(
     context: Context,
+    isUrduSelected: Boolean,
     profilePic: String,
     onItemClick: (String) -> Unit,
     onBottomSheetShow: () -> Unit,
@@ -198,7 +213,7 @@ fun MyProfileScreen(
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-            ProfileOptions(context, screenRoute = { route ->
+            ProfileOptions(context, isUrduSelected = isUrduSelected, screenRoute = { route ->
                 onItemClick(route)
             })
         }
@@ -208,6 +223,7 @@ fun MyProfileScreen(
 @Composable
 fun ProfileOptions(
     context: Context,
+    isUrduSelected: Boolean = false,
     screenRoute: (String) -> Unit
 ) {
     val options = listOf(
@@ -221,7 +237,7 @@ fun ProfileOptions(
         ),
         ProfileOption(
             R.drawable.globe_ic,
-            stringResource(id = R.string.language)
+            stringResource(id = R.string.selected_language)
         ),
         ProfileOption(
             R.drawable.baseline_privacy_tip_24,
@@ -293,8 +309,8 @@ fun ProfileOptionItem(
             encodedUrl = ""
         }
 
-        stringResource(id = R.string.language) -> {
-            route = stringResource(id = R.string.language)
+        stringResource(id = R.string.selected_language) -> {
+            route = stringResource(id = R.string.selected_language)
             encodedUrl = ""
         }
     }
@@ -356,6 +372,7 @@ fun switchLanguage(context: Context, language: String) {
 fun MyProfileScreenPreview() {
     MyProfileScreen(
         context = LocalContext.current,
+        isUrduSelected = false,
         onBottomSheetShow = {},
         profilePic = "",
         onItemClick = {},

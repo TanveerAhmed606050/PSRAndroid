@@ -102,11 +102,7 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
     val sharedPreferences = rateVM.userPreferences
     val name by remember { mutableStateOf(sharedPreferences.getUserPreference()?.name ?: "Ahmed") }
 
-    var location by remember {
-        mutableStateOf(
-            sharedPreferences.getUserPreference()?.location ?: "Lahore"
-        )
-    }
+    var location by remember { mutableStateOf("Lahore") }
     val phone by remember {
         mutableStateOf(
             sharedPreferences.getUserPreference()?.phone ?: "+92 30515151"
@@ -123,6 +119,7 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
 
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
+            location = sharedPreferences.getUserPreference()?.location?:"Lahore"
             rateVM.getMainMetals("$locationId", "")
             rateVM.getSubMetals("$locationId", search.text)
         }
@@ -156,6 +153,9 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
         onSearchClick = { searchText ->
             search = searchText
             rateVM.userPreferences.lastSearchMetal = searchText.text
+            locationId = rateVM.userPreferences.getLocationList()?.data?.find {
+                it.name.equals(location, ignoreCase = true)
+            }?.id ?: 0
             if (isNetworkAvailable(context)) {
                 rateVM.getSubMetals("$locationId", searchText.text)
             } else
@@ -267,7 +267,7 @@ fun DashBoardScreen(
                     )
                 }
                 if (productList?.isEmpty() != false)
-                    NoProductView(stringResource(id = R.string.no_metal), DarkBlue)
+                    NoProductView(stringResource(id = R.string.no_rate), DarkBlue)
                 else
                     ProductList(productList)
                 Spacer(modifier = Modifier.height(120.dp))
@@ -405,13 +405,13 @@ fun SearchBar(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     // Observe the search text and update dropdown state based on focus and list availability
-    LaunchedEffect(isFocused, suggestedSearchList) {
+    LaunchedEffect(isFocused) {
         expandedDropDown = isFocused && (suggestedSearchList?.isNotEmpty() == true)
     }
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 0.dp, vertical = 10.dp),
+            .padding(horizontal = 0.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ExposedDropdownMenuBox(
@@ -480,7 +480,6 @@ fun SearchBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = Color.White, shape = RoundedCornerShape(10))
-                    .padding(0.dp)
                     .onFocusChanged { focusState ->
                         isFocused = focusState.isFocused
                     }

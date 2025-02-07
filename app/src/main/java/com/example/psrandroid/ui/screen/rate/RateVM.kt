@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.repository.RateRepository
-import com.example.psrandroid.response.DashboardMetal
+import com.example.psrandroid.response.RateMetal
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.MetalData
@@ -16,6 +16,7 @@ import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.utils.Result
+import com.google.android.gms.ads.rewarded.RewardedAd
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -29,12 +30,13 @@ class RateVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     var premiumUserData by mutableStateOf<PrimeUser?>(null)
     var subMetalData by mutableStateOf<SearchSubMetal?>(null)
-    var mainMetalData by mutableStateOf<DashboardMetal?>(null)
+    var mainMetalData by mutableStateOf<RateMetal?>(null)
     var lmeMetalData by mutableStateOf<LmeResponse?>(null)
     var suggestMainMetals by mutableStateOf<List<MetalData>?>(null)
     private var suggestSubMetals by mutableStateOf<List<SubMetalData>?>(null)
     var searchLmeMetalData by mutableStateOf<List<LmeData>?>(null)
-
+    var watchAd by mutableStateOf(false)
+    var rewardedAd by mutableStateOf<RewardedAd?>(null)
 
     fun getPremiumUser() = viewModelScope.launch {
         if (premiumUserData == null) {
@@ -89,8 +91,9 @@ class RateVM @Inject constructor(
         }
     }
 
-    fun searchLME(search:String) = viewModelScope.launch {
-        searchLmeMetalData = lmeMetalData?.data?.filter { it.name.contains(search, ignoreCase = true) }
+    fun searchLME(search: String) = viewModelScope.launch {
+        searchLmeMetalData =
+            lmeMetalData?.data?.filter { it.name.contains(search, ignoreCase = true) }
     }
 
     fun searchMainMetals(searchText: String) {
