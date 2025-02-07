@@ -40,6 +40,8 @@ import com.example.psrandroid.ui.commonViews.showRewardedAd
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.LightGreen40
+import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
@@ -89,7 +91,8 @@ fun PrimeUserScreen(
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
-                text = stringResource(id = R.string.prime_user), fontSize = 16.sp,
+                text = stringResource(id = R.string.prime_user),
+                fontSize = 16.sp,
                 fontFamily = mediumFont,
                 color = DarkBlue
             )
@@ -149,33 +152,33 @@ fun UserItemData(
                 Text(
                     text = stringResource(id = R.string.name),
                     color = Color.DarkGray,
-                    fontFamily = regularFont,
-                    fontSize = 12.sp,
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp,
                 )
                 Text(
                     text = stringResource(id = R.string.business_name),
-                    fontSize = 12.sp,
-                    fontFamily = regularFont,
+                    fontSize = 14.sp,
+                    fontFamily = mediumFont,
                     color = Color.DarkGray,
                 )
                 Text(
                     text = stringResource(id = R.string.address),
-                    fontFamily = regularFont,
+                    fontFamily = mediumFont,
                     color = Color.DarkGray,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                 )
                 Text(
                     text = stringResource(id = R.string.metals),
-                    fontFamily = regularFont,
+                    fontFamily = mediumFont,
                     color = Color.DarkGray,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                 )
                 Text(
                     text =
                     stringResource(id = R.string.show_no),
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = Color.DarkGray,
-                    fontFamily = regularFont,
+                    fontFamily = mediumFont,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -218,18 +221,39 @@ fun UserItemData(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
-                Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
-                    color = Color.DarkGray,
-                    fontFamily = mediumFont,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    fontSize = 14.sp,
-                    modifier = Modifier.clickable {
-                        onShowContact(
-                            if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
-                        )
-                    }
-                )
+
+                Row(
+                    modifier = Modifier
+                        .background(LightRed40,
+                            RoundedCornerShape(10.dp)
+                        ).padding(10.dp,5.dp)
+                ) {
+                    Text(
+                        text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.watch_ad),
+                        color = Color.White,
+                        fontFamily = mediumFont,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                        fontSize = 14.sp,
+                        modifier = Modifier.clickable {
+                            onShowContact(
+                                if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
+                            )
+                        }
+                    )
+                }
+//                Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
+//                    color = Color.DarkGray,
+//                    fontFamily = mediumFont,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+//                    fontSize = 14.sp,
+//                    modifier = Modifier.clickable {
+//                        onShowContact(
+//                            if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
+//                        )
+//                    }
+//                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Spacer(modifier = Modifier.height(20.dp))

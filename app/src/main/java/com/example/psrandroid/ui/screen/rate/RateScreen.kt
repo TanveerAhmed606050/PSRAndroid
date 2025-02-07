@@ -249,18 +249,18 @@ fun DashBoardScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 4.dp)
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "${search.text} Scrap",
-                        color = LightBlue,
+                        color = Color.DarkGray,
                         fontSize = 14.sp,
                         fontFamily = mediumFont
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         text = stringResource(id = R.string.price_kg),
-                        color = LightBlue,
+                        color = Color.DarkGray,
                         fontFamily = mediumFont,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(end = 0.dp)
@@ -579,7 +579,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 20.dp)
+            .padding(vertical = 10.dp, horizontal = 10.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
             .clip(RoundedCornerShape(8.dp)),
 
@@ -609,14 +609,24 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "${metalDetail?.submetalName}",
+                text = "${metalDetail?.submetalName}"+"   /   ",
                 fontSize = 12.sp,
                 color = Color.Gray,
                 maxLines = 1,
-                fontFamily = regularFont,
+                fontFamily = mediumFont,
                 modifier = Modifier.weight(2f),
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
+            Text(
+                text = "${metalDetail?.submetalUrduName}",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                maxLines = 1,
+                fontFamily = mediumFont,
+                modifier = Modifier.weight(2f),
+                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+            )
+
         }
         Box(
             modifier = Modifier
@@ -625,7 +635,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
         ) {
             Text(
                 text = "Rs.${metalDetail?.price}",
-                modifier = Modifier.padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 4.dp),
                 fontSize = 12.sp,
                 fontFamily = regularFont,
                 color = Color.White,

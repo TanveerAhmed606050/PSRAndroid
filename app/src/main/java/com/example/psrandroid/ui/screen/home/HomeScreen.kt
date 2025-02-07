@@ -584,7 +584,7 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = text, color = Color.DarkGray,
-            fontFamily = regularFont, fontSize = 17.sp,
+            fontFamily = mediumFont, fontSize = 14.sp,
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(

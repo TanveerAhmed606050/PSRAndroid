@@ -44,6 +44,9 @@ import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.LightBlue
+import com.example.psrandroid.ui.theme.LightGreen40
+import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
@@ -115,18 +118,25 @@ fun LmeScreenView(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LmeList(lmeData: List<LmeData>?) {
+    GoogleAdBanner()
     LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 150.dp),
         contentPadding = PaddingValues(vertical = 0.dp)
     ) {
+
         items(lmeData?.size ?: 0) { index ->
-            if (index % 3 == 1) {
-                Spacer(modifier = Modifier.padding(4.dp))
-                GoogleAdBanner()
-                Spacer(modifier = Modifier.padding(4.dp))
-            } else
+            Spacer(modifier = Modifier.padding(4.dp))
+//            if (index % 3 == 1) {
+//                Spacer(modifier = Modifier.padding(4.dp))
+//                //GoogleAdBanner()
+//                Spacer(modifier = Modifier.padding(4.dp))
+//            } else
                 LmeItem(lmeData?.get(index) ?: LmeData.mockup)
-            HorizontalDivider()
+            //HorizontalDivider()
         }
+
     }
 }
 
@@ -135,12 +145,12 @@ fun LmeList(lmeData: List<LmeData>?) {
 fun LmeItem(lmeData: LmeData) {
     Column(
         modifier = Modifier
-            .background(DarkBlue, RoundedCornerShape(10.dp))
+            .background(Color.White, RoundedCornerShape(10.dp))
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp, horizontal = 20.dp),
+                .padding(vertical = 10.dp, horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -148,9 +158,9 @@ fun LmeItem(lmeData: LmeData) {
             Text(
                 text = lmeData.name,
                 fontSize = 14.sp,
-                color = Color.White,
+                color = Color.DarkGray,
                 maxLines = 1,
-                fontFamily = regularFont,
+                fontFamily = mediumFont,
                 modifier = Modifier.weight(1f),
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
@@ -161,10 +171,10 @@ fun LmeItem(lmeData: LmeData) {
             ) {
                 Text(
                     text = "Rs. ${lmeData.price}",
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(horizontal = 2.dp),
                     fontSize = 14.sp,
-                    fontFamily = regularFont,
-                    color = DarkBlue,
+                    fontFamily = mediumFont,
+                    color = Color.DarkGray,
                 )
             }
         }
@@ -172,15 +182,15 @@ fun LmeItem(lmeData: LmeData) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp, horizontal = 20.dp),
+                .padding(vertical = 10.dp, horizontal = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
                 modifier = Modifier
                     .background(
-                        if (lmeData.changeInRate.toFloat() < 0) Color.Red else
-                            Color.Green,
+                        if (lmeData.changeInRate.toFloat() < 0) LightRed40 else
+                            LightGreen40,
                         RoundedCornerShape(10.dp)
                     )
             ) {
@@ -193,8 +203,8 @@ fun LmeItem(lmeData: LmeData) {
                     text = "${lmeData.changeInRate}%", modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 4.dp),
                     color = Color.White,
-                    fontFamily = boldFont,
-                    fontSize = 14.sp
+                    fontFamily = regularFont,
+                    fontSize = 12.sp
                 )
             }
             Spacer(modifier = Modifier.padding(end = 8.dp))
@@ -203,9 +213,9 @@ fun LmeItem(lmeData: LmeData) {
                 modifier = Modifier
                     .background(Color.White, RoundedCornerShape(10.dp))
                     .padding(8.dp),
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 fontFamily = regularFont,
-                color = DarkBlue,
+                color = Color.DarkGray,
             )
         }
     }
