@@ -514,7 +514,7 @@ fun HomeLmeItem(lmeData: LmeData) {
 //                modifier = Modifier.padding(4.dp),
             ) {
                 Text(
-                    text = "Rs. 121299999",
+                    text = "Rs. 1299",
                     modifier = Modifier
                         .align(Alignment.End),
                     fontSize = 14.sp,

@@ -570,7 +570,7 @@ fun ProductList(dashboardData: List<SubMetalData>?) {
     ) {
         items(dashboardData?.size ?: 0) { index ->
             ProductItem(metalDetail = dashboardData?.get(index), index = index + 1)
-            HorizontalDivider()
+            //HorizontalDivider()
         }
     }
 }
