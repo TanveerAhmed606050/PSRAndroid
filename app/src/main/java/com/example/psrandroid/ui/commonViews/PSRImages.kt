@@ -22,7 +22,7 @@ fun MyAsyncImage(imageUrl: String?, size: Dp, isCircular: Boolean) {
     val placeHolder = painterResource(id = R.drawable.user_placeholder)
 
     AsyncImage(
-        model = Constant.MEDIA_BASE_URL + "imageUrl",
+        model = Constant.MEDIA_BASE_URL + imageUrl,
         contentDescription = "",
         placeholder = placeHolder,
         error = placeHolder,

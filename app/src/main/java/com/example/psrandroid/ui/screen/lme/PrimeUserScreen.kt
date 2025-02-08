@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -121,122 +123,129 @@ fun UserItemData(
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
     val context = LocalContext.current
-    Column(
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(vertical = 8.dp, horizontal = 20.dp)
-            .background(color = Color.White, shape = RoundedCornerShape(12.dp))
+            .background(Color.White, RoundedCornerShape(10.dp))
+            .clickable { },
+        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
+        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
     ) {
-        Spacer(modifier = Modifier.height(10.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            MyAsyncImage(imageUrl = primeUserData.profileImage ?: "", 45.dp, true)
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
+        Column(
             modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 0.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(
-                modifier = Modifier.padding(end = 8.dp, start = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.name),
-                    color = Color.DarkGray,
-                    fontFamily = regularFont,
-                    fontSize = 12.sp,
-                )
-                Text(
-                    text = stringResource(id = R.string.business_name),
-                    fontSize = 12.sp,
-                    fontFamily = regularFont,
-                    color = Color.DarkGray,
-                )
-                Text(
-                    text = stringResource(id = R.string.address),
-                    fontFamily = regularFont,
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
-                )
-                Text(
-                    text = stringResource(id = R.string.metals),
-                    fontFamily = regularFont,
-                    color = Color.DarkGray,
-                    fontSize = 12.sp,
-                )
-                Text(
-                    text =
-                    stringResource(id = R.string.show_no),
-                    fontSize = 12.sp,
-                    color = Color.DarkGray,
-                    fontFamily = regularFont,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp, start = 8.dp),
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = primeUserData.name,
-                    color = Color.DarkGray,
-                    fontSize = 14.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    fontFamily = mediumFont,
-                )
-                Text(
-                    text = primeUserData.businessName,
-                    color = Color.DarkGray,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    fontSize = 14.sp,
-                    fontFamily = mediumFont,
-                )
-                Text(
-                    text = primeUserData.location,
-                    color = Color.DarkGray,
-                    fontFamily = mediumFont,
-                    fontSize = 14.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                )
-                Text(
-                    text = primeUserData.type,
-                    color = Color.DarkGray,
-                    fontFamily = mediumFont,
-                    fontSize = 14.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                )
-                Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
-                    color = Color.DarkGray,
-                    fontFamily = mediumFont,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    fontSize = 14.sp,
-                    modifier = Modifier.clickable {
-                        onShowContact(
-                            if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
-                        )
-                    }
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
+                MyAsyncImage(imageUrl = primeUserData.profileImage ?: "", 45.dp, true)
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp, vertical = 0.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier.padding(end = 8.dp, start = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.name),
+                        color = Color.DarkGray,
+                        fontFamily = regularFont,
+                        fontSize = 12.sp,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.business_name),
+                        fontSize = 12.sp,
+                        fontFamily = regularFont,
+                        color = Color.DarkGray,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.address),
+                        fontFamily = regularFont,
+                        color = Color.DarkGray,
+                        fontSize = 12.sp,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.metals),
+                        fontFamily = regularFont,
+                        color = Color.DarkGray,
+                        fontSize = 12.sp,
+                    )
+                    Text(
+                        text =
+                        stringResource(id = R.string.show_no),
+                        fontSize = 12.sp,
+                        color = Color.DarkGray,
+                        fontFamily = regularFont,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 8.dp, start = 8.dp),
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = primeUserData.name,
+                        color = Color.DarkGray,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                        fontFamily = mediumFont,
+                    )
+                    Text(
+                        text = primeUserData.businessName,
+                        color = Color.DarkGray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                        fontSize = 14.sp,
+                        fontFamily = mediumFont,
+                    )
+                    Text(
+                        text = primeUserData.location,
+                        color = Color.DarkGray,
+                        fontFamily = mediumFont,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    )
+                    Text(
+                        text = primeUserData.type,
+                        color = Color.DarkGray,
+                        fontFamily = mediumFont,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    )
+                    Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
+                        color = Color.DarkGray,
+                        fontFamily = mediumFont,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                        fontSize = 14.sp,
+                        modifier = Modifier.clickable {
+                            onShowContact(
+                                if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
+                            )
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                }
             }
         }
     }

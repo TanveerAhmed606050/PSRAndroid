@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.showRewardedAd
@@ -60,6 +61,7 @@ import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Constant
 import es.dmoral.toasty.Toasty
 
 @Composable
@@ -88,7 +90,7 @@ fun DetailAdScreen(
     var showDialog by remember { mutableStateOf(false) }
     if (showDialog)
         FullScreenImageDialog(
-            serverImageList = null, onDismissRequest = {
+            serverImageList = adData?.photos ?: listOf(), onDismissRequest = {
                 showDialog = false
             },
             imageList = listOf()
@@ -167,8 +169,9 @@ fun DetailAdScreenViews(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
+            Log.d("lsdjg", "DetailAdScreenViews: ${Constant.MEDIA_BASE_URL + adsData.photos}")
             Image(
-                painter = painterResource(id = R.drawable.demo_scrap),
+                painter = rememberAsyncImagePainter(Constant.MEDIA_BASE_URL + adsData.photos),
                 contentDescription = "",
                 modifier = Modifier
                     .fillMaxWidth()

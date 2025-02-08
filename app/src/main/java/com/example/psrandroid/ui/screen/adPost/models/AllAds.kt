@@ -22,8 +22,10 @@ data class AdData(
     val id: Int,
     @SerializedName("metal_name")
     val metalName: String,
+    @SerializedName("phone_number")
+    val phoneNumber: String,
     val name: String,
-    val photos: String,
+    val photos: List<String>,
     val price: String,
     val submetal: String,
     @SerializedName("updated_at")
@@ -40,9 +42,10 @@ val AdData.Companion.mockup by lazy {
         createdAt = "inani",
         description = "Description",
         id = 4574,
+        phoneNumber = "",
         metalName = "Iron",
         name = "Scrap Iron",
-        photos = "",
+        photos = listOf(""),
         price = "6 Lac",
         submetal = "Kanchi Tok",
         updatedAt = "vidisse",

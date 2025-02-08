@@ -598,52 +598,6 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
     }
 }
 
-@Composable
-fun ProfileImageView(userData: AuthData, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 0.dp)
-            .clickable { onClick() },
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        MyAsyncImage(imageUrl = userData.profilePic, 50.dp, true)
-//        Column(
-//            modifier = Modifier
-//                .weight(1f)
-//                .padding(start = 8.dp),
-//        ) {
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//            ) {
-//                Text(
-//                    text = userData.name,
-//                    fontFamily = mediumFont,
-//                    fontSize = 16.sp,
-//                    color = Color.Black
-//                )
-//                Spacer(modifier = Modifier.padding(start = 4.dp))
-//                Image(
-//                    painter = painterResource(id = R.drawable.next_blk),
-//                    contentDescription = "",
-//                    modifier = Modifier
-//                        .padding(start = 4.dp)
-//                        .size(20.dp), // Set desired size
-//                    colorFilter = ColorFilter.tint(Color.Black)
-//                )
-//            }
-//            Text(
-//                text = userData.phone,
-//                fontFamily = regularFont,
-//                color = Color.Gray,
-//                fontSize = 16.sp,
-//            )
-//        }
-    }
-}
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable

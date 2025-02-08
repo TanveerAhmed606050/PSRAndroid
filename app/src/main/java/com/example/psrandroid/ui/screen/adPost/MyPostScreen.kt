@@ -4,7 +4,6 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -57,6 +56,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
@@ -70,6 +70,7 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
@@ -202,8 +203,10 @@ fun AdsItemsView(
                     .padding(8.dp)
                     .background(Color.White), // Add some padding for better spacing
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.demo_scrap), contentDescription = "",
+                AsyncImage(
+                    model = Constant.MEDIA_BASE_URL + adData.photos, contentDescription = "",
+                    error = painterResource(id = R.drawable.demo_scrap),
+                    placeholder = painterResource(id = R.drawable.demo_scrap),
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
                         .padding(8.dp)

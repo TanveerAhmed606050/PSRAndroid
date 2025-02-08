@@ -259,6 +259,7 @@ fun FullScreenImageDialog(
                 Box(modifier = Modifier) {
                     Image(
                         painter = rememberAsyncImagePainter(uri),
+//                        placeholder = painterResource(id = R.drawable.demo_scrap),
                         contentDescription = "Selected Image $page",
                         modifier = Modifier
                             .fillMaxSize()

@@ -249,7 +249,7 @@ fun DashBoardScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 4.dp)
+                        .padding(horizontal = 0.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "${search.text} Scrap",
@@ -274,118 +274,6 @@ fun DashBoardScreen(
 
             }
         }
-    }
-}
-
-@Composable
-fun HeaderSection(
-    headerTitle: String,
-    cityList: List<String>?,
-    onCityItemClick: (String) -> Unit,
-) {
-    var selectedCity by remember { mutableStateOf<String?>(null) }
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(AppBG)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-                .align(Alignment.CenterStart)
-        ) {
-            Spacer(modifier = Modifier.statusBarsPadding())
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = headerTitle,
-                fontSize = 16.sp,
-                fontFamily = mediumFont,
-                color = DarkBlue,
-                textAlign = TextAlign.Center,
-            )
-//                Spacer(modifier = Modifier.weight(1f))
-//                Image(
-//                    painter = painterResource(id = R.drawable.location_ic),
-//                    contentDescription = "",
-//                    modifier = Modifier
-//                        .size(20.dp)
-//                        .clickable { onLocationClick() }
-//                )
-//                Text(
-//                    text = " | $address", color = Color.White, fontSize = 16.sp,
-//                )
-//            }
-            Spacer(modifier = Modifier.height(20.dp))
-            LazyRow(
-                contentPadding = PaddingValues(vertical = 8.dp),
-            ) {
-                items(cityList?.size ?: 0) { index ->
-                    val cityName = cityList?.get(index) ?: ""
-                    CityItems(
-                        cityName = cityName,
-                        selectedCity = selectedCity ?: "Lahore", // Check if this city is selected
-                        onCityItemClick = { city ->
-                            selectedCity = city // Update the selected city
-                            onCityItemClick(city) // Trigger the callback
-                        }
-                    )
-                }
-
-            }
-//            Row(
-//                modifier = Modifier
-//                    .background(
-//                        color = LightBlue, shape = RoundedCornerShape(12.dp)
-//                    )
-//                    .fillMaxWidth()
-//                    .height(100.dp)
-//                    .padding(start = 0.dp)
-//            ) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.steel_ic), // Replace with actual image resource
-//                    contentDescription = "",
-//                    modifier = Modifier
-//                        .width(100.dp)
-//                        .fillMaxHeight()
-//                        .padding(start = 8.dp),
-//                    contentScale = ContentScale.Crop
-//                )
-//                Spacer(modifier = Modifier.width(12.dp))
-//                Column {
-//
-//                    UserDetailItem(imageId = R.drawable.profile_ic, text = name)
-//                    HorizontalDivider(color = Color.White)
-//                    UserDetailItem(imageId = R.drawable.location_ic, text = address)
-//                    HorizontalDivider(color = Color.White)
-//                    UserDetailItem(imageId = R.drawable.phone_ic, text = phone)
-//
-//                }
-//            }
-        }
-    }
-}
-
-@Composable
-fun UserDetailItem(imageId: Int, text: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            painter = painterResource(id = imageId),
-            contentDescription = "",
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.padding(end = 12.dp))
-        Text(
-            text = text,
-            fontSize = 12.sp,
-            color = Color.White,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 
@@ -579,10 +467,9 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 20.dp)
+            .padding(vertical = 10.dp, horizontal = 0.dp)
             .background(Color.White, shape = RoundedCornerShape(8.dp))
             .clip(RoundedCornerShape(8.dp)),
-
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

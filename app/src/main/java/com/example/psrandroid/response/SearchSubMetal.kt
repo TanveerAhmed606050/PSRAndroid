@@ -32,7 +32,7 @@ val SubMetalData.Companion.mockup by lazy {
         submetalName = "Dexter Booth",
         submetals = "no",
         submetalUrduName = "",
-        price = "85 Lac"
+        price = "85 "
     )
 //    SearchSubMetal(data = listOf(), message = "suscipit", status = false)
 }

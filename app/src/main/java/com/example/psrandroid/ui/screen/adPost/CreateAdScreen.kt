@@ -124,7 +124,7 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
         navController.popBackStack()
         adPostVM.adPostResponse = null
     }
-    var locationId = rateVM.userPreferences.getLocationList()?.data?.find {
+    val locationId = rateVM.userPreferences.getLocationList()?.data?.find {
         it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
     }?.id ?: 0 // get location id
     LaunchedEffect(Unit) {
