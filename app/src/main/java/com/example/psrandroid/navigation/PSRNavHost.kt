@@ -1,7 +1,9 @@
 package com.example.psrandroid.navigation
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -23,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -34,11 +37,11 @@ import androidx.navigation.navArgument
 import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature
 import com.example.psp_android.R
-import com.example.psrandroid.ui.screen.adPost.MyPostScreen
 import com.example.psrandroid.ui.screen.adPost.AdPostVM
 import com.example.psrandroid.ui.screen.adPost.AllPostScreen
 import com.example.psrandroid.ui.screen.adPost.CreateAdScreen
 import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
+import com.example.psrandroid.ui.screen.adPost.MyPostScreen
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.LanguageScreen
@@ -372,7 +375,7 @@ fun PSRNavHost(
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
         ) {
-            RateScreen(navController, rateVM, authViewModel)
+            RateScreen(rateVM)
         }
         composable(
             route = Screen.PrimeUserScreen.route,
@@ -381,7 +384,7 @@ fun PSRNavHost(
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
         ) {
-            PrimeUserScreen(navController = navController, rateVM)
+            PrimeUserScreen(rateVM)
         }
         composable(
             route = Screen.PasswordScreen.route,
@@ -417,7 +420,7 @@ fun PSRNavHost(
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
         ) {
-            LmeScreen(navController, rateVM)
+            LmeScreen(rateVM)
         }
         composable(
             route = Screen.MyPostScreen.route,
@@ -462,7 +465,7 @@ fun PSRNavHost(
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
-        ) {  backStackEntry ->
+        ) { backStackEntry ->
             val encodedJson = backStackEntry.arguments?.getString("data")
             val userJson = encodedJson?.let { Uri.decode(it) }
             val adData = userJson?.let { Gson().fromJson(it, AdData::class.java) }

@@ -3,7 +3,6 @@ package com.example.psrandroid.ui.screen.rate
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -60,13 +59,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.home.CityItems
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -82,7 +79,7 @@ import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
+fun RateScreen(rateVM: RateVM) {
     val context = LocalContext.current
     var isRefreshing by remember { mutableStateOf(false) }
     var showProgress by remember { mutableStateOf(false) }
@@ -100,14 +97,8 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
 
     var search by remember { mutableStateOf(TextFieldValue(rateVM.userPreferences.lastSearchMetal)) }
     val sharedPreferences = rateVM.userPreferences
-    val name by remember { mutableStateOf(sharedPreferences.getUserPreference()?.name ?: "Ahmed") }
 
     var location by remember { mutableStateOf("Lahore") }
-    val phone by remember {
-        mutableStateOf(
-            sharedPreferences.getUserPreference()?.phone ?: "+92 30515151"
-        )
-    }
     val noInternetMessage = stringResource(id = R.string.network_error)
     val locationData = locationList.map { "${it.name}" }
 
@@ -127,7 +118,7 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
         Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
             .show()
 
-    DashBoardScreen(search, name, location, phone,
+    DashBoardScreen(search, location,
         cityList = locationData,
         subMetalData?.data, isRefreshing,
         suggestedSearchList = suggestedSearchList,
@@ -182,9 +173,7 @@ fun RateScreen(navController: NavController, rateVM: RateVM, authVM: AuthVM) {
 @Composable
 fun DashBoardScreen(
     search: TextFieldValue,
-    name: String,
     selectedCity: String,
-    phone: String,
     cityList: List<String>?,
     productList: List<SubMetalData>?,
     isRefreshing: Boolean,
@@ -496,7 +485,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "${metalDetail?.submetalName}",
+                text = "${metalDetail?.submetalName} ${metalDetail?.submetalUrduName}",
                 fontSize = 12.sp,
                 color = Color.Gray,
                 maxLines = 1,
@@ -543,7 +532,7 @@ fun NoProductView(msg: String, color: Color) {
 fun PreviewDashboardScreen() {
     PSP_AndroidTheme {
         DashBoardScreen(
-            TextFieldValue(""), "", "", "",
+            TextFieldValue(""), "",
             cityList = listOf(),
             listOf(),
             suggestedSearchList = listOf(),

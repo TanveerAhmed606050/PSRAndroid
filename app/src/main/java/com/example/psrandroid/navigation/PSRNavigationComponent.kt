@@ -277,7 +277,7 @@ fun PSRBottomNavigationBar(
                 label = {
                     Text(
                         text = fitmeBottomDestination.name,
-                        fontSize =  9.sp,
+                        fontSize =  12.sp,
                         fontFamily = regularFont,
                         lineHeight = 2.sp,
                         textAlign = TextAlign.Center

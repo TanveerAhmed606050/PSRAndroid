@@ -1,6 +1,5 @@
 package com.example.psrandroid.ui.screen.auth
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,7 +40,6 @@ import com.example.psrandroid.ui.screen.profile.switchLanguage
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
-import java.util.Locale
 
 @Composable
 fun LanguageScreen(

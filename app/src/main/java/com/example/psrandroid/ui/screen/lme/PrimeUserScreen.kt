@@ -1,7 +1,9 @@
 package com.example.psrandroid.ui.screen.lme
 
 import android.app.Activity
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,47 +19,49 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.psp_android.R
-import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.PrimeUserData
-import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.commonViews.showRewardedAd
+import com.example.psrandroid.ui.screen.adPost.SearchBar
+import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
-import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.android.gms.ads.MobileAds
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PrimeUserScreen(navController: NavController, rateVm: RateVM) {
+fun PrimeUserScreen(rateVm: RateVM) {
     val context = LocalContext.current
+    var search by remember { mutableStateOf(TextFieldValue("")) }
     MobileAds.initialize(context) { initializationStatus ->
         Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
     }
-    val primeUserData = rateVm.premiumUserData
-//    GoogleInterstitialAd(context = context, onAdClick = {
-//    })
+    val primeUserData = rateVm.searchPrimeUserData
 
     LaunchedEffect(Unit) {
         rateVm.getPremiumUser()
@@ -69,13 +73,21 @@ fun PrimeUserScreen(navController: NavController, rateVm: RateVM) {
                     onAdClick = {
                         rateVm.watchAd = true
                     })
+        },
+        search = search,
+        onSearch = {
+            search = it
+            rateVm.searchPrimeUser(search.text)
         })
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PrimeUserScreen(
-    watchAd: Boolean, primeUserData: PrimeUser?,
-    onShowContact: (String) -> Unit
+    watchAd: Boolean, primeUserData: List<PrimeUserData>?,
+    onShowContact: (String) -> Unit,
+    search: TextFieldValue,
+    onSearch: (TextFieldValue) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -86,12 +98,13 @@ fun PrimeUserScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 8.dp, horizontal = 0.dp),
+                .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
-                text = stringResource(id = R.string.prime_user), fontSize = 16.sp,
+                text = stringResource(id = R.string.prime_user),
+                fontSize = 16.sp,
                 fontFamily = mediumFont,
                 color = DarkBlue
             )
@@ -100,17 +113,25 @@ fun PrimeUserScreen(
                 LinearProgress(modifier = Modifier.padding(vertical = 3.dp))
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 0.dp)
-            ) {
-                items(primeUserData?.data?.size ?: 0) { index ->
-                    UserItemData(
-                        watchAd = watchAd,
-                        primeUserData?.data?.get(index) ?: PrimeUserData.mockup,
-                        onShowContact = { onShowContact(it) }
-                    )
+            SearchBar(search,
+                onSearchClick = {
+                    onSearch(it)
+                })
+            Spacer(modifier = Modifier.padding(top = 10.dp))
+            if (primeUserData?.isNotEmpty() == true) {
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 0.dp)
+                ) {
+                    items(primeUserData.size) { index ->
+                        UserItemData(
+                            watchAd = watchAd,
+                            primeUserData[index],
+                            onShowContact = { onShowContact(it) }
+                        )
+                    }
                 }
-            }
+            } else
+                NoProductView(msg = stringResource(id = R.string.no_prime_user), color = DarkBlue)
         }
     }
 }
@@ -121,113 +142,117 @@ fun UserItemData(
     onShowContact: (String) -> Unit
 ) {
     val currentLocale = Locale.getDefault()
-    val isRtl = isRtlLocale(currentLocale)
+    isRtlLocale(currentLocale)
     val context = LocalContext.current
-    Card(
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(vertical = 8.dp, horizontal = 20.dp)
-            .background(Color.White, RoundedCornerShape(10.dp))
-            .clickable { },
-        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
+            .fillMaxWidth()
+            .padding(vertical = 8.dp, horizontal = 0.dp)
+            .background(color = Color.White, shape = RoundedCornerShape(12.dp))
     ) {
-        Column(
-            modifier = Modifier
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            MyAsyncImage(imageUrl = primeUserData.profileImage ?: "", 45.dp, true)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 0.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.padding(end = 8.dp, start = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                MyAsyncImage(imageUrl = primeUserData.profileImage ?: "", 45.dp, true)
+                Text(
+                    text = stringResource(id = R.string.name),
+                    color = Color.DarkGray,
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp,
+                )
+                Text(
+                    text = stringResource(id = R.string.business_name),
+                    fontSize = 14.sp,
+                    fontFamily = mediumFont,
+                    color = Color.DarkGray,
+                )
+                Text(
+                    text = stringResource(id = R.string.address),
+                    fontFamily = mediumFont,
+                    color = Color.DarkGray,
+                    fontSize = 14.sp,
+                )
+                Text(
+                    text = stringResource(id = R.string.metals),
+                    fontFamily = mediumFont,
+                    color = Color.DarkGray,
+                    fontSize = 14.sp,
+                )
+                Text(
+                    text =
+                    stringResource(id = R.string.show_no),
+                    fontSize = 14.sp,
+                    color = Color.DarkGray,
+                    fontFamily = mediumFont,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
+            Column(
                 modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 0.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+                    .fillMaxWidth()
+                    .padding(end = 8.dp, start = 8.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(end = 8.dp, start = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.name),
-                        color = Color.DarkGray,
-                        fontFamily = regularFont,
-                        fontSize = 12.sp,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.business_name),
-                        fontSize = 12.sp,
-                        fontFamily = regularFont,
-                        color = Color.DarkGray,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.address),
-                        fontFamily = regularFont,
-                        color = Color.DarkGray,
-                        fontSize = 12.sp,
-                    )
-                    Text(
-                        text = stringResource(id = R.string.metals),
-                        fontFamily = regularFont,
-                        color = Color.DarkGray,
-                        fontSize = 12.sp,
-                    )
-                    Text(
-                        text =
-                        stringResource(id = R.string.show_no),
-                        fontSize = 12.sp,
-                        color = Color.DarkGray,
-                        fontFamily = regularFont,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                Column(
+                Text(
+                    text = primeUserData.name,
+                    color = Color.DarkGray,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    fontFamily = mediumFont,
+                )
+                Text(
+                    text = primeUserData.businessName,
+                    color = Color.DarkGray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    fontSize = 14.sp,
+                    fontFamily = mediumFont,
+                )
+                Text(
+                    text = primeUserData.location,
+                    color = Color.DarkGray,
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                )
+                Text(
+                    text = primeUserData.type,
+                    color = Color.DarkGray,
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                )
+
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 8.dp, start = 8.dp),
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                        .background(
+                            LightRed40,
+                            RoundedCornerShape(10.dp)
+                        )
+                        .padding(10.dp, 5.dp)
                 ) {
                     Text(
-                        text = primeUserData.name,
-                        color = Color.DarkGray,
-                        fontSize = 14.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                        fontFamily = mediumFont,
-                    )
-                    Text(
-                        text = primeUserData.businessName,
-                        color = Color.DarkGray,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                        fontSize = 14.sp,
-                        fontFamily = mediumFont,
-                    )
-                    Text(
-                        text = primeUserData.location,
-                        color = Color.DarkGray,
-                        fontFamily = mediumFont,
-                        fontSize = 14.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    )
-                    Text(
-                        text = primeUserData.type,
-                        color = Color.DarkGray,
-                        fontFamily = mediumFont,
-                        fontSize = 14.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    )
-                    Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
-                        color = Color.DarkGray,
+                        text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.watch_ad),
+                        color = Color.White,
                         fontFamily = mediumFont,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
@@ -238,24 +263,39 @@ fun UserItemData(
                             )
                         }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                }
+//                Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
+//                    color = Color.DarkGray,
+//                    fontFamily = mediumFont,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+//                    fontSize = 14.sp,
+//                    modifier = Modifier.clickable {
+//                        onShowContact(
+//                            if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
+//                        )
+//                    }
+//                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
             }
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun PrimeUserScreenPreview() {
     PSP_AndroidTheme {
-        PrimeUserScreen(false, primeUserData = PrimeUser.mockup,
-            onShowContact = {})
+        PrimeUserScreen(false, primeUserData = listOf(),
+            onShowContact = {},
+            search = TextFieldValue(""),
+            onSearch = {})
     }
 }

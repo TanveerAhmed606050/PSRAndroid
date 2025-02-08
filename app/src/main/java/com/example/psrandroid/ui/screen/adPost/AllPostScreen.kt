@@ -76,9 +76,9 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
         cityList = locationData,
         onCityItemClick = { locationName ->
             selectedCity = locationName
-            val locationId = adPostVM.userPreferences.getLocationList()?.data?.find {
-                it.name.equals(locationName, ignoreCase = true)
-            }?.id ?: 0
+//            val locationId = adPostVM.userPreferences.getLocationList()?.data?.find {
+//                it.name.equals(locationName, ignoreCase = true)
+//            }?.id ?: 0
         },
         onAdsClick = { adData ->
             val adDataJson = Gson().toJson(adData)
@@ -138,7 +138,7 @@ fun AllPostScreenUI(
                     val cityName = cityList?.get(index) ?: ""
                     CityItems(
                         cityName = cityName,
-                        selectedCity = selectedCity ?: "Lahore", // Check if this city is selected
+                        selectedCity = selectedCity , // Check if this city is selected
                         onCityItemClick = { city ->
                             onCityItemClick(city) // Trigger the callback
                         }

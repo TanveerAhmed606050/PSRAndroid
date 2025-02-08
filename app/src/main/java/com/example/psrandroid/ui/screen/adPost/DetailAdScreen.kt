@@ -133,14 +133,6 @@ fun DetailAdScreen(
             else
                 openWhatsApp(context, showContact.toString())
         },
-        onWhatsAppChatClick = {
-            if (showContact == context.getText(R.string.show_no))
-                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
-                    onAdClick = {})
-            else
-                openWhatsApp(context, showContact.toString())
-
-        },
         onImageClick = {
             showDialog = true
         }
@@ -154,7 +146,6 @@ fun DetailAdScreenViews(
     backClick: () -> Unit,
     onShowNoClick: (String) -> Unit,
     onSMSClick: () -> Unit,
-    onWhatsAppChatClick: () -> Unit,
     onWhatsAppCallClick: () -> Unit,
     onImageClick: () -> Unit,
 ) {
@@ -387,7 +378,6 @@ fun DetailAdScreenPreview() {
             showContact = "",
             onSMSClick = {},
             onWhatsAppCallClick = {},
-            onWhatsAppChatClick = {},
             onImageClick = {}
         )
     }

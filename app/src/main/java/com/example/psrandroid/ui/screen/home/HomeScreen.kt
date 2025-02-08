@@ -51,18 +51,18 @@ import coil.compose.AsyncImage
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
-import com.example.psrandroid.response.AuthData
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.SubMetal
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.commonViews.MyAsyncImage
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
+import com.example.psrandroid.ui.theme.LightGreen40
+import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
@@ -322,8 +322,6 @@ fun HomeAdsItems(
                     .fillMaxWidth()
                     .align(Alignment.BottomStart) // Align the Row at the bottom of the Box
                     .background(Color.White.copy(1f)), // Add some padding for better spacing
-//                verticalAlignment = Alignment.Bottom,
-//                horizontalArrangement = Arrangement.Start
             ) {
                 Column(
                     modifier = Modifier.padding(horizontal = 8.dp), // Take up equal horizontal space
@@ -398,117 +396,6 @@ fun ScrapRateItem(rateData: SubMetal) {
                 fontFamily = boldFont, textAlign = TextAlign.End,
             )
         }
-//            Row(
-//                modifier = Modifier.padding(vertical = 4.dp),
-//            ) {
-//                Text(
-//                    modifier = Modifier,
-//                    text = rateData?.get(1)?.name ?: "",
-//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-//                    textAlign = TextAlign.Start,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-//                )
-//                Text(
-//                    modifier = Modifier
-//                        .weight(1f)
-//                        .padding(horizontal = 8.dp),
-//                    text = rateData?.get(1)?.price ?: "", color = Color.DarkGray, fontSize = 12.sp,
-//                    fontFamily = boldFont, textAlign = TextAlign.End,
-//                )
-//            }
-        // HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-//            Row(
-//                modifier = Modifier.padding(vertical = 4.dp),
-//            ) {
-//                Text(
-//                    modifier = Modifier,
-//                    text = rateData?.get(2)?.name ?: "",
-//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-//                    textAlign = TextAlign.Start,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-//                )
-//                Spacer(modifier = Modifier.weight(1f))
-//                Text(
-//                    modifier = Modifier
-//                        .background(
-//                            color = DarkBlue,
-//                            RoundedCornerShape(4.dp)
-//                        )
-//                        .padding(horizontal = 8.dp, vertical = 0.dp),
-////                    modifier = Modifier
-////                        .padding(horizontal = 8.dp),
-//                    text = stringResource(id = R.string.watch_ad),
-//                    color = Color.White,
-//                    fontSize = 12.sp,
-//                    fontFamily = boldFont,
-//                    textAlign = TextAlign.End
-//                )
-//            }
-        //  HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
-//            Row(
-//                modifier = Modifier.padding(vertical = 4.dp),
-//            ) {
-//                Text(
-//                    modifier = Modifier,
-//                    text = rateData?.get(3)?.name ?: "",
-//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-//                    textAlign = TextAlign.Start,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-//                )
-//                Text(
-//                    modifier = Modifier
-//                        .weight(1f)
-//                        .padding(horizontal = 8.dp),
-//                    text = "Rs.****",
-//                    color = Color.DarkGray,
-//                    fontSize = 12.sp,
-//                    fontFamily = boldFont,
-//                    textAlign = TextAlign.End,
-//                )
-//            }
-//            Row(
-//                modifier = Modifier
-//            ) {
-//                Text(
-//                    modifier = Modifier.width(74.dp),
-//                    text = "Nikal",
-//                    color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
-//                    textAlign = TextAlign.Start,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
-//                )
-//                Text(
-//                    modifier = Modifier,
-//                    text = "Rs. ****",
-//                    color = Color.DarkGray,
-//                    fontSize = 12.sp,
-//                    fontFamily = regularFont,
-//                    textAlign = TextAlign.End,
-//                )
-//            }
-//                Row(
-//                    modifier = Modifier.weight(3f),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Text(
-//                        modifier = Modifier
-//                            .padding(bottom = 4.dp)
-//                            .border(
-//                                color = DarkBlue,
-//                                shape = RoundedCornerShape(4.dp),
-//                                width = 0.8.dp
-//                            )
-//                            .padding(6.dp),
-//                        text = stringResource(id = R.string.watch_ad),
-//                        color = DarkBlue,
-//                        fontSize = 14.sp,
-//                        fontFamily = regularFont,
-//                        textAlign = TextAlign.Center,
-//                    )
-//                }
     }
 }
 
@@ -528,9 +415,7 @@ fun HomeLmeItem(lmeData: LmeData) {
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(
-//                modifier = Modifier.padding(8.dp),
-            ) {
+            Column {
                 Text(
                     modifier = Modifier.width(70.dp),
                     text = lmeData.name,
@@ -544,8 +429,8 @@ fun HomeLmeItem(lmeData: LmeData) {
                 Text(
                     text = "${lmeData.changeInRate}%", modifier = Modifier
                         .background(
-                            if (lmeData.changeInRate.toFloat() < 0) Color.Red else
-                                Color.Green,
+                            if (lmeData.changeInRate.toFloat() < 0) LightRed40 else
+                                LightGreen40,
                             RoundedCornerShape(10.dp)
                         )
                         .padding(vertical = 3.dp, horizontal = 6.dp),
@@ -554,11 +439,9 @@ fun HomeLmeItem(lmeData: LmeData) {
                     fontSize = 12.sp
                 )
             }
-            Column(
-//                modifier = Modifier.padding(4.dp),
-            ) {
+            Column {
                 Text(
-                    text = "Rs. 121299999",
+                    text = "Rs. 1299",
                     modifier = Modifier
                         .align(Alignment.End),
                     fontSize = 14.sp,
@@ -584,7 +467,7 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = text, color = Color.DarkGray,
-            fontFamily = regularFont, fontSize = 17.sp,
+            fontFamily = mediumFont, fontSize = 14.sp,
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(

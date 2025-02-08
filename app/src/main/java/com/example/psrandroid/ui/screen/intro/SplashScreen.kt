@@ -1,7 +1,6 @@
 package com.example.psrandroid.ui.screen.intro
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,9 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,16 +29,6 @@ import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import kotlinx.coroutines.delay
 
-val isInPreview @Composable get() = LocalInspectionMode.current
-
-@Composable
-fun Modifier.drawPreviewBorder(color: Color = Color.Gray): Modifier {
-    return if (isInPreview) {
-        this then Modifier.border(width = 1.dp, color = color)
-    } else {
-        this
-    }
-}
 
 @Composable
 fun SplashScreen(

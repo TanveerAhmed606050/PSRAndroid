@@ -7,11 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.repository.RateRepository
-import com.example.psrandroid.response.RateMetal
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.MetalData
 import com.example.psrandroid.response.PrimeUser
+import com.example.psrandroid.response.PrimeUserData
+import com.example.psrandroid.response.RateMetal
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.storage.UserPreferences
@@ -29,6 +30,7 @@ class RateVM @Inject constructor(
     var error by mutableStateOf("")
     var isLoading by mutableStateOf(false)
     var premiumUserData by mutableStateOf<PrimeUser?>(null)
+    var searchPrimeUserData by mutableStateOf<List<PrimeUserData>?>(null)
     var subMetalData by mutableStateOf<SearchSubMetal?>(null)
     var mainMetalData by mutableStateOf<RateMetal?>(null)
     var lmeMetalData by mutableStateOf<LmeResponse?>(null)
@@ -40,13 +42,11 @@ class RateVM @Inject constructor(
 
     fun getPremiumUser() = viewModelScope.launch {
         if (premiumUserData == null) {
-//            isLoading = true
             val result = dashboardRepository.getPremiumUser()
             if (result is Result.Success) {
-//                isLoading = false
                 premiumUserData = result.data
+                searchPrimeUserData = result.data.data
             } else if (result is Result.Failure) {
-//                isLoading = false
                 error = result.exception.message ?: "Failure"
             }
         }
@@ -102,4 +102,10 @@ class RateVM @Inject constructor(
                     it.urduName.contains(searchText)
         } ?: listOf()
     }
+
+    fun searchPrimeUser(search: String) = viewModelScope.launch {
+        searchPrimeUserData =
+            premiumUserData?.data?.filter { it.name.contains(search, ignoreCase = true) }
+    }
+
 }

@@ -54,7 +54,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -173,7 +172,6 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     }
 
     AdScreenView(
-        context,
         selectedImages,
         locationList = locationList,
         subMetalSearch = subMetalName,
@@ -230,7 +228,6 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AdScreenView(
-    context: Context,
     selectedImages: List<Uri>,
     locationList: List<LocationData>,
     subMetalSearch: TextFieldValue,
@@ -708,7 +705,6 @@ fun getFileSizeFromUri(context: Context, uri: Uri): Long {
 fun AdScreenPreview() {
     PSP_AndroidTheme {
         AdScreenView(
-            context = LocalContext.current,
             selectedImages = listOf(),
             listOf(LocationData.mockup), search = TextFieldValue(""), onBackClick = {},
             suggestedSearchList = listOf(),

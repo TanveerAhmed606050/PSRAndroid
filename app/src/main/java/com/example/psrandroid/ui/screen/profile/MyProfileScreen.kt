@@ -75,7 +75,6 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
     var base64String by remember { mutableStateOf<String?>(null) }
     var showDialog by remember { mutableStateOf(false) }
-    var isUrduSelected by remember { mutableStateOf(authVM.userPreferences.isUrduSelected) }
     var expandedLang by remember { mutableStateOf(false) }
     val languageList = listOf("اردو", "English")
     if (expandedLang) {
@@ -85,10 +84,8 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 expandedLang = false
                 if (authVM.userPreferences.isUrduSelected) {
                     switchLanguage(context, "ur")
-//                    authVM.userPreferences.isUrduSelected = false
                 } else {
                     switchLanguage(context, "en")
-//                    authVM.userPreferences.isUrduSelected = true
                 }
                 (context as? Activity)?.recreate()
             })
@@ -147,18 +144,18 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         }
 
     MyProfileScreen(context = context,
-        isUrduSelected = isUrduSelected,
         profilePic = profilePic,
         onBottomSheetShow = {
             openGallery(context, galleryLauncher, pickImageLauncher)
         },
         onItemClick = { screenRoute ->
-            if (screenRoute == context.getString(R.string.logout))
-                showDialog = true
-            else if (screenRoute == context.getString(R.string.selected_language)) {
-                expandedLang = true
-            } else
-                navController.navigate(screenRoute)
+            when (screenRoute) {
+                context.getString(R.string.logout) -> showDialog = true
+                context.getString(R.string.selected_language) -> {
+                    expandedLang = true
+                }
+                else -> navController.navigate(screenRoute)
+            }
         },
         backClick = { navController.popBackStack() })
 }
@@ -166,7 +163,6 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
 @Composable
 fun MyProfileScreen(
     context: Context,
-    isUrduSelected: Boolean,
     profilePic: String,
     onItemClick: (String) -> Unit,
     onBottomSheetShow: () -> Unit,
@@ -213,7 +209,7 @@ fun MyProfileScreen(
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-            ProfileOptions(context, isUrduSelected = isUrduSelected, screenRoute = { route ->
+            ProfileOptions(context, screenRoute = { route ->
                 onItemClick(route)
             })
         }
@@ -223,7 +219,6 @@ fun MyProfileScreen(
 @Composable
 fun ProfileOptions(
     context: Context,
-    isUrduSelected: Boolean = false,
     screenRoute: (String) -> Unit
 ) {
     val options = listOf(
@@ -372,7 +367,6 @@ fun switchLanguage(context: Context, language: String) {
 fun MyProfileScreenPreview() {
     MyProfileScreen(
         context = LocalContext.current,
-        isUrduSelected = false,
         onBottomSheetShow = {},
         profilePic = "",
         onItemClick = {},
