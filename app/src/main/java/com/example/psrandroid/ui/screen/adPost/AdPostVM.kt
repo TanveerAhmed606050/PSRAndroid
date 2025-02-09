@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.adPost
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,7 +10,7 @@ import com.example.psrandroid.repository.HomeRepository
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.ui.screen.adPost.models.AllAds
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
-import com.example.psrandroid.ui.screen.adPost.models.CreatePostResponse
+import com.example.psrandroid.ui.screen.adPost.models.ResponseCreatePost
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.utils.Result
@@ -28,7 +29,7 @@ class AdPostVM @Inject constructor(
     var locationAds by mutableStateOf<AllAds?>(null)
     var subMetalData by mutableStateOf<AllSubMetalData?>(null)
     var suggestSubMetals by mutableStateOf<List<SubData>?>(null)
-    var adPostResponse by mutableStateOf<CreatePostResponse?>(null)
+    var adPostResponse by mutableStateOf<ResponseCreatePost?>(null)
 
     fun getAllAds() = viewModelScope.launch {
         if (allAdsData == null) {
@@ -67,14 +68,14 @@ class AdPostVM @Inject constructor(
 
     fun createPost(createPost: CreatePost) = viewModelScope.launch {
         isLoading = true
-        if (adPostResponse == null) {
-            val result = homeRepository.createPost(createPost)
-            isLoading = false
-            if (result is Result.Success) {
-                adPostResponse = result.data
-            } else if (result is Result.Failure) {
-                error = result.exception.message ?: "Failure"
-            }
+        Log.d("lsdjg", "createPost: $createPost")
+        val result = homeRepository.createPost(createPost)
+        isLoading = false
+        Log.d("lsdjg", "Response: $result")
+        if (result is Result.Success) {
+            adPostResponse = result.data
+        } else if (result is Result.Failure) {
+            error = result.exception.message ?: "Failure"
         }
     }
 

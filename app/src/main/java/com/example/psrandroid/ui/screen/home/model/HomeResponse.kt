@@ -1,7 +1,5 @@
 package com.example.psrandroid.ui.screen.home.model
 
-import com.example.psrandroid.response.LmeData
-import com.example.psrandroid.response.SubMetal
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.google.gson.annotations.SerializedName
 
@@ -11,9 +9,50 @@ data class HomeResponse(
     val status: Boolean
 )
 
-data class HomeData(
-    val Ads: List<AdData>,
-    val LMEMetals: List<LmeData>,
-    val subMetals: List<SubMetal>
+data class HomeScrapRate(
+    @SerializedName("location_id")
+    val locationId: Int,
+    @SerializedName("location_name")
+    val locationName: String,
+    val rates: List<Rate>
 )
 
+data class HomeData(
+    @SerializedName("home_scrap_rates")
+    val homeScrapRates: List<HomeScrapRate>,
+    @SerializedName("lme_metals")
+    val lmeMetals: List<LmeMetal>,
+    val posts: List<AdData>
+)
+
+data class LmeMetal(
+    val changeInRate: String,
+    val createdAt: String,
+    val expiryDate: String,
+    val id: Int,
+    val name: String,
+    val price: String,
+    val updatedAt: String
+){
+    companion object
+}
+
+val LmeMetal.Companion.mockup by lazy {
+    LmeMetal(
+        changeInRate = "1%",
+        createdAt = "",
+        expiryDate = "21",
+        id = 1795,
+        name = "Iron",
+        price = "123",
+        updatedAt = ""
+    )
+}
+
+data class Rate(
+    val id: String,
+    val metalName: String,
+    val name: String,
+    val price: String,
+    val submetal: String
+)

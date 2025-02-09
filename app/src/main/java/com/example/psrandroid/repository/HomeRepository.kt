@@ -26,7 +26,7 @@ class HomeRepository @Inject constructor(private val apiInterface: ApiInterface)
         apiInterface.createPost(createPost)
     }
 
-    suspend fun getHomeData(locationId: String) = loadResource {
-        apiInterface.getHomeData(locationId)
+    suspend fun getHomeData() = loadResource {
+        apiInterface.getHomeData()
     }
 }

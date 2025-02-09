@@ -103,6 +103,7 @@
     <string name="no_metal">No metal found</string>
     <string name="select_city_error">Please select a city</string>
     <string name="no_lme">No LME Found</string>
+    <string name="empty_error">Please enter all fields</string>
     <string name="call_permission_error">Call Permission Denied</string>
 
 </resources>

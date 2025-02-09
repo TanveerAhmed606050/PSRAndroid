@@ -24,6 +24,8 @@ data class AdData(
     val metalName: String,
     @SerializedName("phone_number")
     val phoneNumber: String,
+    @SerializedName("user_id")
+    val userId: String,
     val name: String,
     val photos: List<String>,
     val price: String,
@@ -49,6 +51,7 @@ val AdData.Companion.mockup by lazy {
         price = "6 Lac",
         submetal = "Kanchi Tok",
         updatedAt = "vidisse",
-        videoPath = "similique"
+        videoPath = "similique",
+        userId = "1"
     )
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -51,12 +52,13 @@ import coil.compose.AsyncImage
 import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
-import com.example.psrandroid.response.LmeData
-import com.example.psrandroid.response.SubMetal
-import com.example.psrandroid.response.mockup
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
+import com.example.psrandroid.ui.screen.home.model.HomeScrapRate
+import com.example.psrandroid.ui.screen.home.model.LmeMetal
+import com.example.psrandroid.ui.screen.home.model.Rate
+import com.example.psrandroid.ui.screen.home.model.mockup
 import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -95,23 +97,23 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     val homeResponse = homeVM.homeResponse
     if (isNetworkAvailable(context)) {
         LaunchedEffect(Unit) {
-            homeVM.getHomeData("$locationId")
+            homeVM.getHomeData()
         }
     } else
         Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
             .show()
 
-    HomeScreenViews(selectedCity = selectedCity,
-        adsData = homeResponse?.data?.Ads,
-        rateData = homeResponse?.data?.subMetals,
-        lmeData = homeResponse?.data?.LMEMetals,
+    HomeScreenViews(
+        selectedCity = selectedCity,
+        adsData = homeResponse?.data?.posts,
+        homeScrapRate = homeResponse?.data?.homeScrapRates,
+        lmeData = homeResponse?.data?.lmeMetals,
         cityList = cityList,
         onCityItemClick = { cityName ->
             selectedCity = cityName
             locationId = homeVM.userPreferences.getLocationList()?.data?.find {
                 it.name.equals(selectedCity, ignoreCase = true)
             }?.id ?: 0
-            homeVM.getHomeData("$locationId")
         },
         onSeeAllAds = { navController.navigate(Screen.AllPostScreen.route) },
         onSeeAllRates = { navController.navigate(Screen.RateScreen.route) },
@@ -128,8 +130,8 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
 fun HomeScreenViews(
     selectedCity: String,
     adsData: List<AdData>?,
-    rateData: List<SubMetal>?,
-    lmeData: List<LmeData>?,
+    homeScrapRate: List<HomeScrapRate>?,
+    lmeData: List<LmeMetal>?,
     cityList: List<String>?,
     onCityItemClick: (String) -> Unit,
     onSeeAllAds: () -> Unit,
@@ -137,6 +139,7 @@ fun HomeScreenViews(
     onSeeAllLME: () -> Unit,
     onAdsClick: (AdData) -> Unit,
 ) {
+    val selectedScrapRate = homeScrapRate?.find { it.locationName == selectedCity }
     //UI
     Column(
         modifier = Modifier
@@ -164,14 +167,6 @@ fun HomeScreenViews(
                     modifier = Modifier.weight(1f), // Takes equal space and helps centering
                     textAlign = TextAlign.Center,
                 )
-//                Row(
-//                    modifier = Modifier
-//                        .padding(start = 0.dp)
-//                        .clickable { onProfileImageClick() },
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    MyAsyncImage(imageUrl = userData.profilePic, 40.dp, true)
-//                }
             }
             Column(
                 modifier = Modifier
@@ -222,7 +217,7 @@ fun HomeScreenViews(
                         )
                     }
                 }
-                if (rateData?.isEmpty() == true)
+                if (selectedScrapRate?.rates?.isEmpty() == true)
                     NoProductView(msg = stringResource(id = R.string.no_rate), color = DarkBlue)
                 else {
                     Spacer(modifier = Modifier.height(0.dp))
@@ -231,21 +226,23 @@ fun HomeScreenViews(
                         colors = CardDefaults.cardColors(containerColor = Color.White), // Set the background color
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
-                            .height(170.dp)
+                            .heightIn(max = 170.dp)
                             .fillMaxWidth()
                     ) {
                         LazyColumn(
                             contentPadding = PaddingValues(horizontal = 8.dp),
                         ) {
-                            items(rateData?.size ?: 0) { index ->
+                            items(selectedScrapRate?.rates?.size ?: 0) { index ->
                                 ScrapRateItem(
-                                    rateData = rateData?.get(index) ?: SubMetal(
+                                    rateData = selectedScrapRate?.rates?.get(index) ?: Rate(
                                         "",
                                         "",
-                                        ""
+                                        "",
+                                        "",
+                                        "",
                                     )
                                 )
-                                if (index != (rateData?.size?.minus(1) ?: 0))
+                                if (index != (selectedScrapRate?.rates?.size?.minus(1) ?: 0))
                                     HorizontalDivider(thickness = 1.dp, color = Color.LightGray)
                             }
                         }
@@ -258,7 +255,7 @@ fun HomeScreenViews(
                     modifier = Modifier.height(100.dp) // Explicit height for LazyRow
                 ) {
                     items(lmeData?.size ?: 0) { index ->
-                        HomeLmeItem(lmeData = lmeData?.get(index) ?: LmeData.mockup)
+                        HomeLmeItem(lmeData = lmeData?.get(index) ?: LmeMetal.mockup)
                         Spacer(modifier = Modifier.width(10.dp))
                     }
                 }
@@ -312,7 +309,7 @@ fun HomeAdsItems(
             modifier = Modifier.fillMaxSize() // Make Box take up the full size of the Card
         ) {
             AsyncImage(
-                model = adData.photos, contentDescription = "",
+                model = adData.photos[0], contentDescription = "",
                 error = painterResource(id = R.drawable.demo_scrap),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -368,8 +365,7 @@ fun HomeAdsItems(
 }
 
 @Composable
-fun ScrapRateItem(rateData: SubMetal) {
-
+fun ScrapRateItem(rateData: Rate) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -382,7 +378,7 @@ fun ScrapRateItem(rateData: SubMetal) {
         ) {
             Text(
                 modifier = Modifier,
-                text = rateData.name,
+                text = rateData.metalName,
                 color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
@@ -401,7 +397,7 @@ fun ScrapRateItem(rateData: SubMetal) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeLmeItem(lmeData: LmeData) {
+fun HomeLmeItem(lmeData: LmeMetal) {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -486,9 +482,10 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        HomeScreenViews(selectedCity = "", cityList = listOf(),
+        HomeScreenViews(
+            selectedCity = "", cityList = listOf(),
             onCityItemClick = {}, adsData = listOf(AdData.mockup),
-            lmeData = listOf(LmeData.mockup), rateData = listOf(),
+            lmeData = listOf(LmeMetal.mockup), homeScrapRate = listOf(),
             onSeeAllAds = {},
             onSeeAllRates = {},
             onSeeAllLME = {},

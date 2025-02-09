@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.home
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,9 +22,10 @@ class HomeVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
     var homeResponse by mutableStateOf<HomeResponse?>(null)
-    fun getHomeData(userId: String) = viewModelScope.launch {
+    fun getHomeData() = viewModelScope.launch {
         isLoading = true
-        val result = homeRepository.getHomeData(userId)
+        val result = homeRepository.getHomeData()
+        Log.d("ldsjg", "getHomeData: $result")
         isLoading = false
         if (result is Result.Success) {
             homeResponse = result.data

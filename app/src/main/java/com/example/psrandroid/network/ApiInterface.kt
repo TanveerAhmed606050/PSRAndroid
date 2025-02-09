@@ -15,7 +15,7 @@ import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.ui.screen.adPost.models.AllAds
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
-import com.example.psrandroid.ui.screen.adPost.models.CreatePostResponse
+import com.example.psrandroid.ui.screen.adPost.models.ResponseCreatePost
 import com.example.psrandroid.ui.screen.home.model.HomeResponse
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import retrofit2.http.Body
@@ -82,8 +82,7 @@ interface ApiInterface {
     ): LmeResponse
 
     @GET("Ads/getAds")
-    suspend fun getAllAds(
-    ): AllAds
+    suspend fun getAllAds(): AllAds
 
     @GET("Ads/getAdsByLocation")
     suspend fun getAdsByLocation(
@@ -101,10 +100,8 @@ interface ApiInterface {
     @POST("Ads/create")
     suspend fun createPost(
         @Body createPost: CreatePost
-    ): CreatePostResponse
+    ): ResponseCreatePost
 
-    @GET("Dashboard/index")
-    suspend fun getHomeData(
-        @Query("location_id") locationId: String,
-    ): HomeResponse
+    @GET("HomeData")
+    suspend fun getHomeData(): HomeResponse
 }

@@ -88,7 +88,7 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val noInternetMessage = stringResource(id = R.string.network_error)
     LaunchedEffect(Unit) {
         if (isNetworkAvailable(context))
-            adPostVM.getAllAds()
+            adPostVM.getAdsByUserid("${adPostVM.userPreferences.getUserPreference()?.id}")
         else
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()

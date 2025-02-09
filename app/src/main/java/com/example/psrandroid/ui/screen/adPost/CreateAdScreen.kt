@@ -1,8 +1,10 @@
 package com.example.psrandroid.ui.screen.adPost
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,6 +80,7 @@ import com.example.psrandroid.ui.commonViews.CustomTextField
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
+import com.example.psrandroid.ui.commonViews.showRewardedAd
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.RateVM
@@ -91,6 +94,7 @@ import com.example.psrandroid.utils.Utils.convertImageFileToBase64
 import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.android.gms.ads.MobileAds
 import es.dmoral.toasty.Toasty
 import java.util.Locale
 
@@ -98,6 +102,9 @@ import java.util.Locale
 @Composable
 fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: RateVM) {
     val context = LocalContext.current
+    MobileAds.initialize(context) { initializationStatus ->
+        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
+    }
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     var mainMetalName by remember { mutableStateOf(TextFieldValue("")) }
     var subMetalName by remember { mutableStateOf(TextFieldValue("")) }
@@ -108,6 +115,7 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
     val base64List = ArrayList<String>()
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val noInternetMessage = stringResource(id = R.string.network_error)
 // Display the error message
     if (errorMessage != null) {
         Toasty.error(context, errorMessage ?: "", Toast.LENGTH_SHORT, true)
@@ -126,15 +134,13 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     val locationId = rateVM.userPreferences.getLocationList()?.data?.find {
         it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
     }?.id ?: 0 // get location id
-    LaunchedEffect(Unit) {
-        adPostVM.getAllSubMetals()
-    }
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
+            adPostVM.getAllSubMetals()
             rateVM.getMainMetals("$locationId", "")
         }
     } else
-        Toasty.error(context, context.getString(R.string.network_error), Toast.LENGTH_SHORT, true)
+        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
             .show()
 
     var showDialog by remember { mutableStateOf(false) }
@@ -143,10 +149,9 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
             showDialog = false
         }, serverImageList = null)
     var showProgress by remember { mutableStateOf(false) }
-    showProgress = rateVM.isLoading
+    showProgress = adPostVM.isLoading
     if (showProgress)
         LoadingDialog()
-    val noInternetMessage = stringResource(id = R.string.network_error)
 
     // Launcher for selecting multiple images
     val launcher = rememberLauncherForActivityResult(
@@ -203,9 +208,24 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
             launcher.launch("image/*") // Open the gallery to select images
         },
         onAdPostClick = { metalName, desc, price ->
+            if (metalName.isEmpty() || desc.isEmpty() || price.isEmpty() || selectedImages.isEmpty()) {
+                Toasty.error(
+                    context,
+                    context.getString(R.string.empty_error),
+                    Toast.LENGTH_SHORT,
+                    true
+                )
+                    .show()
+                return@AdScreenView
+            }
             if (isNetworkAvailable(context)) {
+                for (uri in selectedImages) {
+                    val base64String = convertImageFileToBase64(uri, context.contentResolver)
+                    base64List.add(base64String)
+                }
                 adPostVM.createPost(
                     CreatePost(
+                        userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
                         metalName = mainMetalName.text,
                         submetal = subMetalName.text,
                         city = selectedCity,
@@ -213,8 +233,12 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
                         description = desc,
                         price = price,
                         photos = base64List,
+                        phoneNumber = "${adPostVM.userPreferences.getUserPreference()?.phone}"
                     )
                 )
+                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
+                    onAdClick = {
+                    })
             } else
                 Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                     .show()
@@ -278,179 +302,179 @@ fun AdScreenView(
                     onBackClick()
                 })
             Spacer(modifier = Modifier.height(10.dp))
-        //add image view
-        ImagePickerUI(selectedImages,
-            onAddImageClick = { onAddImageClick() },
-            onSelectedImageClick = { image -> onSelectedImageClick(image) })
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = stringResource(id = R.string.main_metal),
-            color = DarkBlue,
-            fontFamily = regularFont,
-            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-        )
-        SearchBar(suggestedSearchList, search,
-            onSearch = {
-                onSearch(it)
-            },
-            onSearchClick = { value ->
-                onSearchClick(value)
-            })
-
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = stringResource(id = R.string.sub_metal),
-            color = DarkBlue,
-            fontFamily = regularFont,
-            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-        )
-        SubMetalBar(suggestedSubMetalList, subMetalSearch,
-            onSearch = {
-                onSubMetalSearch(it)
-            },
-            onSearchClick = { value ->
-                onEnterSubMetalSearch(value)
-            })
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = stringResource(id = R.string.name),
-            color = DarkBlue,
-            fontFamily = regularFont,
-            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        CustomTextField(
-            modifier = Modifier
-                .height(52.dp)
-                .padding(horizontal = 0.dp),
-            value = metalName,
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Next,
-            placeholder = stringResource(id = R.string.metal_name),
-            onValueChange = { metalName = it },
-            imageId = R.drawable.home_ic
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = stringResource(id = R.string.price),
-            color = DarkBlue,
-            fontFamily = regularFont,
-            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        CustomTextField(
-            modifier = Modifier
-                .height(52.dp)
-                .padding(horizontal = 0.dp),
-            value = price,
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Next,
-            placeholder = stringResource(id = R.string.price),
-            onValueChange = { price = it },
-            imageId = R.drawable.home_ic
-        )
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = stringResource(id = R.string.city),
-            color = DarkBlue,
-            fontFamily = regularFont,
-            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-                .clickable {
-                    if (locationList.isNotEmpty())
-                        expandedCity = true
-                }
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .height(50.dp)
-                .border(
-                    width = 1.dp,
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color.White
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (isRtl) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_location_pin_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = 8.dp),
-                    colorFilter = ColorFilter.tint(DarkBlue)
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
+            //add image view
+            ImagePickerUI(selectedImages,
+                onAddImageClick = { onAddImageClick() },
+                onSelectedImageClick = { image -> onSelectedImageClick(image) })
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = selectedCity,
+                text = stringResource(id = R.string.main_metal),
                 color = DarkBlue,
-                fontSize = 14.sp,
-                letterSpacing = 2.sp,
                 fontFamily = regularFont,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
             )
-            if (!isRtl) {
-                Spacer(modifier = Modifier.weight(1f))
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_location_pin_24),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = 8.dp),
-                    colorFilter = ColorFilter.tint(DarkBlue)
+            SearchBar(suggestedSearchList, search,
+                onSearch = {
+                    onSearch(it)
+                },
+                onSearchClick = { value ->
+                    onSearchClick(value)
+                })
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = stringResource(id = R.string.sub_metal),
+                color = DarkBlue,
+                fontFamily = regularFont,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
+            )
+            SubMetalBar(suggestedSubMetalList, subMetalSearch,
+                onSearch = {
+                    onSubMetalSearch(it)
+                },
+                onSearchClick = { value ->
+                    onEnterSubMetalSearch(value)
+                })
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = stringResource(id = R.string.name),
+                color = DarkBlue,
+                fontFamily = regularFont,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            CustomTextField(
+                modifier = Modifier
+                    .height(52.dp)
+                    .padding(horizontal = 0.dp),
+                value = metalName,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next,
+                placeholder = stringResource(id = R.string.metal_name),
+                onValueChange = { metalName = it },
+                imageId = R.drawable.home_ic
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = stringResource(id = R.string.price),
+                color = DarkBlue,
+                fontFamily = regularFont,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            CustomTextField(
+                modifier = Modifier
+                    .height(52.dp)
+                    .padding(horizontal = 0.dp),
+                value = price,
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next,
+                placeholder = stringResource(id = R.string.price),
+                onValueChange = { price = it },
+                imageId = R.drawable.home_ic
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = stringResource(id = R.string.city),
+                color = DarkBlue,
+                fontFamily = regularFont,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
+                    .clickable {
+                        if (locationList.isNotEmpty())
+                            expandedCity = true
+                    }
+                    .background(Color.White, RoundedCornerShape(12.dp))
+                    .height(50.dp)
+                    .border(
+                        width = 1.dp,
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color.White
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isRtl) {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_location_pin_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 8.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+                Text(
+                    text = selectedCity,
+                    color = DarkBlue,
+                    fontSize = 14.sp,
+                    letterSpacing = 2.sp,
+                    fontFamily = regularFont,
+                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                    modifier = Modifier.padding(horizontal = 20.dp)
                 )
+                if (!isRtl) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_location_pin_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(end = 8.dp),
+                        colorFilter = ColorFilter.tint(DarkBlue)
+                    )
+                }
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = stringResource(id = R.string.description),
+                color = DarkBlue,
+                fontFamily = regularFont,
+                textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            CustomTextField(
+                modifier = Modifier
+                    .padding(horizontal = 0.dp)
+                    .height(300.dp),
+                value = description,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done,
+                placeholder = stringResource(id = R.string.description),
+                onValueChange = { description = it },
+                imageId = R.drawable.edit_square_ic
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            AppButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp),
+                text = stringResource(id = R.string.ad_post),
+                onButtonClick = { onAdPostClick(metalName, description, price) })
+            Spacer(modifier = Modifier.height(20.dp))
         }
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = stringResource(id = R.string.description),
-            color = DarkBlue,
-            fontFamily = regularFont,
-            textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        CustomTextField(
-            modifier = Modifier
-                .padding(horizontal = 0.dp)
-                .height(300.dp),
-            value = description,
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Done,
-            placeholder = stringResource(id = R.string.description),
-            onValueChange = { description = it },
-            imageId = R.drawable.edit_square_ic
-        )
-        Spacer(modifier = Modifier.height(20.dp))
-        AppButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 30.dp),
-            text = stringResource(id = R.string.ad_post),
-            onButtonClick = { onAdPostClick(metalName, description, price) })
-        Spacer(modifier = Modifier.height(20.dp))
     }
-        }
 }
 
 @Composable
