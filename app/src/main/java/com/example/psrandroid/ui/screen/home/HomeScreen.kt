@@ -254,7 +254,7 @@ fun HomeScreenViews(
                 LazyRow(
                     modifier = Modifier.height(100.dp) // Explicit height for LazyRow
                 ) {
-                    items(lmeData?.size ?: 0) { index ->
+                    items(lmeData?.take(3)?.size ?: 0) { index ->
                         HomeLmeItem(lmeData = lmeData?.get(index) ?: LmeMetal.mockup)
                         Spacer(modifier = Modifier.width(10.dp))
                     }

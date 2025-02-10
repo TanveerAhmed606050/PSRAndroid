@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -27,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -137,32 +139,35 @@ fun PSRNavigation(
         BottomNavigationItem(
             stringResource(id = R.string.home),
             Screen.HomeScreen.route,
-            R.drawable.home_ic
+            R.drawable.home_ic,
+
         ),
         BottomNavigationItem(
             stringResource(id = R.string.rate),
             Screen.RateScreen.route,
-            R.drawable.calendar_ic
+            R.drawable.calendar_ic,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.post),
             Screen.MyPostScreen.route,
-            R.drawable.calendar_ic
+            R.drawable.calendar_ic,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.prime_user),
             Screen.PrimeUserScreen.route,
-            R.drawable.baseline_phone_24
+            R.drawable.baseline_phone_24,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.lme),
             Screen.LmeScreen.route,
-            R.drawable.baseline_location_pin_24
+            R.drawable.baseline_location_pin_24,
+
         ),
         BottomNavigationItem(
             stringResource(id = R.string.profile),
             Screen.MyProfileScreen.route,
-            R.drawable.home_ic
+            R.drawable.home_ic,
+
         ),
     )
 

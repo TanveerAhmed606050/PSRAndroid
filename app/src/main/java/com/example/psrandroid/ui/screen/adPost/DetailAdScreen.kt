@@ -63,6 +63,8 @@ import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
 import es.dmoral.toasty.Toasty
+import androidx.core.net.toUri
+import java.net.URLEncoder
 
 @Composable
 fun DetailAdScreen(
@@ -304,23 +306,23 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
     try {
         // Format the phone number
         val formattedNumber = phoneNumber.removePrefix("+").replace(" ", "")
-        val url = "https://wa.me/$formattedNumber"
-
-        // Create the intent
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        val encodedMessage = URLEncoder.encode("PSR sending you this message", "UTF-8")
+        val uri = "https://wa.me/$formattedNumber?text=$encodedMessage".toUri() // Ensure phone number is in international format without '+'
+        val intent = Intent(Intent.ACTION_VIEW, uri)
 
         // Check if WhatsApp can handle the intent
-        if (intent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(intent)
-        } else {
-            Toasty.error(
-                context,
-                context.getText(R.string.no_whatsApp_error),
-                Toast.LENGTH_SHORT,
-                true
-            )
-                .show()
-        }
+        context.startActivity(intent)
+//        if (intent.resolveActivity(context.packageManager) != null) {
+//            context.startActivity(intent)
+//        } else {
+//            Toasty.error(
+//                context,
+//                context.getText(R.string.no_whatsApp_error),
+//                Toast.LENGTH_SHORT,
+//                true
+//            )
+//                .show()
+//        }
     } catch (e: Exception) {
         e.printStackTrace()
         Toasty.error(

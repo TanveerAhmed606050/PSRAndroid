@@ -28,7 +28,7 @@ val LmeData.Companion.mockup by lazy {
     LmeData(
         changeInRate = "-1.5",
         createdAt = "no",
-        expiryDate = "2025-01-21",
+        expiryDate = "2025-02-06T00:00:00.000000Z",
         id = 6163,
         name = "Copper",
         price = "12",

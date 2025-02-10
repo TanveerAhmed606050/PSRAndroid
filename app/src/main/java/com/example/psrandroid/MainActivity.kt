@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 })
             if (rateVm.watchAd) {
                 LaunchedEffect(key1 = rateVm.watchAd) {
-                    delay(15 * 60 * 1000) // 15 minutes delay
+                    delay(1 * 60 * 1000) // 15 minutes delay
                     rateVm.watchAd = false // Reset watchAd to false
                 }
             }

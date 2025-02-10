@@ -119,9 +119,9 @@ fun PrimeUserScreen(
                 })
             Spacer(modifier = Modifier.padding(top = 10.dp))
             if (primeUserData?.isNotEmpty() == true) {
-                LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 0.dp)
-                ) {
+                LazyColumn(contentPadding = PaddingValues(horizontal = 0.dp), modifier = Modifier.padding(0.dp,0.dp,0.dp,20.dp)
+                )
+                {
                     items(primeUserData.size) { index ->
                         UserItemData(
                             watchAd = watchAd,
@@ -129,6 +129,7 @@ fun PrimeUserScreen(
                             onShowContact = { onShowContact(it) }
                         )
                     }
+
                 }
             } else
                 NoProductView(msg = stringResource(id = R.string.no_prime_user), color = DarkBlue)

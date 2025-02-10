@@ -465,32 +465,41 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
         Row(
             verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(3f)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(LightBlue, DarkBlue)
-                        ), shape = RoundedCornerShape(6.dp)
-                    )
-                    .weight(0.5f),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = String.format("%02d", index),
-                    color = Color.White,
-                    fontFamily = regularFont,
-                    fontSize = 12.sp
-                )
-            }
+//            Box(
+//                modifier = Modifier
+//                    .size(40.dp)
+//                    .background(
+//                        brush = Brush.verticalGradient(
+//                            colors = listOf(LightBlue, DarkBlue)
+//                        ), shape = RoundedCornerShape(6.dp)
+//                    )
+//                    .weight(0.5f),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text(
+//                    text = String.format("%02d", index),
+//                    color = Color.White,
+//                    fontFamily = regularFont,
+//                    fontSize = 12.sp
+//                )
+   //         }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "${metalDetail?.submetalName} ${metalDetail?.submetalUrduName}",
+                text = "${metalDetail?.submetalName.toString()} ",
                 fontSize = 12.sp,
-                color = Color.Gray,
+                color = Color.Black,
                 maxLines = 1,
-                fontFamily = regularFont,
-                modifier = Modifier.weight(2f),
+                fontFamily = mediumFont,
+                modifier = Modifier.weight(2f).padding(4.dp),
+                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+            )
+            Text(
+                text = " ---  ${metalDetail?.submetalUrduName}",
+                fontSize = 12.sp,
+                color = Color.Black,
+                maxLines = 1,
+                fontFamily = mediumFont,
+                modifier = Modifier.weight(2f).padding(4.dp),
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
         }
