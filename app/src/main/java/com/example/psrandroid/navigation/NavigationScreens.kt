@@ -21,6 +21,8 @@ sealed class Screen(val route: String) {
     data object AllPostScreen : Screen("AllPostScreen")
     data object AdScreen : Screen("AdScreen")
     data object AdDetailScreen : Screen("AdDetailScreen")
+    data object ForgotPasswordScreen : Screen("forgotPassword")
+    data object ResetPasswordScreen : Screen("resetPassword")
 }
 
 class PSRNavigationActions(private val navController: NavHostController) {

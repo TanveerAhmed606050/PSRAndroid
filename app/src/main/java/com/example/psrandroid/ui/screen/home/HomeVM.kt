@@ -23,6 +23,8 @@ class HomeVM @Inject constructor(
     var error by mutableStateOf("")
     var homeResponse by mutableStateOf<HomeResponse?>(null)
     fun getHomeData() = viewModelScope.launch {
+        if (homeResponse != null)
+            return@launch
         isLoading = true
         val result = homeRepository.getHomeData()
         Log.d("ldsjg", "getHomeData: $result")

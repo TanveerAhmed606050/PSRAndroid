@@ -19,7 +19,7 @@
     <string name="forgot_pass">Forgot Password</string>
     <string name="login_in">Login</string>
     <string name="logout">Logout</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="password_change">Change Password</string>
     <string name="privacy_policy">Privacy Policies</string>
     <string name="terms_condition">Terms and Conditions</string>
@@ -76,6 +76,11 @@
     <string name="dashboard">Your Dashboard</string>
     <string name="network_error">No internet connection. Please check your network settings.</string>
     <string name="change_pass_detail">Enter your new password it must be different from previously used password</string>
+    <string name="phone_details">Enter your phone number so can we send you a verification code to continue</string>
+    <string name="reset_details">Just enter your new password so that you can access your account</string>
+    <string name="reset_pass">Reset Password</string>
+    <string name="reset">Reset</string>
+    <string name="send_otp">Send OTP</string>
     <string name="product">Product</string>
     <string name="old_pass">Old Password</string>
     <string name="price_kg">Price Per KG</string>

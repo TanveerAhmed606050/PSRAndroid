@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.ui.theme.AppBG
@@ -257,15 +258,14 @@ fun FullScreenImageDialog(
             ) { page ->
                 val uri = if (serverImageList != null) serverImageList[page] else imageList[page]
                 Box(modifier = Modifier) {
-                    Image(
-                        painter = rememberAsyncImagePainter(uri),
+                    AsyncImage(
+                        model = uri, contentDescription = "",
 //                        placeholder = painterResource(id = R.drawable.demo_scrap),
-                        contentDescription = "Selected Image $page",
+                        error = painterResource(id = R.drawable.demo_scrap),
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(RoundedCornerShape(0.dp))
                             .clickable { },
-                        contentScale = ContentScale.Crop,
                     )
                     Image(
                         painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),

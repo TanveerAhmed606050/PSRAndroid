@@ -102,9 +102,6 @@ fun RateScreen(rateVM: RateVM) {
     val noInternetMessage = stringResource(id = R.string.network_error)
     val locationData = locationList.map { "${it.name}" }
 
-    LaunchedEffect(locationId) {
-        rateVM.getSubMetals("$locationId", search.text)
-    }
     val subMetalData = rateVM.subMetalData
     val suggestedSearchList = rateVM.suggestMainMetals
 

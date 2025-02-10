@@ -79,8 +79,9 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     val context = LocalContext.current
     var showProgress by remember { mutableStateOf(false) }
     showProgress = homeVM.isLoading
-    if (showProgress)
+    if (showProgress) {
         LoadingDialog()
+    }
 
     var selectedCity by remember {
         mutableStateOf(

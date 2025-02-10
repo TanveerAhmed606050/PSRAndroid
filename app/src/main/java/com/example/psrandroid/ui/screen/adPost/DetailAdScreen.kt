@@ -63,8 +63,6 @@ import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
 import es.dmoral.toasty.Toasty
-import androidx.core.net.toUri
-import java.net.URLEncoder
 
 @Composable
 fun DetailAdScreen(
@@ -73,13 +71,13 @@ fun DetailAdScreen(
     adData: AdData?
 ) {
     val context = LocalContext.current
-    var showContact by remember { mutableStateOf(context.getText(R.string.show_no)) }
+//    var showContact by remember { mutableStateOf(context.getText(R.string.show_no)) }
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
             // Permission granted, make the call
-            openCallApp(context, showContact.toString())
+            openCallApp(context, adData?.description ?: "")
         } else {
             Toasty.error(
                 context,
@@ -98,15 +96,16 @@ fun DetailAdScreen(
             imageList = listOf()
         )
     DetailAdScreenViews(
-        showContact = showContact.toString(),
+        watchAd = rateVM.watchAd,
         adsData = adData ?: AdData.mockup, backClick = {
             navController.popBackStack()
         },
         onShowNoClick = { number ->
-            if (showContact == context.getText(R.string.show_no)) {
+            if (!rateVM.watchAd) {
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
                     onAdClick = {
-                        showContact = "+923456982288"
+                        rateVM.watchAd = true
+//                        showContact = "+923456982288"
                     })
                 Log.d("RewardedAd", "Add Click")
             } else {
@@ -122,18 +121,18 @@ fun DetailAdScreen(
             }
         },
         onSMSClick = {
-            if (showContact == context.getText(R.string.show_no))
+            if (!rateVM.watchAd)
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else
-                openSMSApp(context, phoneNumber = showContact.toString(), message = "")
+                openSMSApp(context, phoneNumber = adData?.description ?: "", message = "")
         },
         onWhatsAppCallClick = {
-            if (showContact == context.getText(R.string.show_no))
+            if (!rateVM.watchAd)
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else
-                openWhatsApp(context, showContact.toString())
+                openWhatsApp(context, adData?.metalName ?: "")
         },
         onImageClick = {
             showDialog = true
@@ -143,7 +142,7 @@ fun DetailAdScreen(
 
 @Composable
 fun DetailAdScreenViews(
-    showContact: String,
+    watchAd: Boolean,
     adsData: AdData,
     backClick: () -> Unit,
     onShowNoClick: (String) -> Unit,
@@ -163,15 +162,24 @@ fun DetailAdScreenViews(
                 .fillMaxWidth()
         ) {
             Log.d("lsdjg", "DetailAdScreenViews: ${Constant.MEDIA_BASE_URL + adsData.photos}")
-            Image(
-                painter = rememberAsyncImagePainter(Constant.MEDIA_BASE_URL + adsData.photos),
-                contentDescription = "",
+            AsyncImage(
+                model = adsData.photos[0], contentDescription = "",
+                error = painterResource(id = R.drawable.demo_scrap),
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(400.dp)
                     .clickable { onImageClick() },
-                contentScale = ContentScale.Crop,
             )
+//            Image(
+//                painter = rememberAsyncImagePainter(Constant.MEDIA_BASE_URL + adsData.photos),
+//                contentDescription = "",
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(400.dp)
+//                    .clickable { onImageClick() },
+//                contentScale = ContentScale.Crop,
+//            )
             Image(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
                 contentDescription = null,
@@ -215,7 +223,7 @@ fun DetailAdScreenViews(
                     .fillMaxWidth()
                     .height(48.dp)
                     .background(DarkBlue, RoundedCornerShape(10.dp))
-                    .clickable { onShowNoClick(showContact) },
+                    .clickable { onShowNoClick(adsData.phoneNumber) },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -225,14 +233,15 @@ fun DetailAdScreenViews(
                     colorFilter = ColorFilter.tint(Color.White)
                 )
                 Text(
-                    text = showContact,
+                    text = if (watchAd) adsData.phoneNumber else
+                        stringResource(id = R.string.show_no),
                     fontSize = 16.sp,
                     fontFamily = regularFont,
                     color = Color.White,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
-            if (showContact != stringResource(id = R.string.show_no)) {
+            if (watchAd) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier
@@ -306,23 +315,23 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
     try {
         // Format the phone number
         val formattedNumber = phoneNumber.removePrefix("+").replace(" ", "")
-        val encodedMessage = URLEncoder.encode("PSR sending you this message", "UTF-8")
-        val uri = "https://wa.me/$formattedNumber?text=$encodedMessage".toUri() // Ensure phone number is in international format without '+'
-        val intent = Intent(Intent.ACTION_VIEW, uri)
+        val url = "https://wa.me/$formattedNumber"
+
+        // Create the intent
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
         // Check if WhatsApp can handle the intent
-        context.startActivity(intent)
-//        if (intent.resolveActivity(context.packageManager) != null) {
-//            context.startActivity(intent)
-//        } else {
-//            Toasty.error(
-//                context,
-//                context.getText(R.string.no_whatsApp_error),
-//                Toast.LENGTH_SHORT,
-//                true
-//            )
-//                .show()
-//        }
+        if (intent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(intent)
+        } else {
+            Toasty.error(
+                context,
+                context.getText(R.string.no_whatsApp_error),
+                Toast.LENGTH_SHORT,
+                true
+            )
+                .show()
+        }
     } catch (e: Exception) {
         e.printStackTrace()
         Toasty.error(
@@ -330,8 +339,7 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
             context.getText(R.string.open_whatsApp_error),
             Toast.LENGTH_SHORT,
             true
-        )
-            .show()
+        ).show()
     }
 }
 
@@ -340,13 +348,17 @@ fun openSMSApp(context: Context, phoneNumber: String, message: String) {
     val intent = Intent(Intent.ACTION_SENDTO, smsUri).apply {
         putExtra("sms_body", message)
     }
-
-    // Check if there's an app to handle the intent
-    if (intent.resolveActivity(context.packageManager) != null) {
+    if (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.SEND_SMS
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
         context.startActivity(intent)
     } else {
-        Toasty.error(context, context.getText(R.string.no_sms_error), Toast.LENGTH_SHORT, true)
-            .show()
+        // Request permission
+        ActivityCompat.requestPermissions(
+            context as Activity, arrayOf(Manifest.permission.SEND_SMS), 1122
+        )
     }
 }
 
@@ -377,7 +389,7 @@ fun DetailAdScreenPreview() {
         DetailAdScreenViews(
             adsData = AdData.mockup, backClick = {},
             onShowNoClick = {},
-            showContact = "",
+            watchAd = false,
             onSMSClick = {},
             onWhatsAppCallClick = {},
             onImageClick = {}

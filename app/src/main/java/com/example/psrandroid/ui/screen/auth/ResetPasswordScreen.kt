@@ -1,4 +1,4 @@
-package com.example.psrandroid.ui.screen.profile
+package com.example.psrandroid.ui.screen.auth
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -26,10 +26,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.example.psp_android.R
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -39,39 +40,42 @@ import com.example.psrandroid.utils.Utils.isValidPassword
 import es.dmoral.toasty.Toasty
 
 @Composable
-fun UpdatePasswordScreen(navController: NavHostController, profileVM: ProfileVM) {
+fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
-
-    UpdatePasswordScreen(backClick = {
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = authVM.isLoading
+    if (showProgress) {
+        LoadingDialog()
+    }
+    ResetPasswordDesign(backClick = {
         navController.popBackStack()
-    }, updateBtnClick = { oldPassword, newPassword, confirmPassword ->
-        if (isValidPassword(oldPassword).isNotEmpty())
-            Toasty.error(context, isValidPassword(oldPassword), Toast.LENGTH_SHORT, true).show()
-        else if (isValidPassword(newPassword).isNotEmpty())
-            Toasty.error(context, isValidPassword(newPassword), Toast.LENGTH_SHORT, true).show()
-        else if (isValidPassword(confirmPassword).isNotEmpty())
-            Toasty.error(context, isValidPassword(confirmPassword), Toast.LENGTH_SHORT, true).show()
-        else if (confirmPassword != newPassword)
-            Toasty.error(
-                context,
-                context.getString(R.string.confirm_pass_err),
-                Toast.LENGTH_SHORT,
-                true
-            ).show()
-        else {
-        }
-    })
+    },
+        resetPasswordClick = { password, confirmPassword ->
+            if (isValidPassword(password).isNotEmpty())
+                Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true).show()
+            else if (isValidPassword(confirmPassword).isNotEmpty())
+                Toasty.error(context, isValidPassword(confirmPassword), Toast.LENGTH_SHORT, true)
+                    .show()
+            else if (confirmPassword != password)
+                Toasty.error(
+                    context,
+                    context.getString(R.string.confirm_pass_err),
+                    Toast.LENGTH_SHORT,
+                    true
+                ).show()
+            else {
+            }
+
+        })
 }
 
 @Composable
-fun UpdatePasswordScreen(
+fun ResetPasswordDesign(
     backClick: () -> Unit,
-    updateBtnClick: (String, String, String) -> Unit
+    resetPasswordClick: (String, String) -> Unit,
 ) {
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var oldPassword by remember { mutableStateOf("") }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -85,29 +89,18 @@ fun UpdatePasswordScreen(
             Spacer(modifier = Modifier.statusBarsPadding())
             Header(
                 modifier = null,
-                stringResource(id = R.string.update_pass),
+                stringResource(id = R.string.reset_pass),
                 backClick = { backClick() })
 
             Spacer(modifier = Modifier.padding(top = 20.dp))
             Text(
-                text = stringResource(R.string.change_pass_detail),
+                text = stringResource(R.string.reset_details),
                 color = DarkBlue,
                 fontFamily = regularFont,
                 fontSize = 12.sp
             )
-
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            PasswordTextFields(
-                value = oldPassword,
-                KeyboardType.Password,
-                ImeAction.Next,
-                placeholder = stringResource(id = R.string.old_pass),
-                onValueChange = { newText ->
-                    oldPassword = newText
-                }
-            )
 
-            Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
                 value = newPassword,
                 KeyboardType.Password,
@@ -117,37 +110,38 @@ fun UpdatePasswordScreen(
                     newPassword = newText
                 }
             )
+
             Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
                 value = confirmPassword,
                 KeyboardType.Password,
-                ImeAction.Done,
+                ImeAction.Next,
                 placeholder = stringResource(id = R.string.confirm_pass),
                 onValueChange = { newText ->
                     confirmPassword = newText
                 }
             )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .wrapContentHeight(Alignment.Bottom)
-                    .padding(bottom = 40.dp)
-            ) {
-                AppButton(modifier = Modifier,
-                    text = stringResource(id = R.string.update_pass),
-                    onButtonClick = { updateBtnClick(oldPassword, newPassword, confirmPassword) })
-            }
-
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .wrapContentHeight(Alignment.Bottom)
+                .padding(bottom = 40.dp, start = 20.dp, end = 20.dp)
+        ) {
+            AppButton(modifier = Modifier,
+                text = stringResource(id = R.string.reset),
+                onButtonClick = { resetPasswordClick(newPassword, confirmPassword) })
+        }
+
     }
 }
 
 @Preview
 @Composable
-fun UpdatePasswordScreenPreview() {
+fun ResetPasswordPreview() {
     PSP_AndroidTheme {
-        UpdatePasswordScreen(backClick = {}, updateBtnClick = { _, _, _ -> })
+        ResetPasswordDesign(backClick = {},
+            resetPasswordClick = { _, _ -> })
     }
 }

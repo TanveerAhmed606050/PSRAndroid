@@ -68,6 +68,11 @@
     <string name="dashboard">آپ کا ڈیش بورڈ</string>
     <string name="network_error">انٹرنیٹ کنکشن نہیں ہے۔ براہ کرم اپنے نیٹ ورک کی ترتیبات چیک کریں۔</string>
     <string name="change_pass_detail">اپنا نیا پاس ورڈ درج کریں یہ پہلے استعمال شدہ پاس ورڈ سے مختلف ہونا چاہیے۔</string>
+    <string name="phone_details">اپنا فون نمبر درج کریں تاکہ جاری رکھنے کے لیے ہم آپ کو ایک تصدیقی کوڈ بھیج سکیں</string>
+    <string name="reset_details">بس اپنا نیا پاس ورڈ درج کریں تاکہ آپ اپنے اکاؤنٹ تک رسائی حاصل کر سکیں</string>
+    <string name="reset_pass">پاس ورڈ ری سیٹ</string>
+    <string name="reset">ری سیٹ</string>
+    <string name="send_otp">OTP بھیجیں۔</string>
     <string name="product">پروڈکٹ</string>
     <string name="old_pass">پرانا پاس ورڈ</string>
     <string name="price_kg">قیمت فی کلو</string>

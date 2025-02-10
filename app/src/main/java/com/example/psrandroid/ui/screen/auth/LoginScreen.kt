@@ -106,7 +106,9 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
         onSignup = {
             navController.navigate(Screen.RegisterScreen.route)
         },
-        onForgotPasswordClick = {})
+        onForgotPasswordClick = {
+            navController.navigate(Screen.ForgotPasswordScreen.route)
+        })
 }
 
 @Composable

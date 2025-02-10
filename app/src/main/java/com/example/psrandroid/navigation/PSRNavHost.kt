@@ -1,9 +1,7 @@
 package com.example.psrandroid.navigation
 
-import android.app.Activity
 import android.net.Uri
 import android.os.Build
-import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
@@ -26,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,9 +43,11 @@ import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
 import com.example.psrandroid.ui.screen.adPost.MyPostScreen
 import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.example.psrandroid.ui.screen.auth.AuthVM
+import com.example.psrandroid.ui.screen.auth.ForgotPasswordScreen
 import com.example.psrandroid.ui.screen.auth.LanguageScreen
 import com.example.psrandroid.ui.screen.auth.LoginScreen
 import com.example.psrandroid.ui.screen.auth.PasswordScreen
+import com.example.psrandroid.ui.screen.auth.ResetPasswordScreen
 import com.example.psrandroid.ui.screen.auth.SignupScreen
 import com.example.psrandroid.ui.screen.home.HomeScreen
 import com.example.psrandroid.ui.screen.home.HomeVM
@@ -410,13 +409,31 @@ fun PSRNavHost(
             MyProfileScreen(navController, authViewModel)
         }
         composable(
+            route = Screen.ForgotPasswordScreen.route,
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
+        ) {
+            ForgotPasswordScreen(navController, authViewModel)
+        }
+        composable(
+            route = Screen.ResetPasswordScreen.route,
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { -it } },
+            popEnterTransition = { slideInHorizontally { -it } },
+            popExitTransition = { slideOutHorizontally { it } }
+        ) {
+            ResetPasswordScreen(navController, authViewModel)
+        }
+        composable(
             route = Screen.UpdatePasswordScreen.route,
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
         ) {
-            UpdatePasswordScreen(navController)
+            UpdatePasswordScreen(navController, profileVM)
         }
         composable(
             route = Screen.LmeScreen.route,
