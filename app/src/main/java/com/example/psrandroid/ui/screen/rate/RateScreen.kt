@@ -483,7 +483,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "${metalDetail?.submetalName.toString()} ",
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 color = Color.Black,
                 maxLines = 1,
                 fontFamily = mediumFont,
@@ -491,8 +491,8 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
             Text(
-                text = " ---  ${metalDetail?.submetalUrduName}",
-                fontSize = 12.sp,
+                text = " -  ${metalDetail?.submetalUrduName}",
+                fontSize = 16.sp,
                 color = Color.Black,
                 maxLines = 1,
                 fontFamily = mediumFont,

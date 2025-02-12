@@ -199,7 +199,8 @@ fun LmeItem(lmeData: LmeData) {
             }
             Spacer(modifier = Modifier.padding(end = 8.dp))
             Text(
-                text = "Expire ${formatDateDisplay(lmeData.expiryDate)}",
+                // ${formatDateDisplay(lmeData.expiryDate)}
+                text = "Expire ",
                 modifier = Modifier
                     .background(Color.White, RoundedCornerShape(10.dp))
                     .padding(8.dp),

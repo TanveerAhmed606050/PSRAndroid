@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog

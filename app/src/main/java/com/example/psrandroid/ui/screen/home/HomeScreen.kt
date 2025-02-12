@@ -447,7 +447,8 @@ fun HomeLmeItem(lmeData: LmeMetal) {
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
-                    text = "Expire ${formatDateDisplay(lmeData.expiryDate)}",
+                    // ${formatDateDisplay(lmeData.expiryDate)}
+                    text = "Expire ",
                     modifier = Modifier,
                     fontSize = 10.sp,
                     fontFamily = regularFont,
