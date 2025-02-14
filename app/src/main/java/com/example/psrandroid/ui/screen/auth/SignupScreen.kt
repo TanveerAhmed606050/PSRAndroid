@@ -101,6 +101,8 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     }
     if (message?.isNotEmpty() == true) {
         Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
+        if (message?.contains("code sent to", ignoreCase = true)!!)
+            showDialog.value = true
         if (message == "Verification successful") {
             showDialog.value = false
             isPhoneNoVerified = true

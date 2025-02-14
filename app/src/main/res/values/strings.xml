@@ -39,6 +39,7 @@
     <string name="enter_pin">Enter your Pin</string>
     <string name="name">Name</string>
     <string name="selected_language">English</string>
+    <string name="notification">Notification</string>
     <string name="prime_user">Premium</string>
     <string name="lme">LME</string>
     <string name="sms">SMS</string>

@@ -272,6 +272,7 @@ fun PSRBottomNavigationBar(
                     Icon(
                         painter = painterResource(id = fitmeBottomDestination.icon),
                         contentDescription = "",
+                        modifier = Modifier.size(24.dp)
                     )
                 },
                 label = {

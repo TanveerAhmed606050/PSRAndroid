@@ -108,6 +108,7 @@
     <string name="no_metal">کوئی دھات نہیں ملی</string>
     <string name="no_lme">کوئی LME نہیں ملا</string>
     <string name="selected_language">اردو</string>
+    <string name="notification">اطلاع</string>
     <string name="call_permission_error">کال کی اجازت مسترد کر دی گئی۔</string>
     <string name="empty_error">براہ کرم تمام فیلڈز درج کریں۔</string>
 

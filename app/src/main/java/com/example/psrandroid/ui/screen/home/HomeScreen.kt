@@ -69,14 +69,9 @@ import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.Utils.formatDateDisplay
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
 
-@OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(navController: NavController, homeVM: HomeVM) {
@@ -86,8 +81,6 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     if (showProgress) {
         LoadingDialog()
     }
-    val permissionState =
-        rememberPermissionState(permission = "android.permission.POST_NOTIFICATIONS")
 
     var selectedCity by remember {
         mutableStateOf(
@@ -104,9 +97,6 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     val homeResponse = homeVM.homeResponse
     if (isNetworkAvailable(context)) {
         LaunchedEffect(Unit) {
-//            if (!permissionState.status.isGranted) {
-//                permissionState.launchPermissionRequest()
-//            }
             homeVM.getHomeData()
         }
     } else
