@@ -36,6 +36,7 @@ import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.actionBar
 import com.google.accompanist.adaptive.calculateDisplayFeatures
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         actionBar(this)
         enableEdgeToEdge()
+        subscribeTopic()
         setContent {
             //Load Rewarded Ads Launch Effect
             val rateVm = hiltViewModel<RateVM>()
@@ -136,6 +138,18 @@ fun SetupSystemUi() {
         transformColorForLightContent = { Color.Black },
         darkIcons = true, // Use true for dark icons, false for light icons
     )
+}
+
+fun subscribeTopic() {
+    FirebaseMessaging.getInstance().subscribeToTopic("news")
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("lsadjg", "Subscribed to topic: news")
+            } else {
+                Log.d("lsadjg", "Topic subscription failed")
+            }
+        }
+
 }
 
 @Preview(showBackground = true)

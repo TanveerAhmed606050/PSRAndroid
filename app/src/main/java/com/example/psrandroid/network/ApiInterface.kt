@@ -2,16 +2,15 @@ package com.example.psrandroid.network
 
 import com.example.psrandroid.dto.ImageUpdate
 import com.example.psrandroid.dto.UpdateLocation
+import com.example.psrandroid.dto.UpdateToken
 import com.example.psrandroid.dto.UserCredential
-import com.example.psrandroid.repository.HomeRepository
-import com.example.psrandroid.repository.HomeRepository_Factory
 import com.example.psrandroid.response.AuthResponse
-import com.example.psrandroid.response.RateMetal
-import com.example.psrandroid.response.RateScreenResponse
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
+import com.example.psrandroid.response.RateMetal
+import com.example.psrandroid.response.RateScreenResponse
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.ui.screen.adPost.models.AllAds
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
@@ -104,4 +103,10 @@ interface ApiInterface {
 
     @GET("HomeData")
     suspend fun getHomeData(): HomeResponse
+
+    @POST("user/deviceId")
+    suspend fun updateDeviceToken(
+        @Body updateToken: UpdateToken
+    ): AuthResponse
+
 }

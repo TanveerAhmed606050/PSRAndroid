@@ -23,6 +23,7 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         const val LATEST_SEARCH = "latest_search"
         const val READ_TERMS = "read_terms"
         const val IS_URDU_SELECTED = "urduSelected"
+        const val NOTIFICATION_SWITCH = "isSelected"
     }
 
     var isFirstLaunch: Boolean
@@ -36,6 +37,9 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         set(value) = sharedPreferences.edit { putBoolean(READ_TERMS, value) }
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+    var notificationSwitchSelected: Boolean
+        get() = sharedPreferences.getBoolean(NOTIFICATION_SWITCH, false)
+        set(value) = sharedPreferences.edit { putBoolean(NOTIFICATION_SWITCH, value) }
     private val gson = Gson()
 
     fun saveUserPreference(loginData: AuthData) {

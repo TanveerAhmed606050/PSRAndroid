@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,9 +68,13 @@ import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
 import com.example.psrandroid.utils.Utils.isRtlLocale
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import es.dmoral.toasty.Toasty
 import java.util.Locale
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
@@ -135,6 +142,9 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                     .show()
         }
     }
+    val permissionState =
+        rememberPermissionState(permission = "android.permission.POST_NOTIFICATIONS")
+
     val galleryLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.GetContent()
@@ -143,7 +153,8 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             capturedImageUri = uri
         }
 
-    MyProfileScreen(context = context,
+    MyProfileScreen(
+        context = context,
         profilePic = profilePic,
         onBottomSheetShow = {
             openGallery(context, galleryLauncher, pickImageLauncher)
@@ -154,19 +165,32 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 context.getString(R.string.selected_language) -> {
                     expandedLang = true
                 }
+
                 else -> navController.navigate(screenRoute)
             }
         },
-        backClick = { navController.popBackStack() })
+        backClick = { navController.popBackStack() },
+        onNotificationSelection = { isChecked ->
+// Check if permission is granted
+            Log.d("dkshg", "MyProfileScreen:$isChecked")
+            if (!permissionState.status.isGranted) {
+                permissionState.launchPermissionRequest()
+            }
+            authVM.userPreferences.notificationSwitchSelected = isChecked
+        },
+        isNotificationEnable = authVM.userPreferences.notificationSwitchSelected
+    )
 }
 
 @Composable
 fun MyProfileScreen(
     context: Context,
+    isNotificationEnable: Boolean,
     profilePic: String,
     onItemClick: (String) -> Unit,
     onBottomSheetShow: () -> Unit,
     backClick: () -> Unit,
+    onNotificationSelection: (Boolean) -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -209,9 +233,12 @@ fun MyProfileScreen(
 
             }
             Spacer(modifier = Modifier.height(20.dp))
-            ProfileOptions(context, screenRoute = { route ->
+            ProfileOptions(context, isChecked = isNotificationEnable, screenRoute = { route ->
                 onItemClick(route)
-            })
+            },
+                onNotificationSelection = { isChecked ->
+                    onNotificationSelection(isChecked)
+                })
         }
     }
 }
@@ -219,7 +246,9 @@ fun MyProfileScreen(
 @Composable
 fun ProfileOptions(
     context: Context,
-    screenRoute: (String) -> Unit
+    isChecked: Boolean,
+    screenRoute: (String) -> Unit,
+    onNotificationSelection: (Boolean) -> Unit,
 ) {
     val options = listOf(
         ProfileOption(
@@ -233,6 +262,11 @@ fun ProfileOptions(
         ProfileOption(
             R.drawable.globe_ic,
             stringResource(id = R.string.selected_language)
+        ),
+        ProfileOption(
+            R.drawable.notification_ic,
+            stringResource(id = R.string.notification),
+            switch = true,
         ),
         ProfileOption(
             R.drawable.baseline_privacy_tip_24,
@@ -257,7 +291,7 @@ fun ProfileOptions(
             .background(color = Color.White)
     ) {
         options.forEach { option ->
-            ProfileOptionItem(context, option, screenRoute)
+            ProfileOptionItem(context, isChecked, option, screenRoute, onNotificationSelection)
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -271,9 +305,12 @@ fun ProfileOptions(
 @Composable
 fun ProfileOptionItem(
     context: Context,
+    isSelected: Boolean,
     option: ProfileOption,
-    screenRoute: (String) -> Unit
+    screenRoute: (String) -> Unit,
+    onNotificationSelection: (Boolean) -> Unit,
 ) {
+    var isChecked by remember { mutableStateOf(isSelected) }
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
     var route = ""
@@ -287,6 +324,11 @@ fun ProfileOptionItem(
         stringResource(id = R.string.terms_condition) -> {
             encodedUrl = "https://fitmepner.com/Terms"
             route = ""
+        }
+
+        stringResource(id = R.string.logout) -> {
+            encodedUrl = ""
+            route = stringResource(id = R.string.logout)
         }
 
         stringResource(id = R.string.contact_us) -> {
@@ -318,20 +360,36 @@ fun ProfileOptionItem(
                 if (encodedUrl.isNotEmpty()) {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(encodedUrl))
                     context.startActivity(intent)
-                } else if (route.isNotEmpty())
-                    screenRoute(route)
-                else if (route.isEmpty())
+                } else if (route == context.getString(R.string.logout))
                     screenRoute(context.getString(R.string.logout))
+                else if (route.isNotEmpty())
+                    screenRoute(route)
+//                else if (route.isEmpty())
+//                    screenRoute(context.getString(R.string.logout))
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            painter = if (isRtl) painterResource(id = R.drawable.baseline_arrow_back_ios_24) else painterResource(
-                option.iconId
-            ), contentDescription = null,
-            colorFilter = ColorFilter.tint(LightBlue),
-            modifier = Modifier.size(if (isRtl) 20.dp else 30.dp)
-        )
+        if (option.switch && isRtl) {
+            Switch(
+                checked = isChecked, onCheckedChange = { checked ->
+                    isChecked = checked
+                    onNotificationSelection(checked)
+                }, colors = SwitchDefaults.colors(
+                    checkedThumbColor = DarkBlue,
+                    uncheckedThumbColor = Color.Gray,
+                    checkedTrackColor = DarkBlue.copy(alpha = 0.5f),
+                    uncheckedTrackColor = Color.Gray.copy(alpha = 0.5f)
+                )
+            )
+        } else {
+            Image(
+                painter = if (isRtl) painterResource(id = R.drawable.baseline_arrow_back_ios_24) else painterResource(
+                    option.iconId
+                ), contentDescription = null,
+                colorFilter = ColorFilter.tint(LightBlue),
+                modifier = Modifier.size(if (isRtl) 20.dp else 30.dp)
+            )
+        }
         if (isRtl)
             Spacer(modifier = Modifier.weight(1f))
         Text(
@@ -345,12 +403,26 @@ fun ProfileOptionItem(
         )
         if (!isRtl)
             Spacer(modifier = Modifier.weight(1f))
-        Image(
-            painter = if (isRtl) painterResource(option.iconId) else painterResource(id = R.drawable.next_blk),
-            contentDescription = null,
-            colorFilter = ColorFilter.tint(LightBlue),
-            modifier = Modifier.size(if (isRtl) 30.dp else 20.dp)
-        )
+        if (option.switch && !isRtl) {
+            Switch(
+                checked = isChecked, onCheckedChange = { checked ->
+                    isChecked = checked
+                    onNotificationSelection(checked)
+                }, colors = SwitchDefaults.colors(
+                    checkedThumbColor = DarkBlue,
+                    uncheckedThumbColor = Color.Gray,
+                    checkedTrackColor = DarkBlue.copy(alpha = 0.5f),
+                    uncheckedTrackColor = Color.Gray.copy(alpha = 0.5f)
+                )
+            )
+        } else {
+            Image(
+                painter = if (isRtl) painterResource(option.iconId) else painterResource(id = R.drawable.next_blk),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(LightBlue),
+                modifier = Modifier.size(if (isRtl) 30.dp else 20.dp)
+            )
+        }
     }
 }
 
@@ -370,6 +442,8 @@ fun MyProfileScreenPreview() {
         onBottomSheetShow = {},
         profilePic = "",
         onItemClick = {},
-        backClick = {}
+        backClick = {},
+        onNotificationSelection = {},
+        isNotificationEnable = false
     )
 }

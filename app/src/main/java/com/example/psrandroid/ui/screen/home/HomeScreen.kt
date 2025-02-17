@@ -69,7 +69,6 @@ import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.Utils.formatDateDisplay
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
 

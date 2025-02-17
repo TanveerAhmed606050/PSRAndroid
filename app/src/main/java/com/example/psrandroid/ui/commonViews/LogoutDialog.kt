@@ -26,11 +26,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -153,6 +152,7 @@ fun LogoutDialog(
 
 @Composable
 fun LoadingDialog() {
+    var showDialog by remember { mutableStateOf(true) } // Local state inside Composable
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
     var rotation by remember { mutableFloatStateOf(-90f) }
@@ -169,49 +169,50 @@ fun LoadingDialog() {
             rotation = value
         }
     }
-    Dialog(
-        onDismissRequest = {}, properties = DialogProperties(
-            dismissOnBackPress = false, dismissOnClickOutside = false
-        )
-    ) {
-        Box(
-            modifier = Modifier
-                .wrapContentHeight()
-                .graphicsLayer {
-                    rotationX = rotation
-                    cameraDistance = 16f * density
-                }
-                .background(AppBG, shape = RoundedCornerShape(10.dp))
+    if (showDialog)
+        Dialog(
+            onDismissRequest = { showDialog = false }, properties = DialogProperties(
+                dismissOnBackPress = true, dismissOnClickOutside = true
+            )
         ) {
-            Row(
+            Box(
                 modifier = Modifier
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                    .wrapContentHeight()
+                    .graphicsLayer {
+                        rotationX = rotation
+                        cameraDistance = 16f * density
+                    }
+                    .background(AppBG, shape = RoundedCornerShape(10.dp))
             ) {
-                if (!isRtl)
-                    Image(
-                        painter = painterResource(id = R.drawable.demo_scrap),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(horizontal = 8.dp),
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (!isRtl)
+                        Image(
+                            painter = painterResource(id = R.drawable.demo_scrap),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .padding(horizontal = 8.dp),
+                        )
+                    Text(
+                        text = stringResource(id = R.string.loading), color = Color.DarkGray,
+                        fontFamily = regularFont, fontSize = 14.sp,
+                        textAlign = if (isRtl) TextAlign.End else TextAlign.Start
                     )
-                Text(
-                    text = stringResource(id = R.string.loading), color = Color.DarkGray,
-                    fontFamily = regularFont, fontSize = 14.sp,
-                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start
-                )
-                if (isRtl)
-                    Image(
-                        painter = painterResource(id = R.drawable.demo_scrap),
-                        contentDescription = "",
-                        modifier = Modifier
-                            .size(30.dp)
-                            .padding(horizontal = 8.dp),
-                    )
+                    if (isRtl)
+                        Image(
+                            painter = painterResource(id = R.drawable.demo_scrap),
+                            contentDescription = "",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .padding(horizontal = 8.dp),
+                        )
+                }
             }
         }
-    }
 }
 
 @Composable

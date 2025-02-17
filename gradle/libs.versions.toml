@@ -31,6 +31,8 @@ googleService = "4.4.2"
 playServicesAds = "23.2.0"
 firebaseAuthKtx = "23.1.0"
 pagerVersion = "0.32.0"
+firebaseMessagingKtx = "24.0.0"
+firebaseBom = "33.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -76,6 +78,9 @@ firebase_auth = { module = "com.google.firebase:firebase-auth", version.ref = "f
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "pagerVersion" }
 pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "pagerVersion" }
 accompanist = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "pagerVersion" }
+firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx", version.ref = "firebaseMessagingKtx" }
+firebase-database = { module = "com.google.firebase:firebase-database" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 [plugins]
 google-service-gms = { id = "com.google.gms.google-services", version.ref = "googleService"}
 android-application = { id = "com.android.application", version.ref = "agp" }
