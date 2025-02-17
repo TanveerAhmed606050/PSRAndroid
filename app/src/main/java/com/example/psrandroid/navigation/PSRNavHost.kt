@@ -138,34 +138,34 @@ fun PSRNavigation(
         BottomNavigationItem(
             stringResource(id = R.string.home),
             Screen.HomeScreen.route,
-            R.drawable.home_ic,
+            R.drawable.home,
 
         ),
         BottomNavigationItem(
             stringResource(id = R.string.rate),
             Screen.RateScreen.route,
-            R.drawable.calendar_ic,
+            R.drawable.rate,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.post),
             Screen.MyPostScreen.route,
-            R.drawable.calendar_ic,
+            R.drawable.post,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.prime_user),
             Screen.PrimeUserScreen.route,
-            R.drawable.baseline_phone_24,
+            R.drawable.premium,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.lme),
             Screen.LmeScreen.route,
-            R.drawable.baseline_location_pin_24,
+            R.drawable.lme,
 
         ),
         BottomNavigationItem(
             stringResource(id = R.string.profile),
             Screen.MyProfileScreen.route,
-            R.drawable.home_ic,
+            R.drawable.profile,
 
         ),
     )
