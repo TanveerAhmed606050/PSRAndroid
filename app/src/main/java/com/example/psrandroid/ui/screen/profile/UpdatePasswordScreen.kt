@@ -30,7 +30,9 @@ import androidx.navigation.NavHostController
 import com.example.psp_android.R
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
+import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
+import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -41,6 +43,20 @@ import es.dmoral.toasty.Toasty
 @Composable
 fun UpdatePasswordScreen(navController: NavHostController, profileVM: ProfileVM) {
     val context = LocalContext.current
+    var showProgress by remember { mutableStateOf(false) }
+    showProgress = profileVM.isLoading
+    if (showProgress)
+        LoadingDialog()
+
+    val updateResponse = profileVM.infoResponse
+    if (updateResponse != null) {
+        if (updateResponse.status) {
+            Toasty.success(context, updateResponse.message, Toast.LENGTH_SHORT, true).show()
+            navController.popBackStack()
+        } else
+            Toasty.error(context, updateResponse.message, Toast.LENGTH_SHORT, true).show()
+        profileVM.infoResponse = null
+    }
 
     UpdatePasswordScreen(backClick = {
         navController.popBackStack()
@@ -59,6 +75,13 @@ fun UpdatePasswordScreen(navController: NavHostController, profileVM: ProfileVM)
                 true
             ).show()
         else {
+            profileVM.updatePassword(
+                UpdateUserData(
+                    userId = "${profileVM.userPreferences.getUserPreference()?.id}",
+                    currentPassword = oldPassword,
+                    newPassword = newPassword,
+                )
+            )
         }
     })
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -25,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -409,7 +407,7 @@ fun PSRNavHost(
             MyProfileScreen(navController, authViewModel)
         }
         composable(
-            route = Screen.ForgotPasswordScreen.route,
+            route = Screen.ForgotPasswordScreen.route ,
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
@@ -418,13 +416,15 @@ fun PSRNavHost(
             ForgotPasswordScreen(navController, authViewModel)
         }
         composable(
-            route = Screen.ResetPasswordScreen.route,
+            route = Screen.ResetPasswordScreen.route + "myPhone/{data}",
+            arguments = listOf(navArgument("data") { type = NavType.StringType }),
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
-        ) {
-            ResetPasswordScreen(navController, authViewModel)
+        ) {backStackEntry ->
+            val phoneNumber = backStackEntry.arguments?.getString("data")
+            ResetPasswordScreen(navController, authViewModel, phoneNumber)
         }
         composable(
             route = Screen.UpdatePasswordScreen.route,

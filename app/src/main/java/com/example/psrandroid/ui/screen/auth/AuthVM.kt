@@ -8,16 +8,16 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.dto.ImageUpdate
-import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.repository.AuthRepository
-import com.example.psrandroid.response.AuthData
-import com.example.psrandroid.response.AuthResponse
-import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
-import com.example.psrandroid.response.User
 import com.example.psrandroid.response.mockup
 import com.example.psrandroid.storage.UserPreferences
+import com.example.psrandroid.ui.screen.auth.models.AuthData
+import com.example.psrandroid.ui.screen.auth.models.AuthResponse
+import com.example.psrandroid.ui.screen.auth.models.InfoDataResponse
+import com.example.psrandroid.ui.screen.auth.models.mockup
+import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
 import com.example.psrandroid.utils.Result
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
@@ -43,10 +43,11 @@ class AuthVM @Inject constructor(
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String?> = _message
-    //    fun isAlreadyLogin(): Boolean = userPreferences.getUserPreference()?.name != null
+
     var loginData by mutableStateOf<AuthResponse?>(null)
     var locationData by mutableStateOf<LocationResponse?>(null)
-    var dealersList by mutableStateOf<DealerResponse?>(null)
+
+    var resetPasswordResponse by mutableStateOf<InfoDataResponse?>(null)
 
     fun sendVerificationCode(phoneNumber: String, activity: Activity) {
         isLoading = true
@@ -56,7 +57,6 @@ class AuthVM @Inject constructor(
             .setActivity(activity)
             .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                 override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-//                    isLoading = false
                     _message.value = "Verification completed"
                     signInWithCredential(credential)
                 }
@@ -66,7 +66,10 @@ class AuthVM @Inject constructor(
                     _message.value = "Verification failed: ${e.message}"
                 }
 
-                override fun onCodeSent(verificationId: String, token: PhoneAuthProvider.ForceResendingToken) {
+                override fun onCodeSent(
+                    verificationId: String,
+                    token: PhoneAuthProvider.ForceResendingToken
+                ) {
                     isLoading = false
                     _verificationId.value = verificationId
                     _message.value = "Code sent to $phoneNumber"
@@ -86,7 +89,7 @@ class AuthVM @Inject constructor(
         }
     }
 
-    fun updateMessage(text:String){
+    fun updateMessage(text: String) {
         _message.value = text
     }
 
@@ -109,7 +112,7 @@ class AuthVM @Inject constructor(
             isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
-                loginData?.data?:AuthData.mockup
+                loginData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
             isLoading = false
@@ -130,42 +133,12 @@ class AuthVM @Inject constructor(
     }
 
     fun getLocation() = viewModelScope.launch {
-//        isLoading = true
         val result = authRepository.getLocation()
         if (result is Result.Success) {
-//            isLoading = false
             locationData = result.data
             if (locationData != null)
                 userPreferences.saveLocationList(locationData ?: LocationResponse.mockup)
         } else if (result is Result.Failure) {
-//            isLoading = false
-            error = result.exception.message ?: "Failure"
-        }
-    }
-
-    fun getDealersList() = viewModelScope.launch {
-        isLoading = true
-        val result = authRepository.getDealerList()
-        if (result is Result.Success) {
-            isLoading = false
-            dealersList = result.data
-        } else if (result is Result.Failure) {
-            isLoading = false
-            error = result.exception.message ?: "Failure"
-        }
-    }
-
-    fun updateUserLocation(updateLocation: UpdateLocation) = viewModelScope.launch {
-        isLoading = true
-        val result = authRepository.updateUserLocation(updateLocation)
-        if (result is Result.Success) {
-            isLoading = false
-            loginData = result.data
-            userPreferences.saveUserPreference(
-                loginData?.data?:AuthData.mockup
-            )
-        } else if (result is Result.Failure) {
-            isLoading = false
             error = result.exception.message ?: "Failure"
         }
     }
@@ -177,10 +150,34 @@ class AuthVM @Inject constructor(
             isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
-                loginData?.data?:AuthData.mockup
+                loginData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
             isLoading = false
+            error = result.exception.message ?: "Failure"
+        }
+    }
+
+    fun resetPassword(updateUserData: UpdateUserData) = viewModelScope.launch {
+        isLoading = true
+        val result = authRepository.resetPassword(updateUserData)
+        if (result is Result.Success) {
+            isLoading = false
+            resetPasswordResponse = result.data
+        } else if (result is Result.Failure) {
+            isLoading = false
+            error = result.exception.message ?: "Failure"
+        }
+    }
+
+    fun phoneValidate(updateUserData: UpdateUserData) = viewModelScope.launch {
+        isLoading = true
+        Log.d("ldjg", "phone: $updateUserData")
+        val result = authRepository.phoneValidate(updateUserData)
+        isLoading = false
+        if (result is Result.Success) {
+            resetPasswordResponse = result.data
+        } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
     }
@@ -194,7 +191,7 @@ class AuthVM @Inject constructor(
             isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
-                loginData?.data?:AuthData.mockup
+                loginData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
             isLoading = false

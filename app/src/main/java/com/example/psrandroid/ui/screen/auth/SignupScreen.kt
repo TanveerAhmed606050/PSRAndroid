@@ -60,6 +60,7 @@ import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.screen.auth.models.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog

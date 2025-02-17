@@ -1,6 +1,5 @@
-package com.example.psrandroid.response
+package com.example.psrandroid.ui.screen.rate.models
 
-import com.example.psrandroid.ui.screen.adPost.models.AdData
 import com.google.gson.annotations.SerializedName
 
 data class RateScreenResponse(

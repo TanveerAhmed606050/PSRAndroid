@@ -72,7 +72,6 @@ fun DetailAdScreen(
     adData: AdData?
 ) {
     val context = LocalContext.current
-//    var showContact by remember { mutableStateOf(context.getText(R.string.show_no)) }
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->

@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.mockup
+import com.example.psrandroid.ui.screen.auth.models.mockup
 import com.example.psrandroid.ui.commonViews.GoogleAdBanner
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.screen.adPost.SearchBar
@@ -48,7 +49,6 @@ import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.Utils.formatDateDisplay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

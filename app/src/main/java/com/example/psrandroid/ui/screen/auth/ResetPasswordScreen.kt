@@ -32,6 +32,7 @@ import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
+import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -40,13 +41,24 @@ import com.example.psrandroid.utils.Utils.isValidPassword
 import es.dmoral.toasty.Toasty
 
 @Composable
-fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
+fun ResetPasswordScreen(navController: NavController, authVM: AuthVM, phoneNumber: String?) {
     val context = LocalContext.current
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress) {
         LoadingDialog()
     }
+    val resetPasswordResponse = authVM.resetPasswordResponse
+    if (resetPasswordResponse != null) {
+        if (resetPasswordResponse.status) {
+            Toasty.success(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, true).show()
+            navController.popBackStack()
+            navController.popBackStack()
+        } else
+            Toasty.error(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, true).show()
+        authVM.resetPasswordResponse = null
+    }
+
     ResetPasswordDesign(backClick = {
         navController.popBackStack()
     },
@@ -64,6 +76,12 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
                     true
                 ).show()
             else {
+                authVM.resetPassword(
+                    UpdateUserData(
+                        phone = phoneNumber ?: "",
+                        newPassword = password
+                    )
+                )
             }
 
         })

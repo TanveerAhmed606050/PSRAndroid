@@ -3,7 +3,7 @@ package com.example.psrandroid.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.psrandroid.response.AuthData
+import com.example.psrandroid.ui.screen.auth.models.AuthData
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
 import com.google.gson.Gson

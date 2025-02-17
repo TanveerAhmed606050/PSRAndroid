@@ -9,10 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.repository.RateRepository
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.LmeResponse
-import com.example.psrandroid.response.MetalData
+import com.example.psrandroid.ui.screen.rate.models.MetalData
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.PrimeUserData
-import com.example.psrandroid.response.RateMetal
+import com.example.psrandroid.ui.screen.rate.models.RateMetal
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.storage.UserPreferences

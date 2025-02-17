@@ -1,4 +1,4 @@
-package com.example.psrandroid.response
+package com.example.psrandroid.ui.screen.rate.models
 
 import com.google.gson.annotations.SerializedName
 

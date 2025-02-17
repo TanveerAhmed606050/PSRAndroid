@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.auth
 
+import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,9 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.psp_android.R
+import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.MyTextFieldWithBorder
+import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -43,13 +47,34 @@ import es.dmoral.toasty.Toasty
 fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
     var isOtpFieldsVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    var phone by remember { mutableStateOf("") }
+    var pinValue by remember { mutableStateOf("") }
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress) {
         LoadingDialog()
     }
-    var phone by remember { mutableStateOf("") }
-    var pinValue by remember { mutableStateOf("") }
+    val forgotPasswordResponse = authVM.resetPasswordResponse
+    if (forgotPasswordResponse != null) {
+        if (forgotPasswordResponse.status) {
+            val phoneNo = phone.takeLast(10)
+            Toasty.success(context, forgotPasswordResponse.message, Toast.LENGTH_SHORT, true).show()
+            authVM.sendVerificationCode("+92$phoneNo", context as Activity)
+        } else
+            Toasty.error(context, forgotPasswordResponse.message, Toast.LENGTH_SHORT, true).show()
+        authVM.resetPasswordResponse = null
+    }
+
+    val message by authVM.message.collectAsState()
+    if (message?.isNotEmpty() == true) {
+        Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
+        if (message?.contains("code sent to", ignoreCase = true)!!)
+            isOtpFieldsVisible = true
+        if (message == "Verification successful") {
+            navController.navigate(Screen.ResetPasswordScreen.route + "myPhone/$phone")
+        }
+        authVM.updateMessage("")
+    }
 
     ForgotPasswordDesign(
         phone = phone,
@@ -59,9 +84,15 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
             navController.popBackStack()
         },
         sendOtpClick = {
-            if (isValidPhone(phone).isNotEmpty())
-                Toasty.error(context, isValidPhone(phone), Toast.LENGTH_SHORT, true).show()
+            val phoneNo = phone.takeLast(10)
+            if (isValidPhone(phoneNo).isNotEmpty())
+                Toasty.error(context, isValidPhone(phoneNo), Toast.LENGTH_SHORT, true).show()
             else {
+                authVM.phoneValidate(
+                    UpdateUserData(
+                        phone = phone
+                    )
+                )
             }
         },
         onPhone = {
@@ -69,6 +100,8 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
         },
         onPinValue = { value, isLastDigit ->
             pinValue = value
+            if (isLastDigit)
+                authVM.verifyCode(pinValue)
         },
     )
 }
@@ -111,7 +144,7 @@ fun ForgotPasswordDesign(
                 value = phone,
                 keyboardType = KeyboardType.Phone,
                 imeAction = ImeAction.Done,
-                placeholder = stringResource(id = R.string.phone_no),
+                placeholder = "3451234567",
                 onValueChange = { onPhone(it) },
                 imageId = R.drawable.baseline_phone_24
             )
@@ -132,13 +165,14 @@ fun ForgotPasswordDesign(
                 )
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            if (isOtpFieldsVisible)
+            if (isOtpFieldsVisible) {
                 PinTextField(
                     otpText = pinValue,
                     otpCount = 6,
                     onOtpTextChange = { value, isLastDigit ->
                         onPinValue(value, isLastDigit)
                     })
+            }
         }
     }
 }

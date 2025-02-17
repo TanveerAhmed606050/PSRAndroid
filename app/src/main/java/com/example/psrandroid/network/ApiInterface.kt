@@ -4,19 +4,21 @@ import com.example.psrandroid.dto.ImageUpdate
 import com.example.psrandroid.dto.UpdateLocation
 import com.example.psrandroid.dto.UpdateToken
 import com.example.psrandroid.dto.UserCredential
-import com.example.psrandroid.response.AuthResponse
 import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
-import com.example.psrandroid.response.RateMetal
-import com.example.psrandroid.response.RateScreenResponse
 import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.ui.screen.adPost.models.AllAds
 import com.example.psrandroid.ui.screen.adPost.models.CreatePost
 import com.example.psrandroid.ui.screen.adPost.models.ResponseCreatePost
+import com.example.psrandroid.ui.screen.auth.models.AuthResponse
+import com.example.psrandroid.ui.screen.auth.models.InfoDataResponse
 import com.example.psrandroid.ui.screen.home.model.HomeResponse
+import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
+import com.example.psrandroid.ui.screen.rate.models.RateMetal
+import com.example.psrandroid.ui.screen.rate.models.RateScreenResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -55,6 +57,21 @@ interface ApiInterface {
     suspend fun updateUserImage(
         @Body imageUpdate: ImageUpdate
     ): AuthResponse
+
+    @POST("updatePassword")
+    suspend fun updatePassword(
+        @Body updateUserData: UpdateUserData
+    ): InfoDataResponse
+
+    @POST("forgetPassword")
+    suspend fun resetPassword(
+        @Body updateUserData: UpdateUserData
+    ): InfoDataResponse
+
+    @POST("phoneValidate")
+    suspend fun phoneValidate(
+        @Body updateUserData: UpdateUserData
+    ): InfoDataResponse
 
     @POST("updateUser")
     suspend fun updateUserData(
