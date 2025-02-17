@@ -506,7 +506,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
                 .padding(8.dp), contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Rs.${metalDetail?.price}",
+                text = metalDetail?.price_min+"-"+ metalDetail?.price_max,
                 modifier = Modifier.padding(horizontal = 8.dp),
                 fontSize = 12.sp,
                 fontFamily = regularFont,
