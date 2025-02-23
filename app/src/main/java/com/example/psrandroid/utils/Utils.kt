@@ -6,20 +6,19 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.util.Base64
-import androidx.annotation.RequiresApi
+import android.util.Log
 import androidx.core.view.WindowCompat
 import com.example.psp_android.R
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Date
 import java.util.Locale
 
 object Utils {
@@ -29,10 +28,6 @@ object Utils {
         return if (phoneNumberPattern.matches(phoneNumber)) "" else "Enter valid number"
     }
 
-    //    fun isValidEmail(email: String): Boolean {
-//        val emailRegex = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+".toRegex()
-//        return email.matches(emailRegex)
-//    }
     fun isValidPassword(password: String): String {
         return if (password.isEmpty())
             "Password fields must not be empty."
@@ -82,37 +77,32 @@ object Utils {
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
 
-    fun isValidDate(date: String): Boolean {
-        return try {
-            val sdf = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-            sdf.isLenient = false
-            sdf.parse(date)
-            true
-        } catch (e: Exception) {
-            false
+    fun uriToFile(context: Context, uri: Uri): File {
+        val contentResolver = context.contentResolver
+        val tempFile = File(
+            context.cacheDir,
+            "temp_image.jpg"
+        ) // Change extension based on your API requirement
+
+        contentResolver.openInputStream(uri)?.use { inputStream ->
+            tempFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
         }
+        if (tempFile.exists() && tempFile.length() > 0) {
+            Log.d("lsdjg", "File created: ${tempFile.absolutePath}, Size: ${tempFile.length()}")
+        } else {
+            Log.e("lsdjg", "File creation failed or file is empty")
+        }
+        return tempFile
     }
 
-    fun convertMillisToDate(millis: Long): String {
-        val formatter =
-            SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()) // Fix: "MM" for month, "dd" for day
-        return formatter.format(Date(millis))
+    fun createMultipartBodyPart(file: File, name: String): MultipartBody.Part {
+        val requestBody =
+            file.asRequestBody("image/*".toMediaTypeOrNull()) // Change MIME type as needed
+        return MultipartBody.Part.createFormData(name, file.name, requestBody)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getCurrentDate(): String {
-        val today = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-        return today.format(formatter)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun formatDateDisplay(dateString: String): String {
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
-        val outputFormatter = DateTimeFormatter.ofPattern("dd MMM", Locale.ENGLISH)
-        val date = LocalDate.parse(dateString, inputFormatter)
-        return date.format(outputFormatter)
-    }
     fun isRtlLocale(locale: Locale): Boolean {
         val rtlLanguages = listOf("ur") // List of RTL languages
         return rtlLanguages.contains(locale.language)

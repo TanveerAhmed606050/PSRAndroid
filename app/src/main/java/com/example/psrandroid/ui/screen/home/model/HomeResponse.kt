@@ -1,6 +1,6 @@
 package com.example.psrandroid.ui.screen.home.model
 
-import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.google.gson.annotations.SerializedName
 
 data class HomeResponse(
@@ -22,7 +22,7 @@ data class HomeData(
     val homeScrapRates: List<HomeScrapRate>,
     @SerializedName("lme_metals")
     val lmeMetals: List<LmeMetal>,
-    val posts: List<AdData>
+    val posts: List<AdsData>
 )
 
 data class LmeMetal(

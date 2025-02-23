@@ -115,4 +115,8 @@ dependencies {
     // Pager libs
     implementation(libs.accompanist.pager)
     implementation(libs.pager.indicators)
+    //paging 3 library
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.paging.runtime.ktx)
+
 }

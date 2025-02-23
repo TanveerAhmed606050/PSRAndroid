@@ -2,6 +2,7 @@ package com.example.psrandroid.ui.screen.adPost
 
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -56,17 +58,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.example.psp_android.R
+import com.example.psrandroid.dto.AdPostDto
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.rate.NoProductView
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
+import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
@@ -74,13 +82,14 @@ import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.flow.flowOf
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
-    val adsData = adPostVM.allAdsData
+    val adsData = adPostVM.allAdsData.collectAsLazyPagingItems()
     var showProgress by remember { mutableStateOf(false) }
     showProgress = adPostVM.isLoading
     if (showProgress)
@@ -88,13 +97,20 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val noInternetMessage = stringResource(id = R.string.network_error)
     LaunchedEffect(Unit) {
         if (isNetworkAvailable(context))
-            adPostVM.getAdsByUserid("${adPostVM.userPreferences.getUserPreference()?.id}")
+            adPostVM.getAdsByUserid(
+                AdPostDto(
+                    userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
+                    perPage = "10",
+                    page = "1"
+                )
+            )
+//            adPostVM.getAdsByUserid("${adPostVM.userPreferences.getUserPreference()?.id}")
         else
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()
     }
     MyPostScreen(
-        adsData = adsData?.data,
+        adsData = adsData,
         onPlusIconClick = {
             navController.navigate(Screen.AdScreen.route)
         },
@@ -110,11 +126,12 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyPostScreen(
-    adsData: List<AdData>?,
+    adsData: LazyPagingItems<AdsData>,
     onPlusIconClick: () -> Unit,
-    onAdsClick: (AdData) -> Unit,
+    onAdsClick: (AdsData) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    Log.d("lsdjg", "Count: ${adsData.itemCount}")
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -132,19 +149,25 @@ fun MyPostScreen(
                 backClick = { onBackClick() })
 
             Spacer(modifier = Modifier.height(10.dp))
-            if (adsData?.isEmpty() == true)
+            if (adsData.loadState.refresh is LoadState.Loading ||
+                adsData.loadState.append is LoadState.Loading
+            )
+                LinearProgressIndicator()
+            if (adsData.itemCount == 0)
                 NoProductView(msg = stringResource(id = R.string.no_ads), DarkBlue)
             else {
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    items(adsData?.size ?: 0) { index ->
-                        AdsItemsView(adsData?.get(index) ?: AdData.mockup, modifier = Modifier,
+                    items(adsData.itemCount) { index ->
+                        AdsItemsView(
+                            adsData[index] ?: AdsData.mockup,
+                            isMyAd = true, modifier = Modifier,
                             onAdsClick = { onAdsClick(it) }
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        if (index + 1 == adsData?.size)
+                        if (index + 1 == adsData.itemCount)
                             Spacer(modifier = Modifier.height(120.dp))
                     }
                 }
@@ -180,9 +203,10 @@ fun MyPostScreen(
 
 @Composable
 fun AdsItemsView(
-    adData: AdData,
+    adData: AdsData,
+    isMyAd: Boolean,
     modifier: Modifier,
-    onAdsClick: (AdData) -> Unit,
+    onAdsClick: (AdsData) -> Unit,
 ) {
     // Display the current image
     Card(
@@ -204,7 +228,9 @@ fun AdsItemsView(
                     .background(Color.White), // Add some padding for better spacing
             ) {
                 AsyncImage(
-                    model = Constant.MEDIA_BASE_URL + adData.photos, contentDescription = "",
+                    model = if (adData.photos.isNotEmpty()) {
+                        Constant.MEDIA_BASE_URL + adData.photos[0]
+                    } else adData.photos, contentDescription = "",
                     error = painterResource(id = R.drawable.demo_scrap),
                     placeholder = painterResource(id = R.drawable.demo_scrap),
                     modifier = Modifier
@@ -259,6 +285,28 @@ fun AdsItemsView(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
+            }
+            if (isMyAd) {
+                Text(
+                    text = adData.approvalStatus,
+                    color = if (adData.approvalStatus == "pending") Color.Black else Color.White,
+                    fontFamily = regularFont,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd) // Aligns the text to the bottom right (end) of the Box
+                        .background(
+                            color = when (adData.approvalStatus) {
+                                "rejected" -> LightRed40
+                                "pending" -> Color.Yellow.copy(
+                                    0.4f
+                                )
+
+                                else -> DarkBlue
+                            },
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                        .padding(4.dp) // Adds some padding for better appearance
+                )
             }
         }
     }
@@ -371,9 +419,11 @@ fun SearchBar(
 @Composable
 fun HomeScreenPreview() {
     PSP_AndroidTheme {
-        MyPostScreen(adsData = null,
-            onPlusIconClick = {},
-            onAdsClick = {},
-            onBackClick = {})
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            MyPostScreen(adsData = flowOf(PagingData.from(listOf(AdsData.mockup))).collectAsLazyPagingItems(),
+                onPlusIconClick = {},
+                onAdsClick = {},
+                onBackClick = {})
+        }
     }
 }

@@ -94,7 +94,7 @@ fun RateScreen(rateVM: RateVM) {
 
     val locationList = rateVM.userPreferences.getLocationList()?.data ?: listOf()
 
-    var search by remember { mutableStateOf(TextFieldValue(rateVM.userPreferences.lastSearchMetal)) }
+    var search by remember { mutableStateOf(TextFieldValue("")) }
     val sharedPreferences = rateVM.userPreferences
 
     var location by remember { mutableStateOf("Lahore") }
@@ -116,7 +116,7 @@ fun RateScreen(rateVM: RateVM) {
 
     DashBoardScreen(search, location,
         cityList = locationData,
-        subMetalData?.data, isRefreshing,
+        productList = subMetalData?.data, isRefreshing,
         suggestedSearchList = suggestedSearchList,
         onSearch = { query ->
             search = query

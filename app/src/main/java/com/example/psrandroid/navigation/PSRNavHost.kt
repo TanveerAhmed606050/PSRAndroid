@@ -39,7 +39,7 @@ import com.example.psrandroid.ui.screen.adPost.AllPostScreen
 import com.example.psrandroid.ui.screen.adPost.CreateAdScreen
 import com.example.psrandroid.ui.screen.adPost.DetailAdScreen
 import com.example.psrandroid.ui.screen.adPost.MyPostScreen
-import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ForgotPasswordScreen
 import com.example.psrandroid.ui.screen.auth.LanguageScreen
@@ -136,34 +136,34 @@ fun PSRNavigation(
         BottomNavigationItem(
             stringResource(id = R.string.home),
             Screen.HomeScreen.route,
-            R.drawable.home,
+            R.drawable.home_ic,
 
         ),
         BottomNavigationItem(
             stringResource(id = R.string.rate),
             Screen.RateScreen.route,
-            R.drawable.rate,
+            R.drawable.rate_ic,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.post),
             Screen.MyPostScreen.route,
-            R.drawable.post,
+            R.drawable.post_ic,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.prime_user),
             Screen.PrimeUserScreen.route,
-            R.drawable.premium,
+            R.drawable.premium_ic,
         ),
         BottomNavigationItem(
             stringResource(id = R.string.lme),
             Screen.LmeScreen.route,
-            R.drawable.lme,
+            R.drawable.lme_ic,
 
         ),
         BottomNavigationItem(
             stringResource(id = R.string.profile),
             Screen.MyProfileScreen.route,
-            R.drawable.profile,
+            R.drawable.profile_ic,
 
         ),
     )
@@ -490,7 +490,7 @@ fun PSRNavHost(
         ) { backStackEntry ->
             val encodedJson = backStackEntry.arguments?.getString("data")
             val userJson = encodedJson?.let { Uri.decode(it) }
-            val adData = userJson?.let { Gson().fromJson(it, AdData::class.java) }
+            val adData = userJson?.let { Gson().fromJson(it, AdsData::class.java) }
             DetailAdScreen(navController, rateVM, adData)
         }
     }

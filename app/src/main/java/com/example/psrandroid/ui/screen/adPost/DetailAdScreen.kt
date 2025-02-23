@@ -48,11 +48,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import com.example.psp_android.R
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.showRewardedAd
-import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.theme.AppBG
@@ -69,7 +68,7 @@ import es.dmoral.toasty.Toasty
 fun DetailAdScreen(
     navController: NavController,
     rateVM: RateVM,
-    adData: AdData?
+    adData: AdsData?
 ) {
     val context = LocalContext.current
     val callPermissionLauncher = rememberLauncherForActivityResult(
@@ -97,7 +96,7 @@ fun DetailAdScreen(
         )
     DetailAdScreenViews(
         watchAd = rateVM.watchAd,
-        adsData = adData ?: AdData.mockup, backClick = {
+        adsData = adData ?: AdsData.mockup, backClick = {
             navController.popBackStack()
         },
         onShowNoClick = { number ->
@@ -143,7 +142,7 @@ fun DetailAdScreen(
 @Composable
 fun DetailAdScreenViews(
     watchAd: Boolean,
-    adsData: AdData,
+    adsData: AdsData,
     backClick: () -> Unit,
     onShowNoClick: (String) -> Unit,
     onSMSClick: () -> Unit,
@@ -387,7 +386,7 @@ fun openCallApp(context: Context, phoneNumber: String) {
 fun DetailAdScreenPreview() {
     PSP_AndroidTheme {
         DetailAdScreenViews(
-            adsData = AdData.mockup, backClick = {},
+            adsData = AdsData.mockup, backClick = {},
             onShowNoClick = {},
             watchAd = false,
             onSMSClick = {},

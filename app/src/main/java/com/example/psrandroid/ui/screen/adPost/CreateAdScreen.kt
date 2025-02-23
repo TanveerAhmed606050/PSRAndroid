@@ -74,29 +74,29 @@ import com.example.psp_android.R
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
-import com.example.psrandroid.ui.screen.rate.models.MetalData
-import com.example.psrandroid.ui.screen.auth.models.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.CustomTextField
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.showRewardedAd
-import com.example.psrandroid.ui.screen.adPost.models.CreatePost
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.screen.rate.SearchBar
+import com.example.psrandroid.ui.screen.rate.models.MetalData
 import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.Utils.convertImageFileToBase64
+import com.example.psrandroid.utils.Utils.createMultipartBodyPart
 import com.example.psrandroid.utils.Utils.isRtlLocale
+import com.example.psrandroid.utils.Utils.uriToFile
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.ads.MobileAds
 import es.dmoral.toasty.Toasty
+import java.io.File
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -107,14 +107,13 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
         Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
     }
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
-    var mainMetalName by remember { mutableStateOf(TextFieldValue("")) }
-    var subMetalName by remember { mutableStateOf(TextFieldValue("")) }
+    val mainMetalName = remember { mutableStateOf(TextFieldValue("")) }
+    val subMetalName = remember { mutableStateOf(TextFieldValue("")) }
     var selectedCity by remember { mutableStateOf("Lahore") }
     val suggestedSearchList = rateVM.suggestMainMetals
     val suggestedSubMetalList = adPostVM.suggestSubMetals
     val adPostResponse = adPostVM.adPostResponse
     var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
-    val base64List = ArrayList<String>()
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val noInternetMessage = stringResource(id = R.string.network_error)
 // Display the error message
@@ -166,10 +165,6 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
         }
         if (totalSize <= maxFileSizeBytes) {
             selectedImages = uris.take(3) // Limit to the first 3 images
-            for (uri in selectedImages) {
-                val base64String = convertImageFileToBase64(uri, context.contentResolver)
-                base64List.add(base64String)
-            }
             errorMessage = null
         } else {
             selectedImages = emptyList() // Clear selection
@@ -180,27 +175,27 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     AdScreenView(
         selectedImages,
         locationList = locationList,
-        subMetalSearch = subMetalName,
-        search = mainMetalName,
+        subMetalSearch = subMetalName.value,
+        search = mainMetalName.value,
         selectedCity = selectedCity,
         suggestedSearchList = suggestedSearchList,
         suggestedSubMetalList = suggestedSubMetalList,
         onBackClick = { navController.popBackStack() },
         onSearch = {
-            mainMetalName = it
-            rateVM.searchMainMetals(mainMetalName.text)
+            mainMetalName.value = it
+            rateVM.searchMainMetals(mainMetalName.value.text)
         },
         onSearchClick = {
-            mainMetalName = it
-            rateVM.searchMainMetals(mainMetalName.text)
+            mainMetalName.value = it
+            rateVM.searchMainMetals(mainMetalName.value.text)
         },
         onSubMetalSearch = {
-            subMetalName = it
-            adPostVM.searchSubMetals(subMetalName.text)
+            subMetalName.value = it
+            adPostVM.searchSubMetals(subMetalName.value.text)
         },
         onEnterSubMetalSearch = {
-            subMetalName = it
-            adPostVM.searchSubMetals(subMetalName.text)
+            subMetalName.value = it
+            adPostVM.searchSubMetals(subMetalName.value.text)
         },
         onCitySelect = { selectedLocation ->
             selectedCity = selectedLocation
@@ -220,26 +215,25 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
                 return@AdScreenView
             }
             if (isNetworkAvailable(context)) {
-                for (uri in selectedImages) {
-                    val base64String = convertImageFileToBase64(uri, context.contentResolver)
-                    base64List.add(base64String)
-                }
+                val fileList = selectedImages.map { imageFile-> uriToFile(context, uri = imageFile) }
+                val imagePartList =
+                    fileList.map { file -> createMultipartBodyPart(file, "photos[]") }
                 adPostVM.createPost(
-                    CreatePost(
-                        userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
-                        metalName = mainMetalName.text,
-                        submetal = subMetalName.text,
-                        city = selectedCity,
-                        name = metalName,
-                        description = desc,
-                        price = price,
-                        photos = base64List,
-                        phoneNumber = "${adPostVM.userPreferences.getUserPreference()?.phone}"
-                    )
+                    userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
+                    metalName = mainMetalName.value.text,
+                    phoneNumber = "${adPostVM.userPreferences.getUserPreference()?.phone}",
+                    submetal = subMetalName.value.text,
+                    city = selectedCity,
+                    name = metalName,
+                    description = desc,
+                    price = price,
+                    photos = imagePartList
                 )
-                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
-                    onAdClick = {
-                    })
+//                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
+//                    onAdClick = {
+//                    })
+                mainMetalName.value = TextFieldValue("")
+                subMetalName.value = TextFieldValue("")
             } else
                 Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                     .show()

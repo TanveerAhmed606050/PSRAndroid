@@ -1,6 +1,7 @@
 package com.example.psrandroid.ui.screen.adPost.models
 
 import com.google.gson.annotations.SerializedName
+import okhttp3.MultipartBody
 
 data class CreatePost(
     @SerializedName("user_id")
@@ -14,5 +15,4 @@ data class CreatePost(
     val name: String,
     val description: String,
     val price: String,
-    val photos: List<String>,
 )

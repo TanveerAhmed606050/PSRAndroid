@@ -53,7 +53,7 @@ import com.example.psp_android.R
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.home.model.HomeScrapRate
 import com.example.psrandroid.ui.screen.home.model.LmeMetal
@@ -129,7 +129,7 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
 @Composable
 fun HomeScreenViews(
     selectedCity: String,
-    adsData: List<AdData>?,
+    adsData: List<AdsData>?,
     homeScrapRate: List<HomeScrapRate>?,
     lmeData: List<LmeMetal>?,
     cityList: List<String>?,
@@ -137,7 +137,7 @@ fun HomeScreenViews(
     onSeeAllAds: () -> Unit,
     onSeeAllRates: () -> Unit,
     onSeeAllLME: () -> Unit,
-    onAdsClick: (AdData) -> Unit,
+    onAdsClick: (AdsData) -> Unit,
 ) {
     val selectedScrapRate = homeScrapRate?.find { it.locationName == selectedCity }
     //UI
@@ -187,7 +187,7 @@ fun HomeScreenViews(
                     ) {
                         items(adsData?.size ?: 0) { index ->
                             HomeAdsItems(
-                                adsData?.get(index) ?: AdData.mockup, modifier = Modifier
+                                adsData?.get(index) ?: AdsData.mockup, modifier = Modifier
                                     .width(150.dp)
                                     .height(200.dp),
                                 onAdsClick = { onAdsClick(it) }
@@ -293,9 +293,9 @@ fun CityItems(
 
 @Composable
 fun HomeAdsItems(
-    adData: AdData,
+    adData: AdsData,
     modifier: Modifier,
-    onAdsClick: (AdData) -> Unit,
+    onAdsClick: (AdsData) -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -485,7 +485,7 @@ fun HomeScreenPreview() {
     PSP_AndroidTheme {
         HomeScreenViews(
             selectedCity = "", cityList = listOf(),
-            onCityItemClick = {}, adsData = listOf(AdData.mockup),
+            onCityItemClick = {}, adsData = listOf(AdsData.mockup),
             lmeData = listOf(LmeMetal.mockup), homeScrapRate = listOf(),
             onSeeAllAds = {},
             onSeeAllRates = {},

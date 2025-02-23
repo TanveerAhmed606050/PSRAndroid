@@ -29,12 +29,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.psp_android.R
+import com.example.psrandroid.dto.AdPostDto
 import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.screen.adPost.models.AdData
+import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
 import com.example.psrandroid.ui.screen.home.CityItems
 import com.example.psrandroid.ui.screen.rate.NoProductView
@@ -43,6 +48,7 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.flow.flowOf
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -54,25 +60,31 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
             adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
         )
     }
-
-    val adsData = adPostVM.allAdsData
-    var showProgress by remember { mutableStateOf(false) }
-    showProgress = adPostVM.isLoading
-    if (showProgress)
-        LoadingDialog()
+//    val adsData = adPostVM.locationAds
+    val adsData = adPostVM.locationAds.collectAsLazyPagingItems()
+//    var showProgress by remember { mutableStateOf(false) }
+//    showProgress = adPostVM.isLoading
+//    if (showProgress)
+//        LoadingDialog()
     val noInternetMessage = stringResource(id = R.string.network_error)
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val locationData = locationList.map { it.name }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(selectedCity) {
         if (isNetworkAvailable(context))
-            adPostVM.getAllAds()
+            adPostVM.getAdsByLocation(
+                AdPostDto(
+                    city = selectedCity,
+                    perPage = "10",
+                    page = "1"
+                )
+            )
         else
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()
     }
     AllPostScreenUI(selectedCity = selectedCity,
         search = search,
-        adsData = adsData?.data,
+        adsData = adsData,
         cityList = locationData,
         onCityItemClick = { locationName ->
             selectedCity = locationName
@@ -80,8 +92,8 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
 //                it.name.equals(locationName, ignoreCase = true)
 //            }?.id ?: 0
         },
-        onAdsClick = { adData ->
-            val adDataJson = Gson().toJson(adData)
+        onAdsClick = { adsData ->
+            val adDataJson = Gson().toJson(adsData)
             val encodedJson = Uri.encode(adDataJson)
             navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
         },
@@ -99,13 +111,17 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
 fun AllPostScreenUI(
     selectedCity: String,
     search: TextFieldValue,
-    adsData: List<AdData>?,
+    adsData: LazyPagingItems<AdsData>,
     cityList: List<String>?,
     onCityItemClick: (String) -> Unit,
-    onAdsClick: (AdData) -> Unit,
+    onAdsClick: (AdsData) -> Unit,
     onSearch: (TextFieldValue) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    if (adsData.loadState.refresh is LoadState.Loading ||
+        adsData.loadState.append is LoadState.Loading
+    )
+        LoadingDialog()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -138,7 +154,7 @@ fun AllPostScreenUI(
                     val cityName = cityList?.get(index) ?: ""
                     CityItems(
                         cityName = cityName,
-                        selectedCity = selectedCity , // Check if this city is selected
+                        selectedCity = selectedCity, // Check if this city is selected
                         onCityItemClick = { city ->
                             onCityItemClick(city) // Trigger the callback
                         }
@@ -147,19 +163,21 @@ fun AllPostScreenUI(
 
             }
             Spacer(modifier = Modifier.height(10.dp))
-            if (adsData?.isEmpty() == true)
+            if (adsData.itemCount == 0)
                 NoProductView(msg = stringResource(id = R.string.no_ads), DarkBlue)
             else {
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    items(adsData?.size ?: 0) { index ->
-                        AdsItemsView(adsData?.get(index) ?: AdData.mockup, modifier = Modifier,
+                    items(adsData.itemCount) { index ->
+                        AdsItemsView(
+                            adsData[index] ?: AdsData.mockup,
+                            isMyAd = false, modifier = Modifier,
                             onAdsClick = { onAdsClick(it) }
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        if (index + 1 == adsData?.size)
+                        if (index + 1 == adsData.itemCount)
                             Spacer(modifier = Modifier.height(50.dp))
                     }
                 }
@@ -173,7 +191,9 @@ fun AllPostScreenUI(
 @Composable
 fun AllPostScreenPreview() {
     PSP_AndroidTheme {
-        AllPostScreenUI(selectedCity = "", search = TextFieldValue(""), adsData = null,
+        AllPostScreenUI(selectedCity = "",
+            search = TextFieldValue(""),
+            adsData = flowOf(PagingData.from(listOf(AdsData.mockup))).collectAsLazyPagingItems(),
             cityList = listOf(),
             onCityItemClick = {},
             onAdsClick = {},
