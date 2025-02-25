@@ -68,8 +68,10 @@ import es.dmoral.toasty.Toasty
 fun DetailAdScreen(
     navController: NavController,
     rateVM: RateVM,
-    adData: AdsData?
+    adData: AdsData?,
+    isMyAd: Boolean?
 ) {
+    Log.d("lsdjg", "AdPost: $adData")
     val context = LocalContext.current
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -96,7 +98,8 @@ fun DetailAdScreen(
         )
     DetailAdScreenViews(
         watchAd = rateVM.watchAd,
-        adsData = adData ?: AdsData.mockup, backClick = {
+        adsData = adData ?: AdsData.mockup,
+        isMyAd = isMyAd ?: false, backClick = {
             navController.popBackStack()
         },
         onShowNoClick = { number ->
@@ -104,7 +107,6 @@ fun DetailAdScreen(
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
                     onAdClick = {
                         rateVM.watchAd = true
-//                        showContact = "+923456982288"
                     })
                 Log.d("RewardedAd", "Add Click")
             } else {
@@ -143,6 +145,7 @@ fun DetailAdScreen(
 fun DetailAdScreenViews(
     watchAd: Boolean,
     adsData: AdsData,
+    isMyAd: Boolean,
     backClick: () -> Unit,
     onShowNoClick: (String) -> Unit,
     onSMSClick: () -> Unit,
@@ -160,9 +163,9 @@ fun DetailAdScreenViews(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Log.d("lsdjg", "DetailAdScreenViews: ${Constant.MEDIA_BASE_URL + adsData.photos}")
             AsyncImage(
-                model = adsData.photos[0], contentDescription = "",
+                model = if (adsData.photos.isEmpty()) adsData.photos else Constant.MEDIA_BASE_URL + adsData.photos[0],
+                contentDescription = "",
                 error = painterResource(id = R.drawable.demo_scrap),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -215,30 +218,32 @@ fun DetailAdScreenViews(
                 color = Color.DarkGray, fontSize = 14.sp,
                 fontFamily = regularFont,
             )
-            Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .background(DarkBlue, RoundedCornerShape(10.dp))
-                    .clickable { onShowNoClick(adsData.phoneNumber) },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.baseline_phone_24),
-                    contentDescription = "",
-                    colorFilter = ColorFilter.tint(Color.White)
-                )
-                Text(
-                    text = if (watchAd) adsData.phoneNumber else
-                        stringResource(id = R.string.show_no),
-                    fontSize = 16.sp,
-                    fontFamily = regularFont,
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+            if (!isMyAd) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .background(DarkBlue, RoundedCornerShape(10.dp))
+                        .clickable { onShowNoClick(adsData.phoneNumber) },
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.baseline_phone_24),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(Color.White)
+                    )
+                    Text(
+                        text = if (watchAd) adsData.phoneNumber else
+                            stringResource(id = R.string.show_no),
+                        fontSize = 16.sp,
+                        fontFamily = regularFont,
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
             }
             if (watchAd) {
                 Spacer(modifier = Modifier.height(12.dp))
@@ -264,23 +269,6 @@ fun DetailAdScreenViews(
                             color = DarkBlue
                         )
                     }
-//                    Spacer(modifier = Modifier.weight(1f))
-//                    Row(
-//                        verticalAlignment = Alignment.CenterVertically,
-//                        modifier = Modifier.clickable { onWhatsAppChatClick() }
-//                    ) {
-//                        Image(
-//                            painter = painterResource(id = R.drawable.chat_ic),
-//                            contentDescription = "",
-//                            modifier = Modifier.size(30.dp)
-//                        )
-//                        Text(
-//                            text = stringResource(id = R.string.chat),
-//                            fontSize = 14.sp, fontFamily = regularFont,
-//                            modifier = Modifier.padding(start = 4.dp),
-//                            color = DarkBlue
-//                        )
-//                    }
                     Spacer(modifier = Modifier.weight(1f))
                     Row(verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable { onWhatsAppCallClick() }
@@ -391,7 +379,8 @@ fun DetailAdScreenPreview() {
             watchAd = false,
             onSMSClick = {},
             onWhatsAppCallClick = {},
-            onImageClick = {}
+            onImageClick = {},
+            isMyAd = true
         )
     }
 }

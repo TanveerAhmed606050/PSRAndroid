@@ -8,7 +8,6 @@ import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
-import com.example.psrandroid.response.SearchSubMetal
 import com.example.psrandroid.ui.screen.adPost.models.MyAds
 import com.example.psrandroid.ui.screen.adPost.models.ResponseCreatePost
 import com.example.psrandroid.ui.screen.auth.models.AuthResponse
@@ -16,8 +15,9 @@ import com.example.psrandroid.ui.screen.auth.models.InfoDataResponse
 import com.example.psrandroid.ui.screen.home.model.HomeResponse
 import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
 import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
-import com.example.psrandroid.ui.screen.rate.models.RateMetal
+import com.example.psrandroid.ui.screen.rate.models.MetalRateResponse
 import com.example.psrandroid.ui.screen.rate.models.RateScreenResponse
+import com.example.psrandroid.ui.screen.rate.models.RateSuggestionResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -88,13 +88,13 @@ interface ApiInterface {
     suspend fun getSearchMetals(
         @Query("location_id") locationId: String,
         @Query("metal_name") metalName: String,
-    ): RateMetal
+    ): RateSuggestionResponse
 
     @GET("search")
     suspend fun getSubMetals(
         @Query("location_id") locationId: String,
         @Query("metal_name") metalName: String,
-    ): SearchSubMetal
+    ): MetalRateResponse
 
     @GET("LMEMetals")
     suspend fun getLMEMetals(
@@ -103,6 +103,7 @@ interface ApiInterface {
     @GET("Ads/getAds")
     suspend fun getAllAds(
         @Query("city") city: String,
+        @Query("metal_name") metalName: String,
         @Query("per_page") perPage: String,
         @Query("page") page: String,
     ): MyAds

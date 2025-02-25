@@ -9,13 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.psrandroid.repository.RateRepository
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.LmeResponse
-import com.example.psrandroid.ui.screen.rate.models.MetalData
 import com.example.psrandroid.response.PrimeUser
 import com.example.psrandroid.response.PrimeUserData
-import com.example.psrandroid.ui.screen.rate.models.RateMetal
-import com.example.psrandroid.response.SearchSubMetal
-import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.storage.UserPreferences
+import com.example.psrandroid.ui.screen.rate.models.MainMetalData
+import com.example.psrandroid.ui.screen.rate.models.MetalRateResponse
+import com.example.psrandroid.ui.screen.rate.models.RateSuggestionResponse
 import com.example.psrandroid.utils.Result
 import com.google.android.gms.ads.rewarded.RewardedAd
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,13 +28,13 @@ class RateVM @Inject constructor(
 ) : ViewModel() {
     var error by mutableStateOf("")
     var isLoading by mutableStateOf(false)
-    var premiumUserData by mutableStateOf<PrimeUser?>(null)
+    private var premiumUserData by mutableStateOf<PrimeUser?>(null)
     var searchPrimeUserData by mutableStateOf<List<PrimeUserData>?>(null)
-    var subMetalData by mutableStateOf<SearchSubMetal?>(null)
-    var mainMetalData by mutableStateOf<RateMetal?>(null)
-    var lmeMetalData by mutableStateOf<LmeResponse?>(null)
-    var suggestMainMetals by mutableStateOf<List<MetalData>?>(null)
-    private var suggestSubMetals by mutableStateOf<List<SubMetalData>?>(null)
+    private var mainSuggestResponse by mutableStateOf<RateSuggestionResponse?>(null)
+
+    var subMetalResponse by mutableStateOf<MetalRateResponse?>(null)
+    private var lmeMetalData by mutableStateOf<LmeResponse?>(null)
+    var suggestMainMetals by mutableStateOf<List<MainMetalData>?>(null)
     var searchLmeMetalData by mutableStateOf<List<LmeData>?>(null)
     var watchAd by mutableStateOf(false)
     var rewardedAd by mutableStateOf<RewardedAd?>(null)
@@ -57,22 +56,22 @@ class RateVM @Inject constructor(
         val result = dashboardRepository.getSubMetals(locationId, metalName)
         isLoading = false
         if (result is Result.Success) {
-            subMetalData = result.data
-            suggestSubMetals = result.data.data
+            subMetalResponse = result.data
+//            suggestSubMetals = result.data.data
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
     }
 
     fun getMainMetals(locationId: String, metalName: String) = viewModelScope.launch {
-        if (mainMetalData == null) {
+        if (mainSuggestResponse == null) {
             isLoading = true
             val result = dashboardRepository.getSearchMetals(locationId, metalName)
             isLoading = false
             if (result is Result.Success) {
-                mainMetalData = result.data
+                mainSuggestResponse = result.data
                 suggestMainMetals = result.data.data
-                Log.d("lsdjag", "result: ${mainMetalData?.data?.size}")
+                Log.d("lsdjag", "result: ${mainSuggestResponse?.data?.size}")
             } else if (result is Result.Failure) {
                 error = result.exception.message ?: "Failure"
             }
@@ -97,7 +96,7 @@ class RateVM @Inject constructor(
     }
 
     fun searchMainMetals(searchText: String) {
-        suggestMainMetals = mainMetalData?.data?.filter {
+        suggestMainMetals = mainSuggestResponse?.data?.filter {
             it.name.contains(searchText, ignoreCase = true) ||
                     it.urduName.contains(searchText)
         } ?: listOf()

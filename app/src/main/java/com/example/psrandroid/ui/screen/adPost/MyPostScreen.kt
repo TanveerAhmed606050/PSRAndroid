@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -117,7 +119,8 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
         onAdsClick = { adData ->
             val adDataJson = Gson().toJson(adData)
             val encodedJson = Uri.encode(adDataJson)
-            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
+            val isMyAd = true
+            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson/$isMyAd")
         },
         onBackClick = { navController.popBackStack() })
 
@@ -153,6 +156,7 @@ fun MyPostScreen(
                 adsData.loadState.append is LoadState.Loading
             )
                 LinearProgressIndicator()
+            Spacer(modifier = Modifier.height(10.dp))
             if (adsData.itemCount == 0)
                 NoProductView(msg = stringResource(id = R.string.no_ads), DarkBlue)
             else {
@@ -236,6 +240,9 @@ fun AdsItemsView(
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
                         .padding(8.dp)
+                        .height(150.dp)
+                        .width(130.dp),
+                    contentScale = ContentScale.Crop
                 )
                 Column(
                     modifier = Modifier.padding(8.dp),

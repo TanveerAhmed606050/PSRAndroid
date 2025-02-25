@@ -16,12 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -60,19 +62,15 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
             adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
         )
     }
-//    val adsData = adPostVM.locationAds
     val adsData = adPostVM.locationAds.collectAsLazyPagingItems()
-//    var showProgress by remember { mutableStateOf(false) }
-//    showProgress = adPostVM.isLoading
-//    if (showProgress)
-//        LoadingDialog()
     val noInternetMessage = stringResource(id = R.string.network_error)
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val locationData = locationList.map { it.name }
-    LaunchedEffect(selectedCity) {
+    LaunchedEffect(selectedCity, search) {
         if (isNetworkAvailable(context))
             adPostVM.getAdsByLocation(
                 AdPostDto(
+                    metalName = search.text,
                     city = selectedCity,
                     perPage = "10",
                     page = "1"
@@ -92,10 +90,11 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
 //                it.name.equals(locationName, ignoreCase = true)
 //            }?.id ?: 0
         },
-        onAdsClick = { adsData ->
-            val adDataJson = Gson().toJson(adsData)
+        onAdsClick = { adData ->
+            val adDataJson = Gson().toJson(adData)
             val encodedJson = Uri.encode(adDataJson)
-            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
+            val isMyAd = false
+            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson/$isMyAd")
         },
         onSearch = {
             search = it
@@ -118,10 +117,6 @@ fun AllPostScreenUI(
     onSearch: (TextFieldValue) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    if (adsData.loadState.refresh is LoadState.Loading ||
-        adsData.loadState.append is LoadState.Loading
-    )
-        LoadingDialog()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -131,7 +126,7 @@ fun AllPostScreenUI(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(vertical = 8.dp, horizontal = 16.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             // Header section
@@ -141,6 +136,11 @@ fun AllPostScreenUI(
                 backClick = { onBackClick() })
             Spacer(modifier = Modifier.height(10.dp))
 
+            if (adsData.loadState.refresh is LoadState.Loading ||
+                adsData.loadState.append is LoadState.Loading
+            )
+                LinearProgressIndicator()
+            Spacer(modifier = Modifier.height(10.dp))
             // Search bar
             SearchBar(search,
                 onSearchClick = {

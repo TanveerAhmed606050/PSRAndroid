@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.psrandroid.dto.AdPostDto
 import com.example.psrandroid.network.ApiInterface
 import com.example.psrandroid.repository.GenericPagingRepository
@@ -47,23 +46,13 @@ class AdPostVM @Inject constructor(
     var locationAds by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
 
     fun getAdsByLocation(adPostDto: AdPostDto) = viewModelScope.launch {
-//        isLoading = true
-//        Log.d("lsdjg", "location: $locationName")
-//        val result = homeRepository.getAdsByLocation(locationName)
-//        Log.d("lsdjg", "result: $result")
-//        isLoading = false
-//        if (result is Result.Success) {
-//            locationAds = result.data
-//        } else if (result is Result.Failure) {
-//            error = result.exception.message ?: "Failure"
-//        }
-        Log.d("lsdjg", "AdPost: $adPostDto")
         val response = genericPagingRepository.getPagingData(
             requestData = adPostDto,
             updateRequest = { request, page -> request.copy(page = page.toString()) },
             fetchData = { request ->
                 apiInterface.getAllAds(
                     city = request.city,
+                    metalName = request.metalName,
                     perPage = request.perPage,
                     page = request.page
                 ).data

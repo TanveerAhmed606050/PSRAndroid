@@ -121,7 +121,8 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
         onAdsClick = { adData ->
             val adDataJson = Gson().toJson(adData)
             val encodedJson = Uri.encode(adDataJson)
-            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson")
+            val isMyAd = false
+            navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson/$isMyAd")
         })
 }
 

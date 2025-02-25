@@ -138,7 +138,7 @@ fun PSRNavigation(
             Screen.HomeScreen.route,
             R.drawable.home_ic,
 
-        ),
+            ),
         BottomNavigationItem(
             stringResource(id = R.string.rate),
             Screen.RateScreen.route,
@@ -159,13 +159,13 @@ fun PSRNavigation(
             Screen.LmeScreen.route,
             R.drawable.lme_ic,
 
-        ),
+            ),
         BottomNavigationItem(
             stringResource(id = R.string.profile),
             Screen.MyProfileScreen.route,
             R.drawable.profile_ic,
 
-        ),
+            ),
     )
 
     PSRNavigationWrapper(
@@ -407,7 +407,7 @@ fun PSRNavHost(
             MyProfileScreen(navController, authViewModel)
         }
         composable(
-            route = Screen.ForgotPasswordScreen.route ,
+            route = Screen.ForgotPasswordScreen.route,
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
@@ -422,7 +422,7 @@ fun PSRNavHost(
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
-        ) {backStackEntry ->
+        ) { backStackEntry ->
             val phoneNumber = backStackEntry.arguments?.getString("data")
             ResetPasswordScreen(navController, authViewModel, phoneNumber)
         }
@@ -481,17 +481,21 @@ fun PSRNavHost(
             CreateAdScreen(navController, adPostVM, rateVM = rateVM)
         }
         composable(
-            route = Screen.AdDetailScreen.route + "Details/{data}",
-            arguments = listOf(navArgument("data") { type = NavType.StringType }),
+            route = Screen.AdDetailScreen.route + "Details/{data}/{screenName}", // Add a separator
+            arguments = listOf(
+                navArgument("data") { type = NavType.StringType },
+                navArgument("screenName") { type = NavType.BoolType } // Add the new argument
+            ),
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
         ) { backStackEntry ->
+            val screenName = backStackEntry.arguments?.getBoolean("screenName")
             val encodedJson = backStackEntry.arguments?.getString("data")
             val userJson = encodedJson?.let { Uri.decode(it) }
             val adData = userJson?.let { Gson().fromJson(it, AdsData::class.java) }
-            DetailAdScreen(navController, rateVM, adData)
+            DetailAdScreen(navController, rateVM, adData, screenName)
         }
     }
 }

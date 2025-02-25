@@ -1,6 +1,5 @@
 package com.example.psrandroid.ui.screen.adPost
 
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -79,11 +78,10 @@ import com.example.psrandroid.ui.commonViews.CustomTextField
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.commonViews.showRewardedAd
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.screen.rate.SearchBar
-import com.example.psrandroid.ui.screen.rate.models.MetalData
+import com.example.psrandroid.ui.screen.rate.models.MainMetalData
 import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
@@ -96,7 +94,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.android.gms.ads.MobileAds
 import es.dmoral.toasty.Toasty
-import java.io.File
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -215,7 +212,8 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
                 return@AdScreenView
             }
             if (isNetworkAvailable(context)) {
-                val fileList = selectedImages.map { imageFile-> uriToFile(context, uri = imageFile) }
+                val fileList =
+                    selectedImages.map { imageFile -> uriToFile(context, uri = imageFile) }
                 val imagePartList =
                     fileList.map { file -> createMultipartBodyPart(file, "photos[]") }
                 adPostVM.createPost(
@@ -252,7 +250,7 @@ fun AdScreenView(
     subMetalSearch: TextFieldValue,
     search: TextFieldValue,
     selectedCity: String,
-    suggestedSearchList: List<MetalData>?,
+    suggestedSearchList: List<MainMetalData>?,
     suggestedSubMetalList: List<SubData>?,
     onBackClick: () -> Unit,
     onSearch: (TextFieldValue) -> Unit,
@@ -338,7 +336,7 @@ fun AdScreenView(
                 })
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = stringResource(id = R.string.name),
+                text = stringResource(id = R.string.my_name),
                 color = DarkBlue,
                 fontFamily = regularFont,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
@@ -354,7 +352,7 @@ fun AdScreenView(
                 value = metalName,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next,
-                placeholder = stringResource(id = R.string.metal_name),
+                placeholder = stringResource(id = R.string.my_name),
                 onValueChange = { metalName = it },
                 imageId = R.drawable.home_ic
             )

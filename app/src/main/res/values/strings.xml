@@ -38,6 +38,7 @@
     <string name="enter_verify">Enter your Verification</string>
     <string name="enter_pin">Enter your Pin</string>
     <string name="name">Name</string>
+    <string name="my_name">My Name</string>
     <string name="selected_language">English</string>
     <string name="notification">Notification</string>
     <string name="prime_user">Premium</string>

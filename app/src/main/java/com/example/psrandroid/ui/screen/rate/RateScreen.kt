@@ -60,10 +60,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
 import com.example.psrandroid.network.isNetworkAvailable
-import com.example.psrandroid.ui.screen.rate.models.MetalData
-import com.example.psrandroid.response.SubMetalData
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.home.CityItems
+import com.example.psrandroid.ui.screen.rate.models.MainMetalData
+import com.example.psrandroid.ui.screen.rate.models.MetalData
+import com.example.psrandroid.ui.screen.rate.models.Submetal
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -101,12 +102,12 @@ fun RateScreen(rateVM: RateVM) {
     val noInternetMessage = stringResource(id = R.string.network_error)
     val locationData = locationList.map { "${it.name}" }
 
-    val subMetalData = rateVM.subMetalData
+    val subMetalData = rateVM.subMetalResponse
     val suggestedSearchList = rateVM.suggestMainMetals
 
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
-            location = sharedPreferences.getUserPreference()?.location?:"Lahore"
+            location = sharedPreferences.getUserPreference()?.location ?: "Lahore"
             rateVM.getMainMetals("$locationId", "")
             rateVM.getSubMetals("$locationId", search.text)
         }
@@ -171,9 +172,9 @@ fun DashBoardScreen(
     search: TextFieldValue,
     selectedCity: String,
     cityList: List<String>?,
-    productList: List<SubMetalData>?,
+    productList: List<MetalData>?,
     isRefreshing: Boolean,
-    suggestedSearchList: List<MetalData>?,
+    suggestedSearchList: List<MainMetalData>?,
     onSearchClick: (TextFieldValue) -> Unit,
     onSearch: (TextFieldValue) -> Unit,
     onPullDown: () -> Unit,
@@ -231,30 +232,19 @@ fun DashBoardScreen(
                 }
 
                 Spacer(modifier = Modifier.height(0.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 0.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "${search.text} Scrap",
-                        color = LightBlue,
-                        fontSize = 14.sp,
-                        fontFamily = mediumFont
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = stringResource(id = R.string.price_kg),
-                        color = LightBlue,
-                        fontFamily = mediumFont,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(end = 0.dp)
-                    )
-                }
+
                 if (productList?.isEmpty() != false)
                     NoProductView(stringResource(id = R.string.no_rate), DarkBlue)
-                else
-                    ProductList(productList)
+                else {
+                    LazyColumn(
+                        contentPadding = PaddingValues(horizontal = 0.dp)
+                    ) {
+                        items(productList.size) { index ->
+                            ProductList(productList[index])
+                            HorizontalDivider()
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(120.dp))
 
             }
@@ -266,7 +256,7 @@ fun DashBoardScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SearchBar(
-    suggestedSearchList: List<MetalData>?,
+    suggestedSearchList: List<MainMetalData>?,
     search: TextFieldValue,
     onSearchClick: (TextFieldValue) -> Unit,
     onSearch: (TextFieldValue) -> Unit,
@@ -414,7 +404,7 @@ fun SearchBar(
                             onSearchClick(
                                 TextFieldValue(
                                     text = mainMetal.name,
-                                    selection = TextRange(mainMetal.name.length)
+                                    selection = TextRange(mainMetal.urduName.length)
                                 )
                             )
                             expandedDropDown = false // Hide dropdown after selection
@@ -435,20 +425,39 @@ fun SearchBar(
 }
 
 @Composable
-fun ProductList(dashboardData: List<SubMetalData>?) {
-
-    LazyColumn(
-        contentPadding = PaddingValues(horizontal = 0.dp)
+fun ProductList(mainMetalData: MetalData) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 0.dp, vertical = 4.dp)
     ) {
-        items(dashboardData?.size ?: 0) { index ->
-            ProductItem(metalDetail = dashboardData?.get(index), index = index + 1)
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "${mainMetalData.metalName} Scrap",
+                color = LightBlue,
+                fontSize = 14.sp,
+                fontFamily = mediumFont
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(id = R.string.price_kg),
+                color = LightBlue,
+                fontFamily = mediumFont,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(end = 0.dp)
+            )
+        }
+        mainMetalData.submetals.forEach { submetal ->
+            ProductItem(submetal)
             HorizontalDivider()
         }
     }
 }
 
 @Composable
-fun ProductItem(metalDetail: SubMetalData?, index: Int) {
+fun ProductItem(subMetalDetail: Submetal) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -461,41 +470,27 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
         Row(
             verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(3f)
         ) {
-//            Box(
-//                modifier = Modifier
-//                    .size(40.dp)
-//                    .background(
-//                        brush = Brush.verticalGradient(
-//                            colors = listOf(LightBlue, DarkBlue)
-//                        ), shape = RoundedCornerShape(6.dp)
-//                    )
-//                    .weight(0.5f),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = String.format("%02d", index),
-//                    color = Color.White,
-//                    fontFamily = regularFont,
-//                    fontSize = 12.sp
-//                )
-   //         }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "${metalDetail?.submetalName.toString()} ",
+                text = "${subMetalDetail.submetalName} ",
                 fontSize = 14.sp,
                 color = Color.Black,
                 maxLines = 1,
                 fontFamily = mediumFont,
-                modifier = Modifier.weight(2f).padding(4.dp),
+                modifier = Modifier
+                    .weight(2f)
+                    .padding(4.dp),
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
             Text(
-                text = " -  ${metalDetail?.submetalUrduName}",
+                text = " -  ${subMetalDetail.submetalUrduName}",
                 fontSize = 16.sp,
                 color = Color.Black,
                 maxLines = 1,
                 fontFamily = mediumFont,
-                modifier = Modifier.weight(2f).padding(4.dp),
+                modifier = Modifier
+                    .weight(2f)
+                    .padding(4.dp),
                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
             )
         }
@@ -505,7 +500,7 @@ fun ProductItem(metalDetail: SubMetalData?, index: Int) {
                 .padding(8.dp), contentAlignment = Alignment.Center
         ) {
             Text(
-                text = metalDetail?.price_min+"-"+ metalDetail?.price_max,
+                text = subMetalDetail.priceMin + "-" + subMetalDetail.priceMax,
                 modifier = Modifier.padding(horizontal = 8.dp),
                 fontSize = 12.sp,
                 fontFamily = regularFont,
