@@ -28,12 +28,13 @@ sealed class Screen(val route: String) {
 class PSRNavigationActions(private val navController: NavHostController) {
 
     fun navigateTo(destination: BottomNavigationItem) {
+        navController.popBackStack(destination.route, true)
         navController.navigate(destination.route) {
             popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
+                inclusive = true
             }
             launchSingleTop = true
-            restoreState = true
+            restoreState = false
         }
     }
 }

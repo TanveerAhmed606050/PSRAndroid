@@ -157,7 +157,7 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
-        val maxFileSizeMb = 5
+        val maxFileSizeMb = 10
         val maxFileSizeBytes = maxFileSizeMb * 1024 * 1024  // Convert MB to bytes
 
         val totalSize = uris.sumOf { uri ->
