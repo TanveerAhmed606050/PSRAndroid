@@ -120,10 +120,10 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     }
     if (adPostResponse != null) {
         if (adPostResponse.status)
-            Toasty.success(context, adPostResponse.message, Toast.LENGTH_SHORT, true)
+            Toasty.success(context, adPostResponse.message, Toast.LENGTH_LONG, true)
                 .show()
         else
-            Toasty.error(context, adPostResponse.message, Toast.LENGTH_SHORT, true)
+            Toasty.error(context, adPostResponse.message, Toast.LENGTH_LONG, true)
                 .show()
         navController.popBackStack()
         adPostVM.adPostResponse = null

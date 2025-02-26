@@ -19,6 +19,8 @@ import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -44,33 +46,29 @@ class AdPostVM @Inject constructor(
     var adPostResponse by mutableStateOf<ResponseCreatePost?>(null)
     var allAdsData by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
     var locationAds by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
+    private var isLocationAdsInitialized by mutableStateOf(false) // Track initialization
 
     fun getAdsByLocation(adPostDto: AdPostDto) = viewModelScope.launch {
-        val response = genericPagingRepository.getPagingData(
-            requestData = adPostDto,
-            updateRequest = { request, page -> request.copy(page = page.toString()) },
-            fetchData = { request ->
-                apiInterface.getAllAds(
-                    city = request.city,
-                    metalName = request.metalName,
-                    perPage = request.perPage,
-                    page = request.page
-                ).data
-            }
-        )
-        locationAds = response
+//        if (!isLocationAdsInitialized) {
+//            Log.d("ksdhg", "getAdsByLocation: $isLocationAdsInitialized")
+            val response = genericPagingRepository.getPagingData(
+                requestData = adPostDto,
+                updateRequest = { request, page -> request.copy(page = page.toString()) },
+                fetchData = { request ->
+                    apiInterface.getAllAds(
+                        city = request.city,
+                        metalName = request.metalName,
+                        perPage = request.perPage,
+                        page = request.page
+                    ).data
+                }
+            )
+            locationAds = response
+//            isLocationAdsInitialized = true
+//        }
     }
 
     fun getAdsByUserid(adPostDto: AdPostDto) = viewModelScope.launch {
-//        isLoading = true
-//        val result = homeRepository.getAdsByUser(userId)
-//        isLoading = false
-//        Log.d("lsdjg", "result: $result")
-//        if (result is Result.Success) {
-//            allAdsData = result.data
-//        } else if (result is Result.Failure) {
-//            error = result.exception.message ?: "Failure"
-//        }
         val response = genericPagingRepository.getPagingData(
             requestData = adPostDto,
             updateRequest = { request, page -> request.copy(page = page.toString()) },

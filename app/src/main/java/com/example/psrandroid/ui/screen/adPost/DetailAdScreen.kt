@@ -158,7 +158,8 @@ fun DetailAdScreenViews(
     onSMSClick: () -> Unit,
     onWhatsAppCallClick: () -> Unit,
     onImageClick: () -> Unit,
-) {val pagerState = rememberPagerState()
+) {
+    val pagerState = rememberPagerState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -174,16 +175,21 @@ fun DetailAdScreenViews(
             HorizontalPager(
                 count = adsData.photos.size,
                 state = pagerState,
-                modifier = Modifier.fillMaxSize().height(400.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .height(400.dp)
             ) { page ->
-                val uri = if (adsData.photos.isNotEmpty()) adsData.photos[page] else adsData.photos[page]
+                val uri = if (adsData.photos.isNotEmpty()) Constant.MEDIA_BASE_URL + adsData.photos[page] else ""
+                Log.d("sldgj", "url: $uri")
                 Box(modifier = Modifier) {
                     AsyncImage(
                         model = uri, contentDescription = "",
                         error = painterResource(id = R.drawable.demo_scrap),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .clickable { },
+                            .fillMaxWidth()
+                            .height(400.dp)
+                            .clickable { onImageClick() },
                     )
                 }
             }
@@ -206,7 +212,9 @@ fun DetailAdScreenViews(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_photo_24),
                     contentDescription = "Gallery",
-                    modifier = Modifier.size(24.dp).padding(start=10.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .padding(start = 10.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(

@@ -108,7 +108,6 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
                     page = "1"
                 )
             )
-//            adPostVM.getAdsByUserid("${adPostVM.userPreferences.getUserPreference()?.id}")
         else
             Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
                 .show()

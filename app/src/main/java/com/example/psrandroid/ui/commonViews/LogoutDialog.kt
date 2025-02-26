@@ -261,7 +261,7 @@ fun FullScreenImageDialog(
                 val uri = if (serverImageList != null) serverImageList[page] else imageList[page]
                 Box(modifier = Modifier) {
                     AsyncImage(
-                        model = Constant.BASE_URL + uri, contentDescription = "",
+                        model = Constant.MEDIA_BASE_URL + uri, contentDescription = "",
 //                        placeholder = painterResource(id = R.drawable.demo_scrap),
                         error = painterResource(id = R.drawable.demo_scrap),
                         contentScale = ContentScale.Crop,
@@ -270,15 +270,16 @@ fun FullScreenImageDialog(
                             .clickable { },
                     )
                     Image(
-                        painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
+                        painter = painterResource(id = R.drawable.cross_ic),
                         contentDescription = "",
                         modifier = Modifier
-                            .padding(16.dp)
-                            .background(
-                                color = Color.DarkGray.copy(0.3f),
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                            .size(32.dp) // Set the size for the background container
+                            .align(Alignment.TopEnd) // Align to the top-end (right side) of the Box
+//                            .padding(16.dp)
+//                            .background(
+//                                color = Color.DarkGray.copy(0.3f),
+//                                shape = RoundedCornerShape(10.dp)
+//                            )
+                            .size(40.dp) // Set the size for the background container
                             .padding(8.dp)
                             .clickable { onDismissRequest() }
                     )
