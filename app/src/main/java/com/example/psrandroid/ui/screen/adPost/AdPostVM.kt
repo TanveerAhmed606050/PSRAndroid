@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.psrandroid.dto.AdPostDto
 import com.example.psrandroid.network.ApiInterface
 import com.example.psrandroid.repository.GenericPagingRepository
@@ -38,6 +39,7 @@ class AdPostVM @Inject constructor(
 ) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
+    var hasLoaded by mutableStateOf(false)
 
     //    var allAdsData by mutableStateOf<MyAds?>(null)
 //    var locationAds by mutableStateOf<MyAds?>(null)
@@ -51,6 +53,7 @@ class AdPostVM @Inject constructor(
     fun getAdsByLocation(adPostDto: AdPostDto) = viewModelScope.launch {
 //        if (!isLocationAdsInitialized) {
 //            Log.d("ksdhg", "getAdsByLocation: $isLocationAdsInitialized")
+        if(!hasLoaded) {
             val response = genericPagingRepository.getPagingData(
                 requestData = adPostDto,
                 updateRequest = { request, page -> request.copy(page = page.toString()) },
@@ -64,12 +67,13 @@ class AdPostVM @Inject constructor(
                 }
             )
             locationAds = response
+        }
 //            isLocationAdsInitialized = true
 //        }
     }
 
     fun getAdsByUserid(adPostDto: AdPostDto) = viewModelScope.launch {
-        val response = genericPagingRepository.getPagingData(
+        allAdsData = genericPagingRepository.getPagingData(
             requestData = adPostDto,
             updateRequest = { request, page -> request.copy(page = page.toString()) },
             fetchData = { request ->
@@ -79,8 +83,8 @@ class AdPostVM @Inject constructor(
                     page = request.page,
                 ).data
             }
-        )
-        allAdsData = response
+        ).cachedIn(viewModelScope)
+//        allAdsData = response
     }
 
     fun getAllSubMetals() = viewModelScope.launch {

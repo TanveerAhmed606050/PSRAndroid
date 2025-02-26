@@ -99,8 +99,10 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
     if (showProgress)
         LoadingDialog()
     val noInternetMessage = stringResource(id = R.string.network_error)
-    LaunchedEffect(Unit) {
-        if (isNetworkAvailable(context))
+
+    LaunchedEffect(adPostVM.hasLoaded) {
+        Log.d("MyPost","${adPostVM.hasLoaded}")
+        if(!adPostVM.hasLoaded&&isNetworkAvailable(context)) {
             adPostVM.getAdsByUserid(
                 AdPostDto(
                     userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
@@ -108,9 +110,9 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
                     page = "1"
                 )
             )
-        else
-            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
-                .show()
+            adPostVM.hasLoaded = true
+        }
+
     }
     MyPostScreen(
         adsData = adsData,
@@ -153,11 +155,12 @@ fun MyPostScreen(
                 backClick = { onBackClick() })
 
             Spacer(modifier = Modifier.height(10.dp))
-            if (adsData.loadState.refresh is LoadState.Loading ||
-                adsData.loadState.append is LoadState.Loading
-            )
-                LinearProgressIndicator()
-            Spacer(modifier = Modifier.height(10.dp))
+//            if (adsData.loadState.refresh is LoadState.Loading ||
+//                adsData.loadState.append is LoadState.Loading
+//            )
+//
+//                LinearProgressIndicator()
+//            Spacer(modifier = Modifier.height(10.dp))
             if (adsData.itemCount == 0)
                 NoProductView(msg = stringResource(id = R.string.no_ads), DarkBlue)
             else {
