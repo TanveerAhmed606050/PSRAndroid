@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.psrandroid.dto.AdPostDto
 import com.example.psrandroid.network.ApiInterface
 import com.example.psrandroid.repository.GenericPagingRepository
@@ -19,8 +20,6 @@ import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -39,33 +38,31 @@ class AdPostVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
 
-    //    var allAdsData by mutableStateOf<MyAds?>(null)
-//    var locationAds by mutableStateOf<MyAds?>(null)
     private var subMetalData by mutableStateOf<AllSubMetalData?>(null)
     var suggestSubMetals by mutableStateOf<List<SubData>?>(null)
     var adPostResponse by mutableStateOf<ResponseCreatePost?>(null)
     var allAdsData by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
-    var locationAds by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
-    private var isLocationAdsInitialized by mutableStateOf(false) // Track initialization
+    private var currentRequest: AdPostDto? = null
 
-    fun getAdsByLocation(adPostDto: AdPostDto) = viewModelScope.launch {
-//        if (!isLocationAdsInitialized) {
-//            Log.d("ksdhg", "getAdsByLocation: $isLocationAdsInitialized")
-            val response = genericPagingRepository.getPagingData(
-                requestData = adPostDto,
-                updateRequest = { request, page -> request.copy(page = page.toString()) },
-                fetchData = { request ->
-                    apiInterface.getAllAds(
-                        city = request.city,
-                        metalName = request.metalName,
-                        perPage = request.perPage,
-                        page = request.page
-                    ).data
-                }
-            )
-            locationAds = response
-//            isLocationAdsInitialized = true
-//        }
+    private var _locationAds: Flow<PagingData<AdsData>> = flowOf(PagingData.empty())
+    val locationAds: Flow<PagingData<AdsData>> get() = _locationAds
+
+    fun getAdsByLocation(adPostDto: AdPostDto) {
+        if (currentRequest == adPostDto) return // Prevent unnecessary reloads
+        currentRequest = adPostDto
+
+        _locationAds = genericPagingRepository.getPagingData(
+            requestData = adPostDto,
+            updateRequest = { request, page -> request.copy(page = page.toString()) },
+            fetchData = { request ->
+                apiInterface.getAllAds(
+                    city = request.city,
+                    metalName = request.metalName,
+                    perPage = request.perPage,
+                    page = request.page
+                ).data
+            }
+        ).cachedIn(viewModelScope) // Cache to prevent reload on navigation
     }
 
     fun getAdsByUserid(adPostDto: AdPostDto) = viewModelScope.launch {

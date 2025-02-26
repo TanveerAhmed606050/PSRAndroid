@@ -69,6 +69,7 @@ import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Constant
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
 
@@ -310,7 +311,7 @@ fun HomeAdsItems(
             modifier = Modifier.fillMaxSize() // Make Box take up the full size of the Card
         ) {
             AsyncImage(
-                model = adData.photos[0], contentDescription = "",
+                model = Constant.MEDIA_BASE_URL + adData.photos[0], contentDescription = "",
                 error = painterResource(id = R.drawable.demo_scrap),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
