@@ -47,6 +47,7 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -260,7 +261,7 @@ fun FullScreenImageDialog(
                 val uri = if (serverImageList != null) serverImageList[page] else imageList[page]
                 Box(modifier = Modifier) {
                     AsyncImage(
-                        model = uri, contentDescription = "",
+                        model = Constant.BASE_URL + uri, contentDescription = "",
 //                        placeholder = painterResource(id = R.drawable.demo_scrap),
                         error = painterResource(id = R.drawable.demo_scrap),
                         contentScale = ContentScale.Crop,

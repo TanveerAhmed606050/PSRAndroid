@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -78,6 +79,7 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
+import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
@@ -231,19 +233,49 @@ fun AdsItemsView(
                     .padding(8.dp)
                     .background(Color.White), // Add some padding for better spacing
             ) {
-                AsyncImage(
-                    model = if (adData.photos.isNotEmpty()) {
-                        Constant.MEDIA_BASE_URL + adData.photos[0]
-                    } else adData.photos, contentDescription = "",
-                    error = painterResource(id = R.drawable.demo_scrap),
-                    placeholder = painterResource(id = R.drawable.demo_scrap),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .padding(8.dp)
-                        .height(150.dp)
-                        .width(130.dp),
-                    contentScale = ContentScale.Crop
-                )
+                Card(
+                    modifier = Modifier.height(150.dp).width(150.dp).padding(1.dp),
+                    shape = RoundedCornerShape(15.dp), // Set corner radius
+                    colors = CardDefaults.cardColors(DarkBlue),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Box(modifier = Modifier.padding(1.dp)) {
+                        AsyncImage(
+                            model = if (adData.photos.isNotEmpty()) {
+                                Constant.MEDIA_BASE_URL + adData.photos[0]
+                            } else adData.photos, contentDescription = "",
+                            error = painterResource(id = R.drawable.demo_scrap),
+                            placeholder = painterResource(id = R.drawable.demo_scrap),
+                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                                .clip(RoundedCornerShape(15.dp)),
+                            contentScale = ContentScale.Crop
+                        )
+                        Row(
+                            verticalAlignment = Alignment.Bottom,
+                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_photo_24),
+                                contentDescription = "Gallery",
+                                modifier = Modifier.size(24.dp).padding(start=10.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Start,
+                                text = adData.photos.size.toString(),
+                                fontSize = 14.sp,
+                                fontFamily = boldFont,
+                                color = Color.White,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                            )
+                        }
+
+                    }
+
+                }
+
                 Column(
                     modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -252,7 +284,7 @@ fun AdsItemsView(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start,
                         text = adData.metalName,
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         fontFamily = regularFont,
                         color = Color.DarkGray,
                         maxLines = 1,
@@ -263,12 +295,14 @@ fun AdsItemsView(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start,
                         text = "PKR ${adData.price}",
-                        fontSize = 12.sp,
-                        fontFamily = regularFont,
+                        fontSize = 14.sp,
+                        fontFamily = mediumFont,
                         color = Color.DarkGray,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                     )
+
+
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         modifier = Modifier.fillMaxWidth(),

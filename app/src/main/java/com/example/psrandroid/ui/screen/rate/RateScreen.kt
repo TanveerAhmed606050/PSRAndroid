@@ -241,7 +241,7 @@ fun DashBoardScreen(
                     ) {
                         items(productList.size) { index ->
                             ProductList(productList[index])
-                            HorizontalDivider()
+                           // HorizontalDivider()
                         }
                     }
                 }
