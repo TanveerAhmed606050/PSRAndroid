@@ -40,6 +40,7 @@ class AdPostVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
     var hasLoaded by mutableStateOf(false)
+    var hasLocationAdsData by mutableStateOf(false)
 
     //    var allAdsData by mutableStateOf<MyAds?>(null)
 //    var locationAds by mutableStateOf<MyAds?>(null)
@@ -53,8 +54,7 @@ class AdPostVM @Inject constructor(
     fun getAdsByLocation(adPostDto: AdPostDto) = viewModelScope.launch {
 //        if (!isLocationAdsInitialized) {
 //            Log.d("ksdhg", "getAdsByLocation: $isLocationAdsInitialized")
-        if(!hasLoaded) {
-            val response = genericPagingRepository.getPagingData(
+             locationAds = genericPagingRepository.getPagingData(
                 requestData = adPostDto,
                 updateRequest = { request, page -> request.copy(page = page.toString()) },
                 fetchData = { request ->
@@ -65,9 +65,7 @@ class AdPostVM @Inject constructor(
                         page = request.page
                     ).data
                 }
-            )
-            locationAds = response
-        }
+            ).cachedIn(viewModelScope)
 //            isLocationAdsInitialized = true
 //        }
     }

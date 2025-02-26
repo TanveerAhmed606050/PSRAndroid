@@ -67,7 +67,7 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val locationData = locationList.map { it.name }
     LaunchedEffect(selectedCity, search) {
-        if (isNetworkAvailable(context))
+        if(!adPostVM.hasLocationAdsData&&isNetworkAvailable(context))
             adPostVM.getAdsByLocation(
                 AdPostDto(
                     metalName = search.text,
@@ -76,9 +76,8 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
                     page = "1"
                 )
             )
-        else
-            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
-                .show()
+        adPostVM.hasLocationAdsData=true
+
     }
     AllPostScreenUI(selectedCity = selectedCity,
         search = search,
