@@ -67,6 +67,8 @@ import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import es.dmoral.toasty.Toasty
 
 @Composable
@@ -156,7 +158,7 @@ fun DetailAdScreenViews(
     onSMSClick: () -> Unit,
     onWhatsAppCallClick: () -> Unit,
     onImageClick: () -> Unit,
-) {
+) {val pagerState = rememberPagerState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -169,16 +171,32 @@ fun DetailAdScreenViews(
                 .fillMaxWidth()
                 .fillMaxHeight()
         ) {
-            AsyncImage(
-                model = if (adsData.photos.isEmpty()) adsData.photos else Constant.MEDIA_BASE_URL + adsData.photos[0],
-                contentDescription = "",
-                error = painterResource(id = R.drawable.demo_scrap),
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp)
-                    .clickable { onImageClick() },
-            )
+            HorizontalPager(
+                count = adsData.photos.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxSize().height(400.dp)
+            ) { page ->
+                val uri = if (adsData.photos.isNotEmpty()) adsData.photos[page] else adsData.photos[page]
+                Box(modifier = Modifier) {
+                    AsyncImage(
+                        model = uri, contentDescription = "",
+                        error = painterResource(id = R.drawable.demo_scrap),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .clickable { },
+                    )
+                }
+            }
+//            AsyncImage(
+//                model = if (adsData.photos.isEmpty()) adsData.photos else Constant.MEDIA_BASE_URL + adsData.photos[0],
+//                contentDescription = "",
+//                error = painterResource(id = R.drawable.demo_scrap),
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(400.dp)
+//                    .clickable { onImageClick() },
+//            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

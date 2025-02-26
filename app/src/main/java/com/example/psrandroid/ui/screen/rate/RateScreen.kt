@@ -64,7 +64,7 @@ import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.screen.home.CityItems
 import com.example.psrandroid.ui.screen.rate.models.MainMetalData
 import com.example.psrandroid.ui.screen.rate.models.MetalData
-import com.example.psrandroid.ui.screen.rate.models.Submetal
+import com.example.psrandroid.ui.screen.rate.models.SubMetals
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
@@ -457,7 +457,7 @@ fun ProductList(mainMetalData: MetalData) {
 }
 
 @Composable
-fun ProductItem(subMetalDetail: Submetal) {
+fun ProductItem(subMetalDetail: SubMetals) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
