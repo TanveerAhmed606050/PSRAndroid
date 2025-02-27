@@ -180,7 +180,6 @@ fun DetailAdScreenViews(
                     .height(400.dp)
             ) { page ->
                 val uri = if (adsData.photos.isNotEmpty()) Constant.MEDIA_BASE_URL + adsData.photos[page] else ""
-                Log.d("sldgj", "url: $uri")
                 Box(modifier = Modifier) {
                     AsyncImage(
                         model = uri, contentDescription = "",

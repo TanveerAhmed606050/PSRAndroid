@@ -48,7 +48,7 @@ class AdPostVM @Inject constructor(
     val locationAds: Flow<PagingData<AdsData>> get() = _locationAds
 
     fun getAdsByLocation(adPostDto: AdPostDto) {
-        if (currentRequest == adPostDto) return // Prevent unnecessary reloads
+        if (currentRequest?.city == adPostDto.city && currentRequest?.metalName == adPostDto.metalName) return // Prevent unnecessary reloads
         currentRequest = adPostDto
 
         _locationAds = genericPagingRepository.getPagingData(

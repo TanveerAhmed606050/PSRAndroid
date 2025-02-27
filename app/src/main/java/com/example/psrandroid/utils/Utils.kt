@@ -81,7 +81,7 @@ object Utils {
         val contentResolver = context.contentResolver
         val tempFile = File(
             context.cacheDir,
-            "temp_image.jpg"
+            "${System.currentTimeMillis()}.jpg"
         ) // Change extension based on your API requirement
 
         contentResolver.openInputStream(uri)?.use { inputStream ->

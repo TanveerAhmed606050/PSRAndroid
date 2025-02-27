@@ -51,64 +51,6 @@ import com.example.psrandroid.utils.Utils.isValidText
 import java.util.Locale
 
 @Composable
-fun ProfileInputField(
-    value: String,
-    keyboardType: KeyboardType,
-    imeAction: ImeAction,
-    onValueChange: (String) -> Unit,
-    icon: ImageVector, placeholder: String,
-    enabled: Boolean = true // Add an enabled parameter with a default value of true
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = {
-            onValueChange(it)
-        },
-        leadingIcon = {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        },
-        placeholder = {
-            Text(
-                text = placeholder, color = Color.White,
-                fontSize = 16.sp,
-                fontFamily = regularFont,
-            )
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = DarkBlue, // Change focused border color
-            unfocusedBorderColor = colorResource(id = R.color.text_grey), // Change unfocused border color
-            focusedLabelColor = DarkBlue,
-            unfocusedLabelColor = if (value.isEmpty()) Color.White else DarkBlue,
-            focusedTextColor = DarkBlue,
-            unfocusedTextColor = colorResource(id = R.color.text_grey)
-        ),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction,
-            capitalization = KeyboardCapitalization.Sentences
-        ),
-        shape = RoundedCornerShape(50),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp)
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(LightBlue, Color.White)
-                ),
-                shape = RoundedCornerShape(50) // Rounded corners for background
-            )
-            .padding(0.dp),
-        enabled = enabled // Use the enabled parameter to control the TextField's state
-    )
-}
-
-@Composable
 fun MyTextFieldWithBorder(
     modifier: Modifier = Modifier,
     value: String,
@@ -155,6 +97,7 @@ fun MyTextFieldWithBorder(
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = imeAction,
+            capitalization = KeyboardCapitalization.Sentences // Capitalize first letter
         ),
         leadingIcon = if (isRtl) {
             {
@@ -440,6 +383,7 @@ fun CustomTextField(
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType,
                 imeAction = imeAction,
+                capitalization = KeyboardCapitalization.Sentences // Capitalize first letter
             ),
             enabled = enable,
         )

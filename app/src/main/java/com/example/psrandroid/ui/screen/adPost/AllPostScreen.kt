@@ -3,6 +3,7 @@ package com.example.psrandroid.ui.screen.adPost
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.psp_android.R
 import com.example.psrandroid.dto.AdPostDto
 import com.example.psrandroid.navigation.Screen
+import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.example.psrandroid.ui.screen.adPost.models.mockup
@@ -47,6 +49,7 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.google.gson.Gson
+import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.flow.flowOf
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,22 +67,8 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val noInternetMessage = stringResource(id = R.string.network_error)
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val locationData = locationList.map { it.name }
-//    LaunchedEffect(selectedCity, search) {
-//        if (isNetworkAvailable(context))
-//            adPostVM.getAdsByLocation(
-//                AdPostDto(
-//                    metalName = search.text,
-//                    city = selectedCity,
-//                    perPage = "10",
-//                    page = "1"
-//                )
-//            )
-//        else
-//            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
-//                .show()
-//    }
-    LaunchedEffect(Unit) {
-        if (adsData.itemCount == 0) { // Fetch only if empty
+    LaunchedEffect(selectedCity, search) {
+        if (isNetworkAvailable(context))
             adPostVM.getAdsByLocation(
                 AdPostDto(
                     metalName = search.text,
@@ -88,8 +77,22 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
                     page = "1"
                 )
             )
-        }
+        else
+            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+                .show()
     }
+//    LaunchedEffect(Unit) {
+//        if (adsData.itemCount == 0) { // Fetch only if empty
+//            adPostVM.getAdsByLocation(
+//                AdPostDto(
+//                    metalName = search.text,
+//                    city = selectedCity,
+//                    perPage = "10",
+//                    page = "1"
+//                )
+//            )
+//        }
+//    }
     AllPostScreenUI(selectedCity = selectedCity,
         search = search,
         adsData = adsData,

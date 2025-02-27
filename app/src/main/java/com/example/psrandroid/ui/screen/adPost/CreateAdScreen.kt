@@ -1,5 +1,6 @@
 package com.example.psrandroid.ui.screen.adPost
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -78,6 +79,7 @@ import com.example.psrandroid.ui.commonViews.CustomTextField
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
+import com.example.psrandroid.ui.commonViews.showRewardedAd
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.screen.rate.SearchBar
@@ -201,6 +203,7 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
             launcher.launch("image/*") // Open the gallery to select images
         },
         onAdPostClick = { metalName, desc, price ->
+//            Log.d("sldgj", "url: $fileList")
             if (metalName.isEmpty() || desc.isEmpty() || price.isEmpty() || selectedImages.isEmpty()) {
                 Toasty.error(
                     context,
@@ -354,7 +357,7 @@ fun AdScreenView(
                 imeAction = ImeAction.Next,
                 placeholder = stringResource(id = R.string.my_name),
                 onValueChange = { metalName = it },
-                imageId = R.drawable.home_ic
+                imageId = R.drawable.baseline_person_24
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(
@@ -376,7 +379,7 @@ fun AdScreenView(
                 imeAction = ImeAction.Next,
                 placeholder = stringResource(id = R.string.price),
                 onValueChange = { price = it },
-                imageId = R.drawable.home_ic
+                imageId = R.drawable.rate_ic
             )
             Spacer(modifier = Modifier.height(10.dp))
             Text(

@@ -49,6 +49,7 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
+import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.android.gms.ads.MobileAds
 import java.util.Locale
@@ -119,7 +120,9 @@ fun PrimeUserScreen(
                 })
             Spacer(modifier = Modifier.padding(top = 10.dp))
             if (primeUserData?.isNotEmpty() == true) {
-                LazyColumn(contentPadding = PaddingValues(horizontal = 0.dp), modifier = Modifier.padding(0.dp,0.dp,0.dp,20.dp)
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 0.dp),
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp)
                 )
                 {
                     items(primeUserData.size) { index ->
@@ -157,6 +160,7 @@ fun UserItemData(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
+            Log.d("sldgj", "url: ${Constant.MEDIA_BASE_URL}${primeUserData.profileImage}")
             MyAsyncImage(imageUrl = primeUserData.profileImage ?: "", 45.dp, true)
         }
         Spacer(modifier = Modifier.height(8.dp))
