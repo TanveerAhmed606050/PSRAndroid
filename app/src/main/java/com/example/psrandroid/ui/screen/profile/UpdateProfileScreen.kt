@@ -295,7 +295,7 @@ fun UpdateProfileScreen(
                         .fillMaxHeight()
                         .wrapContentHeight(Alignment.Bottom)
                 ) {
-                    AppButton(modifier = Modifier,
+                    AppButton(modifier = Modifier.padding(bottom = 20.dp),
                         text = stringResource(id = R.string.update_profile),
                         onButtonClick = { updateButtonClick() })
                 }
