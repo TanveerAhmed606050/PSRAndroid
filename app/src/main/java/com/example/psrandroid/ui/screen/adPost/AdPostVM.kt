@@ -20,6 +20,9 @@ import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -44,25 +47,31 @@ class AdPostVM @Inject constructor(
     var allAdsData by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
     private var currentRequest: AdPostDto? = null
 
-    private var _locationAds: Flow<PagingData<AdsData>> = flowOf(PagingData.empty())
-    val locationAds: Flow<PagingData<AdsData>> get() = _locationAds
+    private var _locationAds = MutableStateFlow<PagingData<AdsData>>(PagingData.empty())
+
+    val locationAds: StateFlow<PagingData<AdsData>> get() = _locationAds
 
     fun getAdsByLocation(adPostDto: AdPostDto) {
         if (currentRequest?.city == adPostDto.city && currentRequest?.metalName == adPostDto.metalName) return // Prevent unnecessary reloads
         currentRequest = adPostDto
-
-        _locationAds = genericPagingRepository.getPagingData(
-            requestData = adPostDto,
-            updateRequest = { request, page -> request.copy(page = page.toString()) },
-            fetchData = { request ->
-                apiInterface.getAllAds(
-                    city = request.city,
-                    metalName = request.metalName,
-                    perPage = request.perPage,
-                    page = request.page
-                ).data
-            }
-        ).cachedIn(viewModelScope) // Cache to prevent reload on navigation
+        Log.d("dkshg", "Post:$adPostDto")
+        viewModelScope.launch {
+            genericPagingRepository.getPagingData(
+                requestData = adPostDto,
+                updateRequest = { request, page -> request.copy(page = page.toString()) },
+                fetchData = { request ->
+                    apiInterface.getAllAds(
+                        city = request.city,
+                        metalName = request.metalName,
+                        perPage = request.perPage,
+                        page = request.page
+                    ).data
+                }
+            ).cachedIn(viewModelScope)
+                .collectLatest { pagingData ->
+                    _locationAds.value = pagingData
+                }
+        }
     }
 
     fun getAdsByUserid(adPostDto: AdPostDto) = viewModelScope.launch {

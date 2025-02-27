@@ -119,7 +119,7 @@ fun LmeList(lmeData: List<LmeData>?) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 150.dp),
+            .padding(bottom = 100.dp),
         contentPadding = PaddingValues(vertical = 0.dp)
     ) {
 

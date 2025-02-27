@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +58,7 @@ import kotlinx.coroutines.flow.flowOf
 fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
     var search by remember { mutableStateOf(TextFieldValue("")) }
-    var selectedCity by remember {
+    var selectedCity by rememberSaveable {
         mutableStateOf(
             adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
         )
@@ -68,6 +69,7 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val locationData = locationList.map { it.name }
     LaunchedEffect(selectedCity, search) {
+        Log.d("dkshg", "Post:$selectedCity")
         if (isNetworkAvailable(context))
             adPostVM.getAdsByLocation(
                 AdPostDto(

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -173,7 +172,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         backClick = { navController.popBackStack() },
         onNotificationSelection = { isChecked ->
 // Check if permission is granted
-            Log.d("dkshg", "MyProfileScreen:$isChecked")
+//            Log.d("dkshg", "MyProfileScreen:$isChecked")
             if (!permissionState.status.isGranted) {
                 permissionState.launchPermissionRequest()
             }
@@ -213,7 +212,7 @@ fun MyProfileScreen(
             Spacer(modifier = Modifier.padding(top = 20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
-                    MyAsyncImage(imageUrl = Constant.MEDIA_BASE_URL+profilePic, 50.dp, true)
+                    MyAsyncImage(imageUrl = Constant.BASE_URL + profilePic, 50.dp, true)
                     Surface(
                         color = DarkBlue,
                         shape = CircleShape,
