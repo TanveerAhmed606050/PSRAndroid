@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -78,7 +77,6 @@ fun DetailAdScreen(
     adData: AdsData?,
     isMyAd: Boolean?
 ) {
-    Log.d("lsdjg", "AdPost: $adData")
     val context = LocalContext.current
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -91,7 +89,7 @@ fun DetailAdScreen(
                 context,
                 context.getString(R.string.call_permission_error),
                 Toast.LENGTH_SHORT,
-                true
+                false
             ).show()
         }
     }
@@ -115,16 +113,13 @@ fun DetailAdScreen(
                     onAdClick = {
                         rateVM.watchAd = true
                     })
-                Log.d("RewardedAd", "Add Click")
             } else {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE)
                     == PackageManager.PERMISSION_GRANTED
                 ) {
                     openCallApp(context, number)
-                    Log.d("RewardedAd", "Permission Granted")
                 } else {
                     callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
-                    Log.d("RewardedAd", "callPermissionLauncher")
                 }
             }
         },
@@ -192,16 +187,7 @@ fun DetailAdScreenViews(
                     )
                 }
             }
-//            AsyncImage(
-//                model = if (adsData.photos.isEmpty()) adsData.photos else Constant.MEDIA_BASE_URL + adsData.photos[0],
-//                contentDescription = "",
-//                error = painterResource(id = R.drawable.demo_scrap),
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(400.dp)
-//                    .clickable { onImageClick() },
-//            )
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -228,15 +214,6 @@ fun DetailAdScreenViews(
                 )
             }
 
-//            Image(
-//                painter = rememberAsyncImagePainter(Constant.MEDIA_BASE_URL + adsData.photos),
-//                contentDescription = "",
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(400.dp)
-//                    .clickable { onImageClick() },
-//                contentScale = ContentScale.Crop,
-//            )
             Image(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
                 contentDescription = null,
@@ -370,7 +347,7 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
                 context,
                 context.getText(R.string.no_whatsApp_error),
                 Toast.LENGTH_SHORT,
-                true
+                false
             )
                 .show()
         }
@@ -380,7 +357,7 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
             context,
             context.getText(R.string.open_whatsApp_error),
             Toast.LENGTH_SHORT,
-            true
+            false
         ).show()
     }
 }

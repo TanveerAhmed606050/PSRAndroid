@@ -1,6 +1,5 @@
 package com.example.psrandroid.ui.screen.adPost
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,8 +14,6 @@ import com.example.psrandroid.repository.HomeRepository
 import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.ui.screen.adPost.models.AdsData
 import com.example.psrandroid.ui.screen.adPost.models.ResponseCreatePost
-import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
-import com.example.psrandroid.ui.screen.rate.models.SubData
 import com.example.psrandroid.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -40,9 +37,6 @@ class AdPostVM @Inject constructor(
 ) : ViewModel() {
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
-
-    private var subMetalData by mutableStateOf<AllSubMetalData?>(null)
-    var suggestSubMetals by mutableStateOf<List<SubData>?>(null)
     var adPostResponse by mutableStateOf<ResponseCreatePost?>(null)
     var allAdsData by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
     private var currentRequest: AdPostDto? = null
@@ -54,7 +48,6 @@ class AdPostVM @Inject constructor(
     fun getAdsByLocation(adPostDto: AdPostDto) {
         if (currentRequest?.city == adPostDto.city && currentRequest?.metalName == adPostDto.metalName) return // Prevent unnecessary reloads
         currentRequest = adPostDto
-        Log.d("dkshg", "Post:$adPostDto")
         viewModelScope.launch {
             genericPagingRepository.getPagingData(
                 requestData = adPostDto,
@@ -89,18 +82,6 @@ class AdPostVM @Inject constructor(
         allAdsData = response
     }
 
-    fun getAllSubMetals() = viewModelScope.launch {
-        if (subMetalData == null) {
-            val result = homeRepository.getAllSubMetals()
-            if (result is Result.Success) {
-                subMetalData = result.data
-                suggestSubMetals = result.data.data
-            } else if (result is Result.Failure) {
-                error = result.exception.message ?: "Failure"
-            }
-        }
-    }
-
     fun createPost(
         userId: String,
         metalName: String,
@@ -113,7 +94,6 @@ class AdPostVM @Inject constructor(
         photos: List<MultipartBody.Part>
     ) = viewModelScope.launch {
         isLoading = true
-        Log.d("lsdjg", "createPost: $photos")
         val result = homeRepository.createPost(
             userId = userId.toRequestBody(),
             metalName = metalName.toRequestBody(),
@@ -126,19 +106,11 @@ class AdPostVM @Inject constructor(
             photos = photos
         )
         isLoading = false
-        Log.d("lsdjg", "Response: $result")
         if (result is Result.Success) {
             adPostResponse = result.data
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
-    }
-
-    fun searchSubMetals(searchText: String) {
-        suggestSubMetals = subMetalData?.data?.filter {
-            it.name.contains(searchText, ignoreCase = true) ||
-                    it.urduName.contains(searchText)
-        } ?: listOf()
     }
 
     // Helper function to convert String to RequestBody

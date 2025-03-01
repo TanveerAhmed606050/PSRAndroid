@@ -51,11 +51,11 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM, phoneNumbe
     val resetPasswordResponse = authVM.resetPasswordResponse
     if (resetPasswordResponse != null) {
         if (resetPasswordResponse.status) {
-            Toasty.success(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.success(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, false).show()
             navController.popBackStack()
             navController.popBackStack()
         } else
-            Toasty.error(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, false).show()
         authVM.resetPasswordResponse = null
     }
 
@@ -64,16 +64,16 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM, phoneNumbe
     },
         resetPasswordClick = { password, confirmPassword ->
             if (isValidPassword(password).isNotEmpty())
-                Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true).show()
+                Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, false).show()
             else if (isValidPassword(confirmPassword).isNotEmpty())
-                Toasty.error(context, isValidPassword(confirmPassword), Toast.LENGTH_SHORT, true)
+                Toasty.error(context, isValidPassword(confirmPassword), Toast.LENGTH_SHORT, false)
                     .show()
             else if (confirmPassword != password)
                 Toasty.error(
                     context,
                     context.getString(R.string.confirm_pass_err),
                     Toast.LENGTH_SHORT,
-                    true
+                    false
                 ).show()
             else {
                 authVM.resetPassword(

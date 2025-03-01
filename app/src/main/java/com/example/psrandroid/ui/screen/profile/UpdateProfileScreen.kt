@@ -54,7 +54,6 @@ import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
-import com.example.psrandroid.ui.screen.auth.models.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
@@ -85,7 +84,7 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
                 context,
                 authVM.loginData?.message ?: "",
                 Toast.LENGTH_SHORT,
-                true
+                false
             )
                 .show()
             navController.popBackStack()
@@ -94,7 +93,7 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
                 context,
                 authVM.loginData?.message ?: "",
                 Toast.LENGTH_SHORT,
-                true
+                false
             )
                 .show()
         authVM.loginData = null
@@ -151,12 +150,9 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
                     context,
                     context.getString(R.string.network_error),
                     Toast.LENGTH_SHORT,
-                    true
+                    false
                 )
                     .show()
-//            val loginData = User(name = name, phone = phone, userId = userId)
-//            sharedPreferences.saveUserPreference(loginData)
-//            navController.popBackStack()
         },
         onCitySelect = {
             address = it
@@ -187,7 +183,6 @@ fun UpdateProfileScreen(
                 expandedCity = false
             })
     }
-
     Box(
         modifier = Modifier
             .fillMaxSize()

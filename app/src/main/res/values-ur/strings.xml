@@ -57,6 +57,9 @@
     <string name="location">مقام</string>
     <string name="email">ای میل</string>
     <string name="phone">فون</string>
+    <string name="number_available_err">آپ کے پاس پہلے سے ہی ایک اکاؤنٹ ہے۔ براہ کرم پاس ورڈ بھول گئے آپشن پر جائیں اور اپنا اکاؤنٹ بازیافت کریں۔</string>
+    <string name="verify_now">تصدیق کریں</string>
+    <string name="verified">تصدیق شدہ</string>
     <string name="phone_no">فون نمبر</string>
     <string name="address">پتہ</string>
     <string name="profile">پروفائل</string>

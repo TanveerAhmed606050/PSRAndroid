@@ -1,10 +1,7 @@
 package com.example.psrandroid.network
 
 import com.example.psrandroid.dto.ImageUpdate
-import com.example.psrandroid.dto.UpdateLocation
-import com.example.psrandroid.dto.UpdateToken
 import com.example.psrandroid.dto.UserCredential
-import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LmeResponse
 import com.example.psrandroid.response.LocationResponse
 import com.example.psrandroid.response.PrimeUser
@@ -14,9 +11,7 @@ import com.example.psrandroid.ui.screen.auth.models.AuthResponse
 import com.example.psrandroid.ui.screen.auth.models.InfoDataResponse
 import com.example.psrandroid.ui.screen.home.model.HomeResponse
 import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
-import com.example.psrandroid.ui.screen.rate.models.AllSubMetalData
 import com.example.psrandroid.ui.screen.rate.models.MetalRateResponse
-import com.example.psrandroid.ui.screen.rate.models.RateScreenResponse
 import com.example.psrandroid.ui.screen.rate.models.RateSuggestionResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -41,20 +36,6 @@ interface ApiInterface {
 
     @GET("locations")
     suspend fun getLocation(): LocationResponse
-
-    @GET("dealers")
-    suspend fun getDealerList(): DealerResponse
-
-    @GET("metals/location")
-    suspend fun getDashboardData(
-        @Query("location_id") locationId: String,
-        @Query("date") date: String
-    ): RateScreenResponse
-
-    @POST("updateLocation")
-    suspend fun updateUserLocation(
-        @Body updateLocation: UpdateLocation
-    ): AuthResponse
 
     @POST("updateUserImage")
     suspend fun updateUserImage(
@@ -108,20 +89,12 @@ interface ApiInterface {
         @Query("page") page: String,
     ): MyAds
 
-    @GET("Ads/getAdsByLocation")
-    suspend fun getAdsByLocation(
-        @Query("location") location: String,
-    ): MyAds
-
     @GET("Ads/user")
     suspend fun getAdsByUser(
         @Query("user_id") userId: String,
         @Query("per_page") perPage: String,
         @Query("page") page: String,
     ): MyAds
-
-    @GET("Ads/getSubmetals")
-    suspend fun getAllSubMetals(): AllSubMetalData
 
     @Multipart
     @POST("Ads/create")
@@ -139,10 +112,4 @@ interface ApiInterface {
 
     @GET("HomeData")
     suspend fun getHomeData(): HomeResponse
-
-    @POST("user/deviceId")
-    suspend fun updateDeviceToken(
-        @Body updateToken: UpdateToken
-    ): AuthResponse
-
 }

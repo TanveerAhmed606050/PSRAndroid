@@ -27,6 +27,4 @@ class GenericPagingRepository @Inject constructor() :
             )
         }
     ).flow
-
-
 }

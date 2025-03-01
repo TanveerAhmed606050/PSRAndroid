@@ -1,6 +1,7 @@
 package com.example.psrandroid.ui.commonViews
 
 import android.net.Uri
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -230,7 +231,7 @@ fun FullScreenImageDialog(
             targetValue = 0f,
             animationSpec = tween(
                 durationMillis = 600,
-                easing = LinearOutSlowInEasing
+                easing = FastOutSlowInEasing
             )
         ) { value, velocity ->
             rotation = value
@@ -249,7 +250,7 @@ fun FullScreenImageDialog(
                 .fillMaxSize()
                 .graphicsLayer {
                     rotationX = rotation
-                    cameraDistance = 16f * density
+                    cameraDistance = 48f * density // Increased for better 3D effect
                 }
                 .background(AppBG, shape = RoundedCornerShape(0.dp))
         ) {

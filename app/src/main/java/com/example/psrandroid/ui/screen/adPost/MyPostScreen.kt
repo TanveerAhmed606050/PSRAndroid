@@ -2,7 +2,6 @@ package com.example.psrandroid.ui.screen.adPost
 
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -24,7 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -109,7 +108,7 @@ fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
                 )
             )
         else
-            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
                 .show()
     }
     MyPostScreen(
@@ -135,7 +134,6 @@ fun MyPostScreen(
     onAdsClick: (AdsData) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    Log.d("lsdjg", "Count: ${adsData.itemCount}")
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -270,7 +268,6 @@ fun AdsItemsView(
                                 overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                             )
                         }
-
                     }
 
                 }
@@ -300,7 +297,6 @@ fun AdsItemsView(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
                     )
-
 
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(

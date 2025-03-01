@@ -8,18 +8,6 @@ import javax.inject.Inject
 class HomeRepository @Inject constructor(private val apiInterface: ApiInterface) :
     BaseRepository() {
 
-    suspend fun getAdsByLocation(location: String) = loadResource {
-        apiInterface.getAdsByLocation(location)
-    }
-
-//    suspend fun getAdsByUser(userId: String) = loadResource {
-//        apiInterface.getAdsByUser(userId)
-//    }
-
-    suspend fun getAllSubMetals() = loadResource {
-        apiInterface.getAllSubMetals()
-    }
-
     suspend fun createPost(
         userId: RequestBody,
         metalName: RequestBody,

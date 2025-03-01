@@ -21,8 +21,10 @@ data class SubMetalData(
     val submetals: String,
     @SerializedName("submetal_urdu_name")
     val submetalUrduName: String,
-    val price_min: String,
-    val price_max: String,
+    @SerializedName("price_min")
+    val priceMin: String,
+    @SerializedName("price_max")
+    val priceMax: String,
 ) {
     companion object
 }
@@ -33,8 +35,7 @@ val SubMetalData.Companion.mockup by lazy {
         submetalName = "Dexter Booth",
         submetals = "no",
         submetalUrduName = "",
-        price_min = "85 ",
-        price_max = "85 "
+        priceMin = "85 ",
+        priceMax = "85 "
     )
-//    SearchSubMetal(data = listOf(), message = "suscipit", status = false)
 }

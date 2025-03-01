@@ -103,10 +103,10 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     // Display the auth data
     if (authData != null) {
         if (authData.status) {
-            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, false).show()
             profilePic = authData.data.profilePic
         } else
-            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, false).show()
         authVM.loginData = null
     }
 
@@ -116,7 +116,8 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             authVM.userPreferences.clearStorage()
             LogoutSession.clearError()
             navController.navigate(Screen.LoginScreen.route) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                popUpTo(0) { inclusive = true } // Clears all previous screens
+                launchSingleTop = true
             }
         },
             onDismissRequest = {
@@ -138,7 +139,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             if (isNetworkAvailable(context)) {
                 authVM.updateUserImage(ImageUpdate(userId, image = base64String ?: ""))
             } else
-                Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+                Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
                     .show()
         }
     }
@@ -165,14 +166,11 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 context.getString(R.string.selected_language) -> {
                     expandedLang = true
                 }
-
                 else -> navController.navigate(screenRoute)
             }
         },
         backClick = { navController.popBackStack() },
         onNotificationSelection = { isChecked ->
-// Check if permission is granted
-//            Log.d("dkshg", "MyProfileScreen:$isChecked")
             if (!permissionState.status.isGranted) {
                 permissionState.launchPermissionRequest()
             }
@@ -230,7 +228,6 @@ fun MyProfileScreen(
                         }
                     }
                 }
-
             }
             Spacer(modifier = Modifier.height(20.dp))
             ProfileOptions(context, isChecked = isNotificationEnable, screenRoute = { route ->
@@ -364,8 +361,6 @@ fun ProfileOptionItem(
                     screenRoute(context.getString(R.string.logout))
                 else if (route.isNotEmpty())
                     screenRoute(route)
-//                else if (route.isEmpty())
-//                    screenRoute(context.getString(R.string.logout))
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {

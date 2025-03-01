@@ -25,18 +25,12 @@ data class AuthData(
 
 val AuthData.Companion.mockup by lazy {
     AuthData(
-        createdAt = "eam",
+        createdAt = "",
         id = 2268,
         location = "utamur",
         name = "Luciano O'Neil",
         phone = "(896) 723-3609",
-        updatedAt = "verterem",
+        updatedAt = "",
         profilePic = ""
     )
 }
-
-data class User(
-    val userId: Int, val name: String, val phone: String, val location: String = "",
-    @SerializedName("profile_pic")
-    val profilePic: String = ""
-)

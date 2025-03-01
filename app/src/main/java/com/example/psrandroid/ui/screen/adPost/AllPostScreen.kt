@@ -2,7 +2,6 @@ package com.example.psrandroid.ui.screen.adPost
 
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -17,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,12 +63,10 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
         )
     }
     val adsData = adPostVM.locationAds.collectAsLazyPagingItems()
-    Log.d("ksdhg", "Data: ${adsData.itemCount}")
     val noInternetMessage = stringResource(id = R.string.network_error)
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val locationData = locationList.map { it.name }
     LaunchedEffect(selectedCity, search) {
-        Log.d("dkshg", "Post:$selectedCity")
         if (isNetworkAvailable(context))
             adPostVM.getAdsByLocation(
                 AdPostDto(
@@ -80,30 +77,15 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
                 )
             )
         else
-            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
                 .show()
     }
-//    LaunchedEffect(Unit) {
-//        if (adsData.itemCount == 0) { // Fetch only if empty
-//            adPostVM.getAdsByLocation(
-//                AdPostDto(
-//                    metalName = search.text,
-//                    city = selectedCity,
-//                    perPage = "10",
-//                    page = "1"
-//                )
-//            )
-//        }
-//    }
     AllPostScreenUI(selectedCity = selectedCity,
         search = search,
         adsData = adsData,
         cityList = locationData,
         onCityItemClick = { locationName ->
             selectedCity = locationName
-//            val locationId = adPostVM.userPreferences.getLocationList()?.data?.find {
-//                it.name.equals(locationName, ignoreCase = true)
-//            }?.id ?: 0
         },
         onAdsClick = { adData ->
             val adDataJson = Gson().toJson(adData)

@@ -107,13 +107,6 @@ fun SplashScreen() {
             Spacer(modifier = Modifier.padding(bottom = 30.dp))
         }
     }
-//        Image(
-//            painter = painterResource(id = R.drawable.splash_ic),
-//            contentDescription = "",
-//            contentScale = ContentScale.Crop, // Adjust this as needed
-//            modifier = Modifier.fillMaxSize()
-//        )
-//}
 }
 
 @Preview

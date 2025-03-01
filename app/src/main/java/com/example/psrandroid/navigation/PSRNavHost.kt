@@ -11,17 +11,14 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,7 +57,6 @@ import com.example.psrandroid.ui.screen.profile.UpdateProfileScreen
 import com.example.psrandroid.ui.screen.rate.RateScreen
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.utils.DevicePosture
-import com.example.psrandroid.utils.PSRContentType
 import com.example.psrandroid.utils.PSRNavigationContentPosition
 import com.example.psrandroid.utils.PSRNavigationType
 import com.example.psrandroid.utils.isBookPosture
@@ -76,7 +72,6 @@ fun PSRNavigation(
     onLogOut: () -> Unit
 ) {
     val navigationType: PSRNavigationType
-    val contentType: PSRContentType
     val foldingFeature = displayFeatures.filterIsInstance<FoldingFeature>().firstOrNull()
     val foldingDevicePosture = when {
         isBookPosture(foldingFeature) ->
@@ -90,16 +85,10 @@ fun PSRNavigation(
     when (windowSize.widthSizeClass) {
         WindowWidthSizeClass.Compact -> {
             navigationType = PSRNavigationType.BOTTOM_NAVIGATION
-            contentType = PSRContentType.SINGLE_PANE
         }
 
         WindowWidthSizeClass.Medium -> {
             navigationType = PSRNavigationType.NAVIGATION_RAIL
-            contentType = if (foldingDevicePosture != DevicePosture.NormalPosture) {
-                PSRContentType.DUAL_PANE
-            } else {
-                PSRContentType.SINGLE_PANE
-            }
         }
 
         WindowWidthSizeClass.Expanded -> {
@@ -108,12 +97,10 @@ fun PSRNavigation(
             } else {
                 PSRNavigationType.PERMANENT_NAVIGATION_DRAWER
             }
-            contentType = PSRContentType.DUAL_PANE
         }
 
         else -> {
             navigationType = PSRNavigationType.BOTTOM_NAVIGATION
-            contentType = PSRContentType.SINGLE_PANE
         }
     }
 
@@ -172,8 +159,6 @@ fun PSRNavigation(
         navController = navController,
         bottomMenuList = bottomMenuList,
         navigationType = navigationType,
-        contentType = contentType,
-        displayFeatures = displayFeatures,
         navigationContentPosition = navigationContentPosition,
         onLogOut = { onLogOut() }
     )
@@ -185,14 +170,9 @@ fun PSRNavigationWrapper(
     navController: NavHostController,
     bottomMenuList: List<BottomNavigationItem>,
     navigationType: PSRNavigationType,
-    contentType: PSRContentType,
-    displayFeatures: List<DisplayFeature>,
     navigationContentPosition: PSRNavigationContentPosition,
     onLogOut: () -> Unit
 ) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
-
     val navigationActions = remember(navController) {
         PSRNavigationActions(navController)
     }
@@ -212,44 +192,19 @@ fun PSRNavigationWrapper(
             PSRAppContent(
                 bottomMenuList = bottomMenuList,
                 navigationType = navigationType,
-                contentType = contentType,
-                displayFeatures = displayFeatures,
-                navigationContentPosition = navigationContentPosition,
                 navController = navController,
                 selectedDestination = selectedDestination,
                 navigateToTopLevelDestination = navigationActions::navigateTo,
-                onLogOut = { onLogOut() }
             )
         }
     } else {
-//        ModalNavigationDrawer(
-//            drawerState = drawerState,
-//            drawerContent = {
-//                if (bottomMenuList.any { it.route == navController.currentDestination?.route }) ModalNavigationDrawerContent(
-//                    bottomMenuList = bottomMenuList,
-//                    selectedDestination = selectedDestination,
-//                    navigationContentPosition = navigationContentPosition,
-//                    navigateToTopLevelDestination = navigationActions::navigateTo,
-//                    onDrawerClicked = {
-//                        scope.launch {
-//                            drawerState.close()
-//                        }
-//                    },
-//                    onLogOut = { onLogOut() }
-//                )
-//            },
-//        ) {
         PSRAppContent(
             bottomMenuList = bottomMenuList,
             navigationType = navigationType,
-            contentType = contentType,
-            displayFeatures = displayFeatures,
-            navigationContentPosition = navigationContentPosition,
             navController = navController,
             selectedDestination = selectedDestination,
             navigateToTopLevelDestination = navigationActions::navigateTo
-        ) {}
-//        }
+        )
     }
 }
 
@@ -259,27 +214,14 @@ fun PSRAppContent(
     modifier: Modifier = Modifier,
     bottomMenuList: List<BottomNavigationItem>,
     navigationType: PSRNavigationType,
-    contentType: PSRContentType,
-    displayFeatures: List<DisplayFeature>,
-    navigationContentPosition: PSRNavigationContentPosition,
     navController: NavHostController,
     selectedDestination: String,
     navigateToTopLevelDestination: (BottomNavigationItem) -> Unit,
-    onDrawerClicked: () -> Unit = {},
-    onLogOut: () -> Unit
 ) {
     Row(modifier = modifier.fillMaxSize()) {
         if (bottomMenuList.any { it.route == navController.currentDestination?.route }) AnimatedVisibility(
             visible = navigationType == PSRNavigationType.NAVIGATION_RAIL
         ) {
-//            PSRNavigationRail(
-//                bottomMenuList = bottomMenuList,
-//                selectedDestination = selectedDestination,
-//                navigationContentPosition = navigationContentPosition,
-//                navigateToTopLevelDestination = navigateToTopLevelDestination,
-//                onDrawerClicked = onDrawerClicked,
-//                onLogOut = { onLogOut() }
-//            )
         }
         Scaffold(
             bottomBar = {

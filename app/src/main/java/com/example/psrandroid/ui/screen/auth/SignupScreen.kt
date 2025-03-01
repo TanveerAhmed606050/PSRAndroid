@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -60,16 +59,17 @@ import com.example.psrandroid.navigation.Screen
 import com.example.psrandroid.network.isNetworkAvailable
 import com.example.psrandroid.response.LocationData
 import com.example.psrandroid.response.mockup
-import com.example.psrandroid.ui.screen.auth.models.mockup
 import com.example.psrandroid.ui.commonViews.AppButton
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.MyTextFieldWithBorder
 import com.example.psrandroid.ui.commonViews.PasswordTextFields
 import com.example.psrandroid.ui.commonViews.PhoneTextField
+import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
+import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
@@ -87,6 +87,8 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     val showDialog = remember { mutableStateOf(false) }
     var isPhoneNoVerified by remember { mutableStateOf(false) }
     val otpText = remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var selectedCity by rememberSaveable { mutableStateOf("") }
     val message by authVM.message.collectAsState()
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
@@ -100,17 +102,34 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
         if (locationList.isEmpty())
             authVM.getLocation()
     }
+    //handle firebase validation
     if (message?.isNotEmpty() == true) {
-        Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
-        if (message?.contains("code sent to", ignoreCase = true)!!)
+        if (message?.contains("code sent to", ignoreCase = true)!!) {
+            Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
             showDialog.value = true
-        if (message == "Verification successful") {
+        } else if (message == "Verification successful") {
+            Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
             showDialog.value = false
             isPhoneNoVerified = true
-        }
+        } else
+            Toasty.error(context, message ?: "", Toast.LENGTH_SHORT, false).show()
+
         authVM.updateMessage("")
     }
-    var selectedCity by rememberSaveable { mutableStateOf("") }
+    val isPhoneNumberExistResponse = authVM.resetPasswordResponse
+    if (isPhoneNumberExistResponse != null) {
+        if (isPhoneNumberExistResponse.status) {
+            Toasty.error(
+                context,
+                context.getString(R.string.number_available_err),
+                Toast.LENGTH_LONG,
+                false
+            ).show()
+        } else {
+            authVM.sendVerificationCode("+92$phoneNumber", context as Activity)
+        }
+        authVM.resetPasswordResponse = null
+    }
 
     if (authData != null) {
         if (authData.status) {
@@ -119,7 +138,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                 popUpTo(navController.graph.id)
             }
         } else
-            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, false).show()
         authVM.loginData = null
     }
     //OTP dialog
@@ -127,7 +146,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
         showDialog = showDialog,
         otpText = otpText.value,
         otpCount = 6, // Example OTP length
-        onOtpTextChange = { text, isComplete ->
+        onOtpTextChange = { text, _ ->
             otpText.value = text
         },
         onConfirmBtn = {
@@ -143,6 +162,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
             navController.popBackStack()
         },
         onRegisterButtonClick = { phone, name, password, confirmPass ->
+            phoneNumber = phone
             if (isNetworkAvailable(context)) {
                 if (isValidText(name).isNotEmpty())
                     Toasty.error(context, isValidText(name), Toast.LENGTH_SHORT, true).show()
@@ -154,7 +174,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                         context,
                         context.getString(R.string.select_city_error),
                         Toast.LENGTH_SHORT,
-                        true
+                        false
                     ).show()
                 else if (isValidPassword(password).isNotEmpty())
                     Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true)
@@ -167,13 +187,13 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                         context,
                         context.getString(R.string.confirm_pass_err),
                         Toast.LENGTH_SHORT,
-                        true
+                        false
                     ).show()
                 else {
-                    val phoneNo = phone.takeLast(10)
+                    phoneNumber = phone.takeLast(10)
                     authVM.register(
                         UserCredential(
-                            phone = "+92$phoneNo", name = name, password = password,
+                            phone = "+92$phoneNumber", name = name, password = password,
                             location = selectedCity
                         )
                     )
@@ -183,7 +203,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                     context,
                     noNetworkMessage,
                     Toast.LENGTH_SHORT,
-                    true
+                    false
                 )
                     .show()
 
@@ -197,14 +217,29 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                         context,
                         noNetworkMessage,
                         Toast.LENGTH_SHORT,
-                        true
+                        false
                     )
                         .show()
             } else
                 selectedCity = selectedLocation
         },
         onVerificationIconClick = { phoneNo ->
-            authVM.sendVerificationCode("+92$phoneNo", context as Activity)
+            if (isValidPhone(phoneNo).isNotEmpty())
+                Toasty.error(
+                    context,
+                    isValidPhone(phoneNo),
+                    Toast.LENGTH_SHORT,
+                    false
+                )
+                    .show()
+            else {
+                phoneNumber = phoneNo.takeLast(10)
+                authVM.phoneValidate(
+                    UpdateUserData(
+                        phone = "+92$phoneNo"
+                    )
+                )
+            }
         })
 }
 
@@ -264,31 +299,69 @@ fun SignupScreen(
                     imageId = R.drawable.baseline_person_24
                 )
                 Spacer(modifier = Modifier.padding(top = 20.dp))
-
-                PhoneTextField(
-                    value = phoneNumber,
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next,
-                    placeholder = stringResource(id = R.string.phone),
-                    onValueChange = { phoneNumber = it },
-                    imageId = R.drawable.baseline_phone_24
-                )
-                Spacer(modifier = Modifier.padding(top = 10.dp))
-                if (isValidPhone(phoneNumber).isEmpty() && !isPhoneNoVerified)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onVerificationIconClick(phoneNumber) },
-                        horizontalArrangement = if (isRtl) Arrangement.Start else Arrangement.End,
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.verify_mbl_ic),
-                            contentDescription = "",
-                            modifier = Modifier.size(32.dp),
-//                            alignment = if (isRtl) Alignment.TopStart else Alignment.TopEnd,
-                            colorFilter = ColorFilter.tint(DarkBlue)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (isRtl)
+                        Text(
+                            text = if (isPhoneNoVerified) stringResource(id = R.string.verified)
+                            else stringResource(id = R.string.verify_now),
+                            color = if (isPhoneNoVerified) DarkBlue else LightRed40,
+                            fontFamily = mediumFont,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(end = 8.dp)
+                                .clickable { onVerificationIconClick(phoneNumber) }
                         )
-                    }
+                    PhoneTextField(
+                        value = phoneNumber,
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                        placeholder = stringResource(id = R.string.phone),
+                        onValueChange = { phoneNumber = it },
+                        imageId = R.drawable.baseline_phone_24,
+                        modifier = Modifier.weight(1f) // Ensure it takes available space
+                    )
+                    if (!isRtl)
+                        Text(
+                            text = if (isPhoneNoVerified) stringResource(id = R.string.verified)
+                            else stringResource(id = R.string.verify_now),
+                            color = if (isPhoneNoVerified) LightBlue else LightRed40,
+                            fontFamily = mediumFont,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(start = 8.dp)
+                                .clickable { onVerificationIconClick(phoneNumber) }
+                        )
+                }
+
+                Spacer(modifier = Modifier.padding(top = 10.dp))
+//                if (isValidPhone(phoneNumber).isEmpty() && !isPhoneNoVerified)
+//                if (!isPhoneNoVerified)
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .clickable { onVerificationIconClick(phoneNumber) },
+//                        horizontalArrangement = if (isRtl) Arrangement.Start else Arrangement.End,
+//                    ) {
+//                        Text(
+//                            text = stringResource(
+//                                id = R.string.verify_now
+//                            ),
+//                            color = LightRed40,
+//                            fontFamily = regularFont,
+//                            fontSize = 14.sp,
+//                        )
+//                        Image(
+//                            painter = painterResource(id = R.drawable.verify_mbl_ic),
+//                            contentDescription = "",
+//                            modifier = Modifier.size(32.dp),
+//                            colorFilter = ColorFilter.tint(DarkBlue)
+//                        )
+//                    }
                 Spacer(modifier = Modifier.padding(top = 10.dp))
                 Row(
                     modifier = Modifier

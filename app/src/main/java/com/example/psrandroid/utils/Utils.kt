@@ -7,18 +7,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
-import android.util.Log
 import androidx.core.view.WindowCompat
 import com.example.psp_android.R
-import com.google.common.reflect.TypeToken
-import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.util.Locale
 
 object Utils {
@@ -34,22 +30,6 @@ object Utils {
         else if (password.trim().length < 8)
             "Password must be at least 8 characters long."
         else ""
-//    val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")
-//    val result = passwordPattern.matches(password)
-//    return when (!result) {
-//        true -> {
-//            when {
-//                !password.contains("[A-Z]".toRegex()) -> "Password must contain at least one uppercase letter (A-Z)."
-//                !password.contains("[a-z]".toRegex()) -> "Password must contain at least one lowercase letter (A-Z)."
-//                !password.contains("\\d".toRegex()) -> "Password must contain at least one digit (0â€“9)."
-//                !password.contains("[@#$%^&+=!]".toRegex()) -> "Password must contain at least one special character (@#$%^&+=!)."
-//                else ->
-//                    "Password must be at least 8 characters long."
-//            }
-//        }
-//
-//        else -> ""
-//    }
     }
 
     fun isValidText(text: String): String {
@@ -58,14 +38,6 @@ object Utils {
         )
             ""
         else "Enter valid name"
-    }
-
-    fun loadCitiesFromAssets(context: Context): List<String> {
-        val inputStream = context.assets.open("cities.json")
-        val reader = InputStreamReader(inputStream)
-        val type = object : TypeToken<Map<String, List<String>>>() {}.type
-        val jsonMap = Gson().fromJson<Map<String, List<String>>>(reader, type)
-        return jsonMap["cities"] ?: emptyList()
     }
 
     fun convertImageFileToBase64(uri: Uri, contentResolver: ContentResolver): String {
@@ -88,11 +60,6 @@ object Utils {
             tempFile.outputStream().use { outputStream ->
                 inputStream.copyTo(outputStream)
             }
-        }
-        if (tempFile.exists() && tempFile.length() > 0) {
-            Log.d("lsdjg", "File created: ${tempFile.absolutePath}, Size: ${tempFile.length()}")
-        } else {
-            Log.e("lsdjg", "File creation failed or file is empty")
         }
         return tempFile
     }

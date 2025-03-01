@@ -5,11 +5,9 @@ import android.app.NotificationManager
 import android.content.Context
 import android.media.RingtoneManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.psp_android.R
 import com.example.psrandroid.repository.AuthRepository
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,17 +21,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("lsadjg", "onNewToken: $token")
-
-
-//        CoroutineScope(Dispatchers.IO).launch {
-//            authRepository.updateToken(token)
-//        }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        Log.d("lsadjg", "onNewToken: ${message.notification?.body}")
         if (message.notification != null) {
             val title = message.notification?.title
             val body = message.notification?.body

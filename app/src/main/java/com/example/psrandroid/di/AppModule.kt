@@ -23,5 +23,4 @@ class AppModule {
     fun provideUserPreference(context: Context): UserPreferences {
         return UserPreferences(context)
     }
-
 }

@@ -34,44 +34,4 @@ object RetrofitClient {
             .build()
             .create(ApiInterface::class.java)
     }
-
-//    @Provides
-//    @Singleton
-//    fun getProfileRetrofit(): ProfileApiInterface {
-//        val logging = HttpLoggingInterceptor()
-//        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-//        val client = OkHttpClient.Builder()
-//            .connectTimeout(60, TimeUnit.SECONDS)
-//            .readTimeout(60, TimeUnit.SECONDS)
-//            .writeTimeout(60, TimeUnit.SECONDS)
-//            .addInterceptor(logging)
-//            .build()
-//
-//        return Retrofit.Builder()
-//            .baseUrl(MEDIA_URL)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .client(client)
-//            .build()
-//            .create(ProfileApiInterface::class.java)
-//    }
-//
-//    @Provides
-//    @Singleton
-//    fun getRecipesRetrofit(): RecipeApiInterface {
-//        val logging = HttpLoggingInterceptor()
-//        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-//        val client = OkHttpClient.Builder()
-//            .connectTimeout(60, TimeUnit.SECONDS)
-//            .readTimeout(60, TimeUnit.SECONDS)
-//            .writeTimeout(60, TimeUnit.SECONDS)
-//            .addInterceptor(logging)
-//            .build()
-//
-//        return Retrofit.Builder()
-//            .baseUrl(RECIPES_BASE_URL)
-//            .addConverterFactory(GsonConverterFactory.create())
-//            .client(client)
-//            .build()
-//            .create(RecipeApiInterface::class.java)
-//    }
 }

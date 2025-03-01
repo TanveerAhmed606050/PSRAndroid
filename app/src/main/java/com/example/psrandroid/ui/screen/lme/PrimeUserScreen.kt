@@ -94,7 +94,7 @@ fun PrimeUserScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(AppBG)
-            .padding(bottom = 100.dp)
+            .padding(bottom = 120.dp)
     ) {
         Column(
             modifier = Modifier

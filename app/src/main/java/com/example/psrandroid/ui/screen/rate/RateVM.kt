@@ -1,6 +1,5 @@
 package com.example.psrandroid.ui.screen.rate
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,6 +14,7 @@ import com.example.psrandroid.storage.UserPreferences
 import com.example.psrandroid.ui.screen.rate.models.MainMetalData
 import com.example.psrandroid.ui.screen.rate.models.MetalRateResponse
 import com.example.psrandroid.ui.screen.rate.models.RateSuggestionResponse
+import com.example.psrandroid.ui.screen.rate.models.SubMetals
 import com.example.psrandroid.utils.Result
 import com.google.android.gms.ads.rewarded.RewardedAd
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,9 +30,11 @@ class RateVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     private var premiumUserData by mutableStateOf<PrimeUser?>(null)
     var searchPrimeUserData by mutableStateOf<List<PrimeUserData>?>(null)
-    private var mainSuggestResponse by mutableStateOf<RateSuggestionResponse?>(null)
+    var mainSuggestResponse by mutableStateOf<RateSuggestionResponse?>(null)
 
     var subMetalResponse by mutableStateOf<MetalRateResponse?>(null)
+    var suggestSubMetals by mutableStateOf<List<SubMetals>?>(null)
+    var subMetalsList by mutableStateOf<List<SubMetals>?>(null)
     private var lmeMetalData by mutableStateOf<LmeResponse?>(null)
     var suggestMainMetals by mutableStateOf<List<MainMetalData>?>(null)
     var searchLmeMetalData by mutableStateOf<List<LmeData>?>(null)
@@ -57,7 +59,10 @@ class RateVM @Inject constructor(
         isLoading = false
         if (result is Result.Success) {
             subMetalResponse = result.data
-//            suggestSubMetals = result.data.data
+            if (result.data.data.isNotEmpty()) {
+                subMetalsList = result.data.data[0].submetals
+                suggestSubMetals = result.data.data[0].submetals
+            }
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
@@ -71,7 +76,6 @@ class RateVM @Inject constructor(
             if (result is Result.Success) {
                 mainSuggestResponse = result.data
                 suggestMainMetals = result.data.data
-                Log.d("lsdjag", "result: ${mainSuggestResponse?.data?.size}")
             } else if (result is Result.Failure) {
                 error = result.exception.message ?: "Failure"
             }
@@ -107,4 +111,10 @@ class RateVM @Inject constructor(
             premiumUserData?.data?.filter { it.name.contains(search, ignoreCase = true) }
     }
 
+    fun searchSubMetals(searchText: String) {
+        suggestSubMetals = subMetalsList?.filter {
+            it.submetalName.contains(searchText, ignoreCase = true) ||
+                    it.submetalUrduName.contains(searchText)
+        } ?: listOf()
+    }
 }

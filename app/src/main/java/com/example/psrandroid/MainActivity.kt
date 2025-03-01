@@ -2,7 +2,6 @@ package com.example.psrandroid
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -87,11 +86,8 @@ class MainActivity : ComponentActivity() {
                         displayFeatures = displayFeatures,
                         onLogOut = {
                             isLogout = true
-//                            profileViewModel.clearUserCredential()
-//                            finish()
                         }
                     )
-//                    PSRNavHost(navController = navController)
                 }
             }
             if (isLogout) LogoutDialog(onDismissRequest = {
@@ -142,12 +138,7 @@ fun SetupSystemUi() {
 
 fun subscribeTopic() {
     FirebaseMessaging.getInstance().subscribeToTopic("news")
-        .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("lsadjg", "Subscribed to topic: news")
-            } else {
-                Log.d("lsadjg", "Topic subscription failed")
-            }
+        .addOnCompleteListener {
         }
 
 }

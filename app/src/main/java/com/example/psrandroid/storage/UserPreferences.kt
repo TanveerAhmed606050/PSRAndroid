@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.example.psrandroid.ui.screen.auth.models.AuthData
-import com.example.psrandroid.response.DealerResponse
 import com.example.psrandroid.response.LocationResponse
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -18,7 +17,6 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         const val SHARED_PREF_NAME = "user_credential_Prefer"
         const val USER_DATA = "user_login_data"
         const val LOCATION_LIST = "location_list"
-        const val DEALERS_LIST = "dealers_list"
         const val IS_FIRST_LAUNCH = "isFirstLaunch"
         const val LATEST_SEARCH = "latest_search"
         const val READ_TERMS = "read_terms"
@@ -69,21 +67,6 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         val json = sharedPreferences.getString(LOCATION_LIST, null)
         return try {
             gson.fromJson(json, LocationResponse::class.java)
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    fun saveDealersList(dealersData: DealerResponse) {
-        sharedPreferences.edit {
-            putString(DEALERS_LIST, gson.toJson(dealersData))
-        }
-    }
-
-    fun getDealersList(): DealerResponse? {
-        val json = sharedPreferences.getString(DEALERS_LIST, null)
-        return try {
-            gson.fromJson(json, DealerResponse::class.java)
         } catch (e: Exception) {
             null
         }

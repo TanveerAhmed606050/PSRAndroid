@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import com.example.psp_android.R
 import com.example.psrandroid.response.LmeData
 import com.example.psrandroid.response.mockup
-import com.example.psrandroid.ui.screen.auth.models.mockup
 import com.example.psrandroid.ui.commonViews.GoogleAdBanner
 import com.example.psrandroid.ui.commonViews.LinearProgress
 import com.example.psrandroid.ui.screen.adPost.SearchBar
@@ -119,7 +118,7 @@ fun LmeList(lmeData: List<LmeData>?) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 100.dp),
+            .padding(bottom = 120.dp),
         contentPadding = PaddingValues(vertical = 0.dp)
     ) {
 
@@ -184,11 +183,6 @@ fun LmeItem(lmeData: LmeData) {
                         RoundedCornerShape(10.dp)
                     )
             ) {
-//                Image(
-//                    painter = painterResource(id = R.drawable.baseline_arrow_drop_down_24),
-//                    contentDescription = "",
-//                    colorFilter = ColorFilter.tint(Color.White)
-//                )
                 Text(
                     text = "${lmeData.changeInRate}%", modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -199,7 +193,6 @@ fun LmeItem(lmeData: LmeData) {
             }
             Spacer(modifier = Modifier.padding(end = 8.dp))
             Text(
-                // ${formatDateDisplay(lmeData.expiryDate)}
                 text = "Expire ",
                 modifier = Modifier
                     .background(Color.White, RoundedCornerShape(10.dp))

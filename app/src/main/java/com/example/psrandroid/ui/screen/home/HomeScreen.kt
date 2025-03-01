@@ -91,17 +91,14 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
     val noInternetMessage = stringResource(id = R.string.network_error)
 
     val cityList =
-        homeVM.userPreferences.getLocationList()?.data?.map { "${it.name}" }
-    var locationId = homeVM.userPreferences.getLocationList()?.data?.find {
-        it.name.equals(homeVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
-    }?.id ?: 0 // get location id
+        homeVM.userPreferences.getLocationList()?.data?.map { it.name }
     val homeResponse = homeVM.homeResponse
     if (isNetworkAvailable(context)) {
         LaunchedEffect(Unit) {
             homeVM.getHomeData()
         }
     } else
-        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
             .show()
 
     HomeScreenViews(
@@ -112,9 +109,6 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
         cityList = cityList,
         onCityItemClick = { cityName ->
             selectedCity = cityName
-            locationId = homeVM.userPreferences.getLocationList()?.data?.find {
-                it.name.equals(selectedCity, ignoreCase = true)
-            }?.id ?: 0
         },
         onSeeAllAds = { navController.navigate(Screen.AllPostScreen.route) },
         onSeeAllRates = { navController.navigate(Screen.RateScreen.route) },
@@ -448,7 +442,6 @@ fun HomeLmeItem(lmeData: LmeMetal) {
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
-                    // ${formatDateDisplay(lmeData.expiryDate)}
                     text = "Expire ",
                     modifier = Modifier,
                     fontSize = 10.sp,

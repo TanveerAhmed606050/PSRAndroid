@@ -61,6 +61,9 @@
     <string name="location">Location</string>
     <string name="email">Email</string>
     <string name="phone">Phone</string>
+    <string name="verify_now">Verify</string>
+    <string name="number_available_err">You already have an account. Please go to forgot password option and recover your account</string>
+    <string name="verified">Verified</string>
     <string name="phone_no">Phone Number</string>
     <string name="address">Address</string>
     <string name="profile">Profile</string>

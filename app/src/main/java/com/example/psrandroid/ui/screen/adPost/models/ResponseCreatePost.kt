@@ -1,5 +1,7 @@
 package com.example.psrandroid.ui.screen.adPost.models
 
+import com.google.gson.annotations.SerializedName
+
 data class ResponseCreatePost(
     val `data`: CreatePostData,
     val message: String,
@@ -8,16 +10,22 @@ data class ResponseCreatePost(
 
 data class CreatePostData(
     val city: String,
-    val created_at: String,
+    @SerializedName("created_at")
+    val createdAt: String,
     val description: String,
     val id: Int,
-    val metal_name: String,
+    @SerializedName("metal_name")
+    val metalName: String,
     val name: String,
-    val phone_number: String,
+    @SerializedName("phone_number")
+    val phoneNumber: String,
     val photos: List<String>,
     val price: Int,
     val submetal: String,
-    val updated_at: String,
-    val user_id: String,
-    val video_path: Any
+    @SerializedName("updated_at")
+    val updatedAt: String,
+    @SerializedName("user_id")
+    val userId: String,
+    @SerializedName("video_path")
+    val videoPath: String
 )

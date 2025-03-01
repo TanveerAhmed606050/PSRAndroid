@@ -51,10 +51,10 @@ fun UpdatePasswordScreen(navController: NavHostController, profileVM: ProfileVM)
     val updateResponse = profileVM.infoResponse
     if (updateResponse != null) {
         if (updateResponse.status) {
-            Toasty.success(context, updateResponse.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.success(context, updateResponse.message, Toast.LENGTH_SHORT, false).show()
             navController.popBackStack()
         } else
-            Toasty.error(context, updateResponse.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, updateResponse.message, Toast.LENGTH_SHORT, false).show()
         profileVM.infoResponse = null
     }
 
@@ -62,17 +62,17 @@ fun UpdatePasswordScreen(navController: NavHostController, profileVM: ProfileVM)
         navController.popBackStack()
     }, updateBtnClick = { oldPassword, newPassword, confirmPassword ->
         if (isValidPassword(oldPassword).isNotEmpty())
-            Toasty.error(context, isValidPassword(oldPassword), Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, isValidPassword(oldPassword), Toast.LENGTH_SHORT, false).show()
         else if (isValidPassword(newPassword).isNotEmpty())
-            Toasty.error(context, isValidPassword(newPassword), Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, isValidPassword(newPassword), Toast.LENGTH_SHORT, false).show()
         else if (isValidPassword(confirmPassword).isNotEmpty())
-            Toasty.error(context, isValidPassword(confirmPassword), Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, isValidPassword(confirmPassword), Toast.LENGTH_SHORT, false).show()
         else if (confirmPassword != newPassword)
             Toasty.error(
                 context,
                 context.getString(R.string.confirm_pass_err),
                 Toast.LENGTH_SHORT,
-                true
+                false
             ).show()
         else {
             profileVM.updatePassword(
@@ -118,7 +118,6 @@ fun UpdatePasswordScreen(
                 fontFamily = regularFont,
                 fontSize = 12.sp
             )
-
             Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
                 value = oldPassword,
@@ -129,7 +128,6 @@ fun UpdatePasswordScreen(
                     oldPassword = newText
                 }
             )
-
             Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
                 value = newPassword,
@@ -150,7 +148,6 @@ fun UpdatePasswordScreen(
                     confirmPassword = newText
                 }
             )
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -162,7 +159,6 @@ fun UpdatePasswordScreen(
                     text = stringResource(id = R.string.update_pass),
                     onButtonClick = { updateBtnClick(oldPassword, newPassword, confirmPassword) })
             }
-
         }
     }
 }

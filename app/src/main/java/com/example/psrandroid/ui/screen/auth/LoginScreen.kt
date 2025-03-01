@@ -67,23 +67,23 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
     val authData = authVM.loginData
     if (authData != null) {
         if (authData.status) {
-            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, false).show()
             authVM.userPreferences.isFirstLaunch = false
             navController.navigate(Screen.HomeScreen.route) {
                 popUpTo(navController.graph.id)
             }
         } else
-            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, false).show()
         authVM.loginData = null
     }
 
     LoginScreen(onLoginButtonClick = { phoneNumber, password ->
         if (isNetworkAvailable(context)) {
             if (isValidPhone(phoneNumber).isNotEmpty())
-                Toasty.error(context, isValidPhone("+92$phoneNumber"), Toast.LENGTH_SHORT, true)
+                Toasty.error(context, isValidPhone("+92$phoneNumber"), Toast.LENGTH_SHORT, false)
                     .show()
             else if (isValidPassword(password).isNotEmpty())
-                Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true).show()
+                Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, false).show()
             else {
                 val phone = phoneNumber.takeLast(10)
                 authVM.login(
@@ -99,7 +99,7 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
                 context,
                 noNetworkMessage,
                 Toast.LENGTH_SHORT,
-                true
+                false
             )
                 .show()
     },
@@ -143,7 +143,8 @@ fun LoginScreen(
                 imeAction = ImeAction.Next,
                 placeholder = stringResource(id = R.string.phone),
                 onValueChange = { phoneNumber = it },
-                imageId = R.drawable.baseline_phone_24
+                imageId = R.drawable.baseline_phone_24,
+                modifier = Modifier.fillMaxWidth(),
             )
             Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
@@ -168,7 +169,6 @@ fun LoginScreen(
                     color = DarkBlue,
                     fontSize = 14.sp,
                     fontFamily = regularFont,
-//                    textAlign = if (isRtl) TextAlign.Start else TextAlign.End
                 )
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))

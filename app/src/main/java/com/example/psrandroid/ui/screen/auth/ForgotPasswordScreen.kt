@@ -90,7 +90,7 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
             else {
                 authVM.phoneValidate(
                     UpdateUserData(
-                        phone = phone
+                        phone = "+92$phoneNo"
                     )
                 )
             }

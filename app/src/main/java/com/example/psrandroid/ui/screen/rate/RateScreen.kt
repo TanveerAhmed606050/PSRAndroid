@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -100,7 +102,7 @@ fun RateScreen(rateVM: RateVM) {
 
     var location by remember { mutableStateOf("Lahore") }
     val noInternetMessage = stringResource(id = R.string.network_error)
-    val locationData = locationList.map { "${it.name}" }
+    val locationData = locationList.map { it.name }
 
     val subMetalData = rateVM.subMetalResponse
     val suggestedSearchList = rateVM.suggestMainMetals
@@ -112,7 +114,7 @@ fun RateScreen(rateVM: RateVM) {
             rateVM.getSubMetals("$locationId", search.text)
         }
     } else
-        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
             .show()
 
     DashBoardScreen(search, location,
@@ -133,7 +135,7 @@ fun RateScreen(rateVM: RateVM) {
                     context,
                     noInternetMessage,
                     Toast.LENGTH_SHORT,
-                    true
+                    false
                 )
                     .show()
 
@@ -148,17 +150,11 @@ fun RateScreen(rateVM: RateVM) {
                 rateVM.getSubMetals("$locationId", searchText.text)
             } else
                 Toasty.error(
-                    context, noInternetMessage, Toast.LENGTH_SHORT, true
+                    context, noInternetMessage, Toast.LENGTH_SHORT, false
                 ).show()
         },
         onCityItemClick = { locationName ->
             location = locationName
-//            authVM.updateUserLocation(
-//                UpdateLocation(
-//                    userId = sharedPreferences.getUserPreference()?.id ?: 0,
-//                    location = locationName
-//                )
-//            )
             locationId = rateVM.userPreferences.getLocationList()?.data?.find {
                 it.name.equals(locationName, ignoreCase = true)
             }?.id ?: 0
@@ -196,7 +192,7 @@ fun DashBoardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .padding(bottom = 100.dp)
+                    .padding(bottom = 120.dp)
             ) {
                 Spacer(modifier = Modifier.statusBarsPadding())
                 Text(
@@ -241,7 +237,6 @@ fun DashBoardScreen(
                     ) {
                         items(productList.size) { index ->
                             ProductList(productList[index])
-                           // HorizontalDivider()
                         }
                     }
                 }
@@ -348,6 +343,7 @@ fun SearchBar(
                     }
                     .menuAnchor(type = MenuAnchorType.PrimaryEditable),
                 keyboardOptions = KeyboardOptions.Default.copy(
+                    capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Search // Set the IME action to 'Search'
                 ),
                 keyboardActions = KeyboardActions(
@@ -430,6 +426,7 @@ fun ProductList(mainMetalData: MetalData) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 0.dp, vertical = 4.dp)
+            .clickable {  }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth()

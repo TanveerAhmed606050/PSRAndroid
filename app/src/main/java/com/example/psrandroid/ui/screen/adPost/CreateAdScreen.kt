@@ -1,6 +1,5 @@
 package com.example.psrandroid.ui.screen.adPost
 
-import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -58,9 +57,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -79,12 +78,11 @@ import com.example.psrandroid.ui.commonViews.CustomTextField
 import com.example.psrandroid.ui.commonViews.FullScreenImageDialog
 import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
-import com.example.psrandroid.ui.commonViews.showRewardedAd
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.screen.rate.RateVM
 import com.example.psrandroid.ui.screen.rate.SearchBar
 import com.example.psrandroid.ui.screen.rate.models.MainMetalData
-import com.example.psrandroid.ui.screen.rate.models.SubData
+import com.example.psrandroid.ui.screen.rate.models.SubMetals
 import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
@@ -107,25 +105,25 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     }
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val mainMetalName = remember { mutableStateOf(TextFieldValue("")) }
-    val subMetalName = remember { mutableStateOf(TextFieldValue("")) }
+    var subMetalName by remember { mutableStateOf("") }
     var selectedCity by remember { mutableStateOf("Lahore") }
-    val suggestedSearchList = rateVM.suggestMainMetals
-    val suggestedSubMetalList = adPostVM.suggestSubMetals
-    val adPostResponse = adPostVM.adPostResponse
     var selectedImages by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val suggestedSearchList = rateVM.suggestMainMetals
+    val suggestedSubMetalList = rateVM.suggestSubMetals
+    val adPostResponse = adPostVM.adPostResponse
     val noInternetMessage = stringResource(id = R.string.network_error)
 // Display the error message
     if (errorMessage != null) {
-        Toasty.error(context, errorMessage ?: "", Toast.LENGTH_SHORT, true)
+        Toasty.error(context, errorMessage ?: "", Toast.LENGTH_SHORT, false)
             .show()
     }
     if (adPostResponse != null) {
         if (adPostResponse.status)
-            Toasty.success(context, adPostResponse.message, Toast.LENGTH_LONG, true)
+            Toasty.success(context, adPostResponse.message, Toast.LENGTH_LONG, false)
                 .show()
         else
-            Toasty.error(context, adPostResponse.message, Toast.LENGTH_LONG, true)
+            Toasty.error(context, adPostResponse.message, Toast.LENGTH_LONG, false)
                 .show()
         navController.popBackStack()
         adPostVM.adPostResponse = null
@@ -135,11 +133,12 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     }?.id ?: 0 // get location id
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
-            adPostVM.getAllSubMetals()
             rateVM.getMainMetals("$locationId", "")
+            rateVM.suggestMainMetals = rateVM.mainSuggestResponse?.data//reset main metal list
+            rateVM.suggestSubMetals = rateVM.subMetalsList
         }
     } else
-        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
             .show()
 
     var showDialog by remember { mutableStateOf(false) }
@@ -174,27 +173,33 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
     AdScreenView(
         selectedImages,
         locationList = locationList,
-        subMetalSearch = subMetalName.value,
+        subMetalSearch = subMetalName,
         search = mainMetalName.value,
         selectedCity = selectedCity,
         suggestedSearchList = suggestedSearchList,
         suggestedSubMetalList = suggestedSubMetalList,
-        onBackClick = { navController.popBackStack() },
-        onSearch = {
-            mainMetalName.value = it
+        onBackClick = {
+            rateVM.suggestSubMetals = null
+            rateVM.subMetalsList = null
+            navController.popBackStack()
+        },
+        onSearch = { metalName ->
+            mainMetalName.value = metalName
             rateVM.searchMainMetals(mainMetalName.value.text)
         },
         onSearchClick = {
             mainMetalName.value = it
             rateVM.searchMainMetals(mainMetalName.value.text)
+            rateVM.getSubMetals("$locationId", mainMetalName.value.text)
+            subMetalName = ""
         },
         onSubMetalSearch = {
-            subMetalName.value = it
-            adPostVM.searchSubMetals(subMetalName.value.text)
+            subMetalName = it
+            rateVM.searchSubMetals(subMetalName)
         },
         onEnterSubMetalSearch = {
-            subMetalName.value = it
-            adPostVM.searchSubMetals(subMetalName.value.text)
+            subMetalName = it
+            rateVM.searchSubMetals(subMetalName)
         },
         onCitySelect = { selectedLocation ->
             selectedCity = selectedLocation
@@ -203,13 +208,12 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
             launcher.launch("image/*") // Open the gallery to select images
         },
         onAdPostClick = { metalName, desc, price ->
-//            Log.d("sldgj", "url: $fileList")
             if (metalName.isEmpty() || desc.isEmpty() || price.isEmpty() || selectedImages.isEmpty()) {
                 Toasty.error(
                     context,
                     context.getString(R.string.empty_error),
                     Toast.LENGTH_SHORT,
-                    true
+                    false
                 )
                     .show()
                 return@AdScreenView
@@ -223,7 +227,7 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
                     userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
                     metalName = mainMetalName.value.text,
                     phoneNumber = "${adPostVM.userPreferences.getUserPreference()?.phone}",
-                    submetal = subMetalName.value.text,
+                    submetal = subMetalName,
                     city = selectedCity,
                     name = metalName,
                     description = desc,
@@ -233,10 +237,8 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
 //                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
 //                    onAdClick = {
 //                    })
-                mainMetalName.value = TextFieldValue("")
-                subMetalName.value = TextFieldValue("")
             } else
-                Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, true)
+                Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
                     .show()
         },
         onSelectedImageClick = {
@@ -250,11 +252,11 @@ fun CreateAdScreen(navController: NavController, adPostVM: AdPostVM, rateVM: Rat
 fun AdScreenView(
     selectedImages: List<Uri>,
     locationList: List<LocationData>,
-    subMetalSearch: TextFieldValue,
+    subMetalSearch: String,
     search: TextFieldValue,
     selectedCity: String,
     suggestedSearchList: List<MainMetalData>?,
-    suggestedSubMetalList: List<SubData>?,
+    suggestedSubMetalList: List<SubMetals>?,
     onBackClick: () -> Unit,
     onSearch: (TextFieldValue) -> Unit,
     onSearchClick: (TextFieldValue) -> Unit,
@@ -262,8 +264,8 @@ fun AdScreenView(
     onAddImageClick: () -> Unit,
     onSelectedImageClick: (Uri) -> Unit,
     onAdPostClick: (String, String, String) -> Unit,
-    onSubMetalSearch: (TextFieldValue) -> Unit,
-    onEnterSubMetalSearch: (TextFieldValue) -> Unit,
+    onSubMetalSearch: (String) -> Unit,
+    onEnterSubMetalSearch: (String) -> Unit,
 ) {
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
@@ -546,10 +548,10 @@ fun ImagePickerUI(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SubMetalBar(
-    suggestedSearchList: List<SubData>?,
-    search: TextFieldValue,
-    onSearchClick: (TextFieldValue) -> Unit,
-    onSearch: (TextFieldValue) -> Unit,
+    suggestedSearchList: List<SubMetals>?,
+    search: String,
+    onSearchClick: (String) -> Unit,
+    onSearch: (String) -> Unit,
 ) {
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
@@ -576,7 +578,7 @@ fun SubMetalBar(
                 value = search,
                 onValueChange = {
                     onSearch(it)
-                    if (it.text.length < search.text.length && !expandedDropDown) {
+                    if (it.length < search.length && !expandedDropDown) {
                         // Backspace detected
                         expandedDropDown = true
                     }
@@ -636,6 +638,7 @@ fun SubMetalBar(
                     }
                     .menuAnchor(type = MenuAnchorType.PrimaryEditable),
                 keyboardOptions = KeyboardOptions.Default.copy(
+                    capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Search // Set the IME action to 'Search'
                 ),
                 keyboardActions = KeyboardActions(
@@ -676,13 +679,13 @@ fun SubMetalBar(
                         text = {
                             Row {
                                 Text(
-                                    subMetal.name,
+                                    subMetal.submetalName,
                                     color = Color.White,
                                     textAlign = TextAlign.Start
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
-                                    subMetal.urduName,
+                                    subMetal.submetalUrduName,
                                     color = Color.White,
                                     textAlign = TextAlign.End
                                 )
@@ -690,10 +693,7 @@ fun SubMetalBar(
                         },
                         onClick = {
                             onSearchClick(
-                                TextFieldValue(
-                                    text = subMetal.name,
-                                    selection = TextRange(subMetal.name.length)
-                                )
+                                subMetal.submetalName,
                             )
                             expandedDropDown = false // Hide dropdown after selection
                         },
@@ -737,7 +737,7 @@ fun AdScreenPreview() {
             onAdPostClick = { _, _, _ -> },
             onEnterSubMetalSearch = {},
             onSubMetalSearch = {},
-            subMetalSearch = TextFieldValue(""),
+            subMetalSearch = "",
             onSelectedImageClick = {}
         )
     }

@@ -1,7 +1,6 @@
 package com.example.psrandroid.ui.screen.auth
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -39,13 +38,12 @@ class AuthVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
     private val _verificationId = MutableStateFlow<String?>(null)
-    val verificationId: StateFlow<String?> = _verificationId
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String?> = _message
 
     var loginData by mutableStateOf<AuthResponse?>(null)
-    var locationData by mutableStateOf<LocationResponse?>(null)
+    private var locationData by mutableStateOf<LocationResponse?>(null)
 
     var resetPasswordResponse by mutableStateOf<InfoDataResponse?>(null)
 
@@ -108,14 +106,13 @@ class AuthVM @Inject constructor(
     fun login(userCredential: UserCredential) = viewModelScope.launch {
         isLoading = true
         val result = authRepository.userLogin(userCredential)
+        isLoading = false
         if (result is Result.Success) {
-            isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
                 loginData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
-            isLoading = false
             error = result.exception.message ?: "Failure"
         }
     }
@@ -123,11 +120,10 @@ class AuthVM @Inject constructor(
     fun register(userCredential: UserCredential) = viewModelScope.launch {
         isLoading = true
         val result = authRepository.register(userCredential)
+        isLoading = false
         if (result is Result.Success) {
-            isLoading = false
             loginData = result.data
         } else if (result is Result.Failure) {
-            isLoading = false
             error = result.exception.message ?: "Failure"
         }
     }
@@ -146,14 +142,13 @@ class AuthVM @Inject constructor(
     fun updateUserImage(imageUpdate: ImageUpdate) = viewModelScope.launch {
         isLoading = true
         val result = authRepository.updateUserImage(imageUpdate)
+        isLoading = false
         if (result is Result.Success) {
-            isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
                 loginData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
-            isLoading = false
             error = result.exception.message ?: "Failure"
         }
     }
@@ -161,18 +156,16 @@ class AuthVM @Inject constructor(
     fun resetPassword(updateUserData: UpdateUserData) = viewModelScope.launch {
         isLoading = true
         val result = authRepository.resetPassword(updateUserData)
+        isLoading = false
         if (result is Result.Success) {
-            isLoading = false
             resetPasswordResponse = result.data
         } else if (result is Result.Failure) {
-            isLoading = false
             error = result.exception.message ?: "Failure"
         }
     }
 
     fun phoneValidate(updateUserData: UpdateUserData) = viewModelScope.launch {
         isLoading = true
-        Log.d("ldjg", "phone: $updateUserData")
         val result = authRepository.phoneValidate(updateUserData)
         isLoading = false
         if (result is Result.Success) {
@@ -184,17 +177,14 @@ class AuthVM @Inject constructor(
 
     fun updateUserData(userCredential: UserCredential) = viewModelScope.launch {
         isLoading = true
-        Log.d("lsdjag", "getProfile: ")
         val result = authRepository.updateUserData(userCredential)
-//        Log.d("lsdjag", "getProfile: $result")
+        isLoading = false
         if (result is Result.Success) {
-            isLoading = false
             loginData = result.data
             userPreferences.saveUserPreference(
                 loginData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
-            isLoading = false
             error = result.exception.message ?: "Failure"
         }
     }
