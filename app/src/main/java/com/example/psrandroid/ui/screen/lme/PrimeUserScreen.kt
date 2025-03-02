@@ -160,8 +160,11 @@ fun UserItemData(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Log.d("sldgj", "url: ${Constant.MEDIA_BASE_URL}${primeUserData.profileImage}")
-            MyAsyncImage(imageUrl = primeUserData.profileImage ?: "", 45.dp, true)
+            MyAsyncImage(
+                imageUrl = primeUserData.profileImage,
+                45.dp,
+                true
+            )
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(
@@ -269,18 +272,6 @@ fun UserItemData(
                         }
                     )
                 }
-//                Text(text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.show_no),
-//                    color = Color.DarkGray,
-//                    fontFamily = mediumFont,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-//                    fontSize = 14.sp,
-//                    modifier = Modifier.clickable {
-//                        onShowContact(
-//                            if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
-//                        )
-//                    }
-//                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Spacer(modifier = Modifier.height(20.dp))

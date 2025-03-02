@@ -14,7 +14,6 @@ val PrimeUser.Companion.mockup by lazy {
     PrimeUser(data = listOf(), message = "", status = false)
 }
 
-
 data class PrimeUserData(
     @SerializedName("business_name")
     val businessName: String,
@@ -32,8 +31,11 @@ data class PrimeUserData(
     @SerializedName("updated_at")
     val updatedAt: String,
     val whatsapp: String
-){companion object}
-val PrimeUserData.Companion.mockup by lazy { 
+) {
+    companion object
+}
+
+val PrimeUserData.Companion.mockup by lazy {
     PrimeUserData(
         businessName = "Susana Hinton",
         createdAt = "facilisis",

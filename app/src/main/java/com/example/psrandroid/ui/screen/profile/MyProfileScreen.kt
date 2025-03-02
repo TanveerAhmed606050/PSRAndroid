@@ -64,7 +64,6 @@ import com.example.psrandroid.ui.theme.AppBG
 import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.regularFont
-import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
 import com.example.psrandroid.utils.Utils.isRtlLocale
@@ -166,6 +165,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 context.getString(R.string.selected_language) -> {
                     expandedLang = true
                 }
+
                 else -> navController.navigate(screenRoute)
             }
         },
@@ -210,7 +210,7 @@ fun MyProfileScreen(
             Spacer(modifier = Modifier.padding(top = 20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
-                    MyAsyncImage(imageUrl = Constant.BASE_URL + profilePic, 50.dp, true)
+                    MyAsyncImage(imageUrl = profilePic, 50.dp, true)
                     Surface(
                         color = DarkBlue,
                         shape = CircleShape,
