@@ -58,6 +58,7 @@ import com.example.psrandroid.ui.commonViews.Header
 import com.example.psrandroid.ui.commonViews.LoadingDialog
 import com.example.psrandroid.ui.commonViews.LogoutDialog
 import com.example.psrandroid.ui.commonViews.MyAsyncImage
+import com.example.psrandroid.ui.screen.adPost.openWhatsApp
 import com.example.psrandroid.ui.screen.auth.AuthVM
 import com.example.psrandroid.ui.screen.auth.ListDialog
 import com.example.psrandroid.ui.theme.AppBG
@@ -66,7 +67,9 @@ import com.example.psrandroid.ui.theme.LightBlue
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.LogoutSession
 import com.example.psrandroid.utils.Utils.convertImageFileToBase64
+import com.example.psrandroid.utils.Utils.createMultipartBodyPart
 import com.example.psrandroid.utils.Utils.isRtlLocale
+import com.example.psrandroid.utils.Utils.uriToFile
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -79,7 +82,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
     val userData = authVM.userPreferences.getUserPreference()
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var base64String by remember { mutableStateOf<String?>(null) }
+//    var base64String by remember { mutableStateOf<String?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     var expandedLang by remember { mutableStateOf(false) }
     val languageList = listOf("اردو", "English")
@@ -133,10 +136,10 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     ) { uri: Uri? ->
         capturedImageUri = uri
         if (capturedImageUri != null) {
-            base64String = convertImageFileToBase64(capturedImageUri!!, context.contentResolver)
-            authVM.updateUserImage(ImageUpdate(userId, image = base64String ?: ""))
+            val file = uriToFile(context, uri = capturedImageUri!!)
+            val imagePart = createMultipartBodyPart(file, "image")
             if (isNetworkAvailable(context)) {
-                authVM.updateUserImage(ImageUpdate(userId, image = base64String ?: ""))
+                authVM.updateUserImage(ImageUpdate("$userId", image = imagePart))
             } else
                 Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
                     .show()
@@ -164,6 +167,9 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 context.getString(R.string.logout) -> showDialog = true
                 context.getString(R.string.selected_language) -> {
                     expandedLang = true
+                }
+                "whatsapp"->{
+//                    openWhatsApp(context, "+923204882646")
                 }
 
                 else -> navController.navigate(screenRoute)
@@ -329,7 +335,7 @@ fun ProfileOptionItem(
         }
 
         stringResource(id = R.string.contact_us) -> {
-            encodedUrl = "https://fitmepner.com/Contact"
+            encodedUrl = "whatsapp"
             route = ""
         }
 

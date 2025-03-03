@@ -4,6 +4,7 @@ import com.example.psrandroid.dto.ImageUpdate
 import com.example.psrandroid.dto.UserCredential
 import com.example.psrandroid.network.ApiInterface
 import com.example.psrandroid.ui.screen.profile.models.UpdateUserData
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -23,7 +24,10 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun updateUserImage(imageUpdate: ImageUpdate) = loadResource {
-        apiInterface.updateUserImage(imageUpdate)
+        apiInterface.updateUserImage(
+            userId = imageUpdate.userId.toRequestBody(),
+            imageUpdate = imageUpdate.image
+        )
     }
 
     suspend fun resetPassword(updateUserData: UpdateUserData) = loadResource {

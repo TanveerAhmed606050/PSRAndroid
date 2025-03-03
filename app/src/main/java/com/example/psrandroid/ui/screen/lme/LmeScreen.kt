@@ -48,6 +48,7 @@ import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
+import com.example.psrandroid.utils.Utils.formatDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -193,7 +194,7 @@ fun LmeItem(lmeData: LmeData) {
             }
             Spacer(modifier = Modifier.padding(end = 8.dp))
             Text(
-                text = "Expire ",
+                text = "Expiry ${formatDate(lmeData.expiryDate)}",
                 modifier = Modifier
                     .background(Color.White, RoundedCornerShape(10.dp))
                     .padding(8.dp),

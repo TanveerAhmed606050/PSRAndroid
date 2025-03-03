@@ -135,7 +135,7 @@ fun DetailAdScreen(
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else
-                openWhatsApp(context, adData?.metalName ?: "")
+                openWhatsApp(context, adData?.phoneNumber ?: "")
         },
         onImageClick = {
             showDialog = true

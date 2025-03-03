@@ -70,6 +70,7 @@ import com.example.psrandroid.ui.theme.boldFont
 import com.example.psrandroid.ui.theme.mediumFont
 import com.example.psrandroid.ui.theme.regularFont
 import com.example.psrandroid.utils.Constant
+import com.example.psrandroid.utils.Utils.formatDate
 import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
 
@@ -433,7 +434,7 @@ fun HomeLmeItem(lmeData: LmeMetal) {
             }
             Column {
                 Text(
-                    text = "Rs. 1299",
+                    text = "Rs. ${lmeData.price}",
                     modifier = Modifier
                         .align(Alignment.End),
                     fontSize = 14.sp,
@@ -442,7 +443,7 @@ fun HomeLmeItem(lmeData: LmeMetal) {
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
-                    text = "Expire ",
+                    text = "Expiry ${formatDate(lmeData.expiryDate)}",
                     modifier = Modifier,
                     fontSize = 10.sp,
                     fontFamily = regularFont,

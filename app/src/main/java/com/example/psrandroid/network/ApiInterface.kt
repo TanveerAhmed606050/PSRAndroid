@@ -39,7 +39,8 @@ interface ApiInterface {
 
     @POST("updateUserImage")
     suspend fun updateUserImage(
-        @Body imageUpdate: ImageUpdate
+        @Part("user_id") userId: RequestBody,
+        @Part imageUpdate: MultipartBody.Part // Use @Part for the photo
     ): AuthResponse
 
     @POST("updatePassword")

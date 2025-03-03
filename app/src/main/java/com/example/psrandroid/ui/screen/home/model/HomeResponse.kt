@@ -28,6 +28,7 @@ data class HomeData(
 data class LmeMetal(
     val changeInRate: String,
     val createdAt: String,
+    @SerializedName("expiry_date")
     val expiryDate: String,
     val id: Int,
     val name: String,

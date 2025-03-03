@@ -68,17 +68,17 @@ fun MyTextFieldWithBorder(
         },
         placeholder = {
             Text(
-                placeholder,
+                text = placeholder,
+                modifier = Modifier.padding(top = 4.dp),
                 fontFamily = regularFont,
                 letterSpacing = 2.sp,
                 fontSize = 14.sp,
                 maxLines = 1,
                 color = DarkBlue,
-                modifier = Modifier.fillMaxWidth(),
-                overflow = TextOverflow.Ellipsis,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
             )
-        },
+        }
+        ,
         enabled = isEnable,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = DarkBlue, // Change focused border color
