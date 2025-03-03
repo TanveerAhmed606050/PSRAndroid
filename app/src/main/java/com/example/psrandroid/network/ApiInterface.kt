@@ -37,10 +37,11 @@ interface ApiInterface {
     @GET("locations")
     suspend fun getLocation(): LocationResponse
 
+    @Multipart
     @POST("updateUserImage")
     suspend fun updateUserImage(
         @Part("user_id") userId: RequestBody,
-        @Part imageUpdate: MultipartBody.Part // Use @Part for the photo
+        @Part image: MultipartBody.Part
     ): AuthResponse
 
     @POST("updatePassword")
