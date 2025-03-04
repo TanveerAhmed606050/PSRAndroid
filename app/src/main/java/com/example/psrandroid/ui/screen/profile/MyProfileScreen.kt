@@ -83,7 +83,6 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
     val userData = authVM.userPreferences.getUserPreference()
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
-//    var base64String by remember { mutableStateOf<String?>(null) }
     var showDialog by remember { mutableStateOf(false) }
     var expandedLang by remember { mutableStateOf(false) }
     val languageList = listOf("اردو", "English")
@@ -136,6 +135,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         capturedImageUri = uri
+//        Log.d("lsjag", "MyProfileScreen: $capturedImageUri")
         if (capturedImageUri != null) {
             val file = uriToFile(context, uri = capturedImageUri!!)
             val imagePart = createMultipartBodyPart(file, "image")
@@ -170,7 +170,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                     expandedLang = true
                 }
                 "whatsapp"->{
-//                    openWhatsApp(context, "+923204882646")
+                    openWhatsApp(context, "+923204882646")
                 }
 
                 else -> navController.navigate(screenRoute)
@@ -217,6 +217,7 @@ fun MyProfileScreen(
             Spacer(modifier = Modifier.padding(top = 20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
+//                    Log.d("lsjag", "picture: $profilePic")
                     MyAsyncImage(imageUrl = profilePic, 50.dp, true)
                     Surface(
                         color = DarkBlue,

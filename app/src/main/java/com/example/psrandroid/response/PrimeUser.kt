@@ -30,7 +30,8 @@ data class PrimeUserData(
     val type: String,
     @SerializedName("updated_at")
     val updatedAt: String,
-    val whatsapp: String
+    val whatsapp: String,
+    val watchAd: Boolean = false
 ) {
     companion object
 }

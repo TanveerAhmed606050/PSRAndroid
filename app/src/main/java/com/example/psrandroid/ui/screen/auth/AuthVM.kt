@@ -142,7 +142,9 @@ class AuthVM @Inject constructor(
 
     fun updateUserImage(imageUpdate: ImageUpdate) = viewModelScope.launch {
         isLoading = true
+//        Log.d("lsjag", "api: $imageUpdate")
         val result = authRepository.updateUserImage(imageUpdate)
+//        Log.d("lsjag", "result: $result")
         isLoading = false
         if (result is Result.Success) {
             loginData = result.data

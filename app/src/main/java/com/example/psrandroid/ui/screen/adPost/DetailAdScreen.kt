@@ -128,7 +128,7 @@ fun DetailAdScreen(
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else
-                openSMSApp(context, phoneNumber = adData?.description ?: "", message = "")
+                openSMSApp(context, phoneNumber = adData?.phoneNumber ?: "", message = "")
         },
         onWhatsAppCallClick = {
             if (!rateVM.watchAd)

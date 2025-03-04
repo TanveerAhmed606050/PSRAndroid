@@ -49,7 +49,6 @@ import com.example.psrandroid.ui.theme.DarkBlue
 import com.example.psrandroid.ui.theme.LightRed40
 import com.example.psrandroid.ui.theme.PSP_AndroidTheme
 import com.example.psrandroid.ui.theme.mediumFont
-import com.example.psrandroid.utils.Constant
 import com.example.psrandroid.utils.Utils.isRtlLocale
 import com.google.android.gms.ads.MobileAds
 import java.util.Locale
@@ -69,7 +68,9 @@ fun PrimeUserScreen(rateVm: RateVM) {
     }
     PrimeUserScreen(rateVm.watchAd, primeUserData,
         onShowContact = { contact ->
+//            Log.d("lsjag", " $contact")
             if (contact == context.getString(R.string.show_no))
+//                Log.d("lsjag", " $contact")
                 showRewardedAd(context as Activity, rewardedAd = rateVm.rewardedAd,
                     onAdClick = {
                         rateVm.watchAd = true

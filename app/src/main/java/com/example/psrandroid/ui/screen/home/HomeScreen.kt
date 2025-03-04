@@ -407,10 +407,10 @@ fun HomeLmeItem(lmeData: LmeMetal) {
             modifier = Modifier
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
+            Column(modifier = Modifier.padding(end = 2.dp)) {
                 Text(
-                    modifier = Modifier.width(70.dp),
                     text = lmeData.name,
                     fontSize = 14.sp,
                     color = Color.DarkGray,
@@ -443,9 +443,9 @@ fun HomeLmeItem(lmeData: LmeMetal) {
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
-                    text = "Expiry ${formatDate(lmeData.expiryDate)}",
-                    modifier = Modifier,
-                    fontSize = 10.sp,
+                    text = "Expiry: ${formatDate(lmeData.expiryDate)}",
+                    modifier = Modifier.padding(vertical = 3.dp, horizontal = 6.dp),
+                    fontSize = 12.sp,
                     fontFamily = regularFont,
                     color = Color.DarkGray,
                     letterSpacing = 1.sp,

@@ -45,13 +45,13 @@ fun loadRewardedAd(context: Context, adUnitId: String, onAdLoaded: (RewardedAd) 
     val adRequest = AdRequest.Builder().build()
     RewardedAd.load(context, adUnitId, adRequest, object : RewardedAdLoadCallback() {
         override fun onAdLoaded(ad: RewardedAd) {
-            Log.d("lsajg", "onAdLoaded: ")
+            Log.d("lsjag", "onAdLoaded: ")
             onAdLoaded(ad)
         }
 
         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
             // Handle the error
-            Log.d("lsajg", "onAdFailedToLoad: ")
+            Log.d("lsjag", "onAdFailedToLoad: ${loadAdError.message}")
         }
     })
 }
