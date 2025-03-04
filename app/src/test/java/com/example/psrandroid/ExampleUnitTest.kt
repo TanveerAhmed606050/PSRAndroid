@@ -1,4 +1,4 @@
-package com.example.psrandroid
+package com.pak.scrap
 
 import org.junit.Test
 
