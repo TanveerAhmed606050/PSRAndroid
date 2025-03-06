@@ -21,6 +21,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PSRAndroid"
+rootProject.name = "scrap"
 include(":app")
  
