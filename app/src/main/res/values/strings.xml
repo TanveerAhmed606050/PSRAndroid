@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PSR</string>
+    <string name="app_name">PakScrap</string>
     <string name="scrap_rate">Scrap Rates</string>
     <string name="rate">Rate</string>
     <string name="no_rate">No Rate</string>

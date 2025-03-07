@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PSR</string>
+    <string name="app_name">PakScrap</string>
     <string name="scrap_rate">سکریپ کے نرخ</string>
     <string name="rate">نرخ</string>
     <string name="no_rate">کوئی نرخ نہیں۔</string>
@@ -39,14 +39,14 @@
     <string name="enter_pin">اپنا پن درج کریں۔</string>
     <string name="name">نام</string>
     <string name="my_name">میرا نام</string>
-    <string name="prime_user">پریمیم صارف</string>
+    <string name="prime_user">پریمیم </string>
     <string name="lme">LME</string>
     <string name="sms">ایس ایم ایس</string>
     <string name="chat">گپ شپ</string>
     <string name="whats_app">واٹس ایپ</string>
     <string name="ad_detail">اشتہار کی تفصیلات</string>
     <string name="show_no">نمبر دکھائیں۔</string>
-    <string name="home">گھر</string>
+    <string name="home">ہوم</string>
     <string name="watch_ad">اشتہار دیکھیں</string>
     <string name="add_images">تصاویر شامل کریں۔</string>
     <string name="confirm_pass_err">پاس ورڈاورتصدیقی پاس ورڈمماثل نہیں ہیں۔</string>

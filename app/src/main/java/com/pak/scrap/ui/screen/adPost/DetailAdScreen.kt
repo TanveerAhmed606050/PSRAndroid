@@ -69,6 +69,7 @@ import com.pak.scrap.utils.Constant
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import es.dmoral.toasty.Toasty
+import androidx.core.net.toUri
 
 @Composable
 fun DetailAdScreen(
@@ -335,10 +336,8 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
         // Format the phone number
         val formattedNumber = phoneNumber.removePrefix("+").replace(" ", "")
         val url = "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encode("Hi i am connecting through PakScrap...")}"
-        //"https://wa.me/$formattedNumber"
-
         // Create the intent
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
         context.startActivity(intent)
         // Check if WhatsApp can handle the intent
         if (intent.resolveActivity(context.packageManager) != null) {
