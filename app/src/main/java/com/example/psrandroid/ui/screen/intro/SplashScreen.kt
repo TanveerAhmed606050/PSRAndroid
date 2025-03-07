@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,8 +74,10 @@ fun SplashScreen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(painter = painterResource(id = R.drawable.splash_ic), contentDescription = "",
-                modifier = Modifier.fillMaxWidth())
+            Image(painter = painterResource(id = R.drawable.pak_scrap_copy), contentDescription = "",
+                modifier = Modifier.fillMaxWidth()
+                    .height(400.dp)
+                    .padding(horizontal = 20.dp))
         }
         Column(
             modifier = Modifier.fillMaxSize(),

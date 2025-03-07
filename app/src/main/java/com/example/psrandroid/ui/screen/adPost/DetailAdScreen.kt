@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.psp_android.R
@@ -174,7 +175,8 @@ fun DetailAdScreenViews(
                     .fillMaxSize()
                     .height(400.dp)
             ) { page ->
-                val uri = if (adsData.photos.isNotEmpty()) Constant.MEDIA_BASE_URL + adsData.photos[page] else ""
+                val uri =
+                    if (adsData.photos.isNotEmpty()) Constant.MEDIA_BASE_URL + adsData.photos[page] else ""
                 Box(modifier = Modifier) {
                     AsyncImage(
                         model = uri, contentDescription = "",
@@ -334,11 +336,11 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
     try {
         // Format the phone number
         val formattedNumber = phoneNumber.removePrefix("+").replace(" ", "")
-        val url = "https://wa.me/$formattedNumber"
-
+        val url =
+            "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encode("Hi i am connecting through PakScrap...")}"
         // Create the intent
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-
+        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+        context.startActivity(intent)
         // Check if WhatsApp can handle the intent
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)

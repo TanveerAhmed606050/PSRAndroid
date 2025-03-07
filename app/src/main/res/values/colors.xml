@@ -11,4 +11,5 @@
     <color name="text_grey">#CCCCCC</color>
     <color name="orange_clr">#FA4A0C</color>
     <color name="text_field_bg">#F5F7FB</color>
+    <color name="ic_launcher_background">#1EBFFF</color>
 </resources>
