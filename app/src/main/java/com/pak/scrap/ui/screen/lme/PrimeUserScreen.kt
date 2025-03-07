@@ -67,10 +67,12 @@ fun PrimeUserScreen(rateVm: RateVM) {
     LaunchedEffect(Unit) {
         rateVm.getPremiumUser()
     }
-    PrimeUserScreen(rateVm.watchAd, primeUserData,
+    PrimeUserScreen(
+        rateVm.watchAd, primeUserData,
         onShowContact = { contact ->
             if (contact == context.getString(R.string.show_no))
-                showRewardedAd(context as Activity, rewardedAd = rateVm.rewardedAd,
+                showRewardedAd(
+                    context as Activity, rewardedAd = rateVm.rewardedAd,
                     onAdClick = {
                         rateVm.watchAd = true
                     })
@@ -114,7 +116,8 @@ fun PrimeUserScreen(
                 LinearProgress(modifier = Modifier.padding(vertical = 3.dp))
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            SearchBar(search,
+            SearchBar(
+                search,
                 onSearchClick = {
                     onSearch(it)
                 })
@@ -203,7 +206,7 @@ fun UserItemData(
                 )
                 Text(
                     text =
-                    stringResource(id = R.string.show_no),
+                        stringResource(id = R.string.show_no),
                     fontSize = 14.sp,
                     color = Color.DarkGray,
                     fontFamily = mediumFont,
@@ -241,6 +244,7 @@ fun UserItemData(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
+
                 Text(
                     text = primeUserData.type,
                     color = Color.DarkGray,
@@ -272,15 +276,34 @@ fun UserItemData(
                         }
                     )
                 }
+
                 Spacer(modifier = Modifier.height(8.dp))
             }
+            Text(
+                text = primeUserData.buisnessDetails,
+                color = Color.DarkGray,
+                fontFamily = mediumFont,
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+            )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
             }
+
         }
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = primeUserData.buisnessDetails,
+            color = Color.DarkGray,
+            fontFamily = mediumFont,
+            fontSize = 14.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+        )
     }
 }
 
@@ -289,7 +312,8 @@ fun UserItemData(
 @Composable
 fun PrimeUserScreenPreview() {
     PSP_AndroidTheme {
-        PrimeUserScreen(false, primeUserData = listOf(),
+        PrimeUserScreen(
+            false, primeUserData = listOf(),
             onShowContact = {},
             search = TextFieldValue(""),
             onSearch = {})

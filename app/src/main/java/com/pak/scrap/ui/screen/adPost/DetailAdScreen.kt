@@ -334,11 +334,12 @@ fun openWhatsApp(context: Context, phoneNumber: String) {
     try {
         // Format the phone number
         val formattedNumber = phoneNumber.removePrefix("+").replace(" ", "")
-        val url = "https://wa.me/$formattedNumber"
+        val url = "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encode("Hi i am connecting through PakScrap...")}"
+        //"https://wa.me/$formattedNumber"
 
         // Create the intent
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-
+        context.startActivity(intent)
         // Check if WhatsApp can handle the intent
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)

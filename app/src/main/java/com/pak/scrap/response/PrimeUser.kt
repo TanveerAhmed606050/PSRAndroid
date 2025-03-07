@@ -30,7 +30,9 @@ data class PrimeUserData(
     val type: String,
     @SerializedName("updated_at")
     val updatedAt: String,
-    val whatsapp: String
+    val whatsapp: String,
+    @SerializedName("business_details")
+    val buisnessDetails:String
 ) {
     companion object
 }
@@ -47,6 +49,8 @@ val PrimeUserData.Companion.mockup by lazy {
         profileImage = null,
         type = "curabitur",
         updatedAt = "neglegentur",
-        whatsapp = "periculis"
+        whatsapp = "periculis",
+        buisnessDetails = "Copper Supplier",
+
     )
 }
