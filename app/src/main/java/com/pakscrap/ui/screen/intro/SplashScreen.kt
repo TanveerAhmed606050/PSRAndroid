@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,7 +68,7 @@ fun SplashScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(AppBG),
+            .background(DarkBlue),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -87,14 +88,14 @@ fun SplashScreen() {
             Text(
                 text = stringResource(id = R.string.from),
                 fontSize = 18.sp,
-                color = DarkBlue,
+                color = Color.White,
                 fontFamily = mediumFont,
                 modifier = Modifier.padding(bottom = 0.dp),
             )
             Text(
                 text = stringResource(id = R.string.pak_scrap_rate),
                 fontSize = 18.sp,
-                color = DarkBlue,
+                color = Color.White,
                 fontFamily = boldFont,
                 modifier = Modifier.padding(bottom = 20.dp),
             )

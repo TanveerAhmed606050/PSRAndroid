@@ -211,17 +211,17 @@ fun UserItemData(
                     fontSize = 14.sp,
                 )
                 Text(
-                    text = stringResource(id = R.string.business_detail),
-                    fontFamily = mediumFont,
-                    color = Color.DarkGray,
-                    fontSize = 14.sp,
-                )
-                Text(
                     text =
                     stringResource(id = R.string.show_no),
                     fontSize = 14.sp,
                     color = Color.DarkGray,
                     fontFamily = mediumFont,
+                )
+                Text(
+                    text = stringResource(id = R.string.business_detail),
+                    fontFamily = mediumFont,
+                    color = Color.DarkGray,
+                    fontSize = 14.sp,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -264,14 +264,6 @@ fun UserItemData(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                 )
-                Text(
-                    text = primeUserData.businessDetails,
-                    color = Color.DarkGray,
-                    fontFamily = mediumFont,
-                    fontSize = 14.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                )
 
                 Row(
                     modifier = Modifier
@@ -295,6 +287,14 @@ fun UserItemData(
                         }
                     )
                 }
+                Text(
+                    text = primeUserData.businessDetails,
+                    color = Color.DarkGray,
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp,
+//                    maxLines = 1,
+//                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Spacer(modifier = Modifier.height(20.dp))

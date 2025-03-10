@@ -49,3 +49,33 @@ fun AppButton(
         )
     }
 }
+
+@Composable
+fun WhiteButton(
+    modifier: Modifier, text: String, isEnable: Boolean = true,
+    onButtonClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    Button(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        onClick = { onButtonClick() },
+        contentPadding = PaddingValues(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isPressed) Color.White.copy(alpha = 0.7f) else Color.White
+        ),
+        shape = RoundedCornerShape(10.dp),
+        interactionSource = interactionSource,
+        enabled = isEnable,
+    ) {
+        Text(
+            text = text,
+            fontSize = 16.sp,
+            color = DarkBlue,
+            fontFamily = mediumFont,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
