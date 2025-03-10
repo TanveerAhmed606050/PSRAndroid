@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.psp_android"
+    namespace = "com.pakscrap"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.psp_android"
+        applicationId = "com.pakscrap"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
