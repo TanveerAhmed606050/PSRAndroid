@@ -471,7 +471,7 @@ fun SignupScreen(
                                 },
                             color = LightBlue,
                             fontFamily = mediumFont,
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             textAlign = TextAlign.Center
                         )
                 }

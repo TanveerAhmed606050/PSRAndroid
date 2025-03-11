@@ -217,12 +217,12 @@ fun UserItemData(
                     color = Color.DarkGray,
                     fontFamily = mediumFont,
                 )
-                Text(
-                    text = stringResource(id = R.string.business_detail),
-                    fontFamily = mediumFont,
-                    color = Color.DarkGray,
-                    fontSize = 14.sp,
-                )
+//                Text(
+//                    text = stringResource(id = R.string.business_detail),
+//                    fontFamily = mediumFont,
+//                    color = Color.DarkGray,
+//                    fontSize = 14.sp,
+//                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Column(
@@ -287,23 +287,33 @@ fun UserItemData(
                         }
                     )
                 }
-                Text(
-                    text = primeUserData.businessDetails,
-                    color = Color.DarkGray,
-                    fontFamily = mediumFont,
-                    fontSize = 14.sp,
-//                    maxLines = 1,
-//                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+                horizontalArrangement = Arrangement.SpaceBetween)
+            {
+                Text(
+                    text = primeUserData.businessDetails,
+                    color = Color.DarkGray,
+                    fontFamily = mediumFont,
+                    fontSize = 14.sp,
+                    maxLines = 3,
+                    // overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                )
             }
+
         }
+        Text(
+            modifier = Modifier.padding(start=20.dp, end = 20.dp, bottom = 10.dp),
+            text = primeUserData.businessDetails,
+            color = Color.DarkGray,
+            fontFamily = mediumFont,
+            fontSize = 14.sp,
+            maxLines = 3,
+            // overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+        )
     }
 }
 

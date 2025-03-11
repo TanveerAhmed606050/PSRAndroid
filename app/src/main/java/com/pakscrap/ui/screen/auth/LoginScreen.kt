@@ -188,7 +188,7 @@ fun LoginScreen(
                 if (isRtl)
                     Text(
                         text = stringResource(id = R.string.signup), modifier = Modifier
-                            .padding(end = 4.dp)
+                            .padding(end = 10.dp)
                             .clickable {
                                 onSignup()
                             },
@@ -198,6 +198,7 @@ fun LoginScreen(
                         textAlign = TextAlign.Center
                     )
                 Text(
+                    modifier = Modifier.padding(8.dp),
                     text = stringResource(id = R.string.dont_acc),
                     fontSize = 12.sp,
                     color = DarkBlue,
@@ -207,13 +208,13 @@ fun LoginScreen(
                 if (!isRtl)
                     Text(
                         text = stringResource(id = R.string.signup), modifier = Modifier
-                            .padding(start = 4.dp)
+                            .padding(8.dp)
                             .clickable {
                                 onSignup()
                             },
                         color = LightBlue,
                         fontFamily = mediumFont,
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         textAlign = TextAlign.Center
                     )
             }
