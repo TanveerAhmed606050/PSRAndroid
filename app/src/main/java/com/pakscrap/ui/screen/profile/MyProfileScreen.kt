@@ -133,7 +133,6 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         capturedImageUri = uri
-//        Log.d("lsjag", "MyProfileScreen: $capturedImageUri")
         if (capturedImageUri != null) {
             val file = uriToFile(context, uri = capturedImageUri!!)
             val imagePart = createMultipartBodyPart(file, "image")
@@ -320,12 +319,12 @@ fun ProfileOptionItem(
     var encodedUrl = ""
     when (option.title) {
         stringResource(id = R.string.privacy_policy) -> {
-            encodedUrl = "https://fitmeper.com/Privacy"
+            encodedUrl = "https://pakscrap.com/privacypolicy.html"
             route = ""
         }
 
         stringResource(id = R.string.terms_condition) -> {
-            encodedUrl = "https://fitmepner.com/Terms"
+            encodedUrl = "https://pakscrap.com/privacypolicy.html"
             route = ""
         }
 
