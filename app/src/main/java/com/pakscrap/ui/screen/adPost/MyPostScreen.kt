@@ -23,15 +23,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -64,6 +63,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
+import com.google.gson.Gson
 import com.pakscrap.R
 import com.pakscrap.dto.AdPostDto
 import com.pakscrap.navigation.Screen
@@ -82,7 +82,6 @@ import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Constant
 import com.pakscrap.utils.Utils.isRtlLocale
-import com.google.gson.Gson
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.flow.flowOf
 import java.util.Locale
@@ -175,31 +174,23 @@ fun MyPostScreen(
                 }
             }
         }
-        ExtendedFloatingActionButton(
+        SmallFloatingActionButton(
             modifier = Modifier
                 .padding(bottom = 130.dp, end = 16.dp)
                 .align(Alignment.BottomEnd),
             onClick = {
                 onPlusIconClick()
             },
-            containerColor = Color.White,
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "",
-                    tint = DarkBlue,
-                    modifier = Modifier.size(20.dp)
-                )
-            },
-            text = {
-                Text(
-                    text = stringResource(id = R.string.add),
-                    color = DarkBlue,
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont
-                )
-            }
-        )
+            containerColor = AppBG
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.add_post),
+                contentDescription = "",
+                tint = DarkBlue,
+                modifier = Modifier.size(25.dp)
+            )
+        }
+
     }
 }
 
@@ -230,7 +221,10 @@ fun AdsItemsView(
                     .background(Color.White), // Add some padding for better spacing
             ) {
                 Card(
-                    modifier = Modifier.height(150.dp).width(150.dp).padding(1.dp),
+                    modifier = Modifier
+                        .height(150.dp)
+                        .width(150.dp)
+                        .padding(1.dp),
                     shape = RoundedCornerShape(15.dp), // Set corner radius
                     colors = CardDefaults.cardColors(DarkBlue),
                     elevation = CardDefaults.cardElevation(4.dp)
@@ -242,18 +236,24 @@ fun AdsItemsView(
                             } else adData.photos, contentDescription = "",
                             error = painterResource(id = R.drawable.demo_scrap),
                             placeholder = painterResource(id = R.drawable.demo_scrap),
-                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
                                 .clip(RoundedCornerShape(15.dp)),
                             contentScale = ContentScale.Crop
                         )
                         Row(
                             verticalAlignment = Alignment.Bottom,
-                            modifier = Modifier.fillMaxWidth().fillMaxHeight()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_photo_24),
                                 contentDescription = "Gallery",
-                                modifier = Modifier.size(24.dp).padding(start=10.dp)
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .padding(start = 10.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(

@@ -1,9 +1,7 @@
 package com.pakscrap.ui.screen.intro
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,8 +21,6 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +47,6 @@ import com.pakscrap.ui.commonViews.WhiteButton
 import com.pakscrap.ui.screen.auth.AuthVM
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
-import com.pakscrap.ui.theme.Purple40
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import es.dmoral.toasty.Toasty
@@ -61,7 +56,12 @@ fun PrivacyPolicyScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
     PrivacyPolicyViews(onAgreeClick = { isSelected ->
         if (!isSelected) {
-            Toasty.error(context, "Please agree our terms and condition then continue.", Toasty.LENGTH_SHORT).show()
+            Toasty.error(
+                context,
+                "Please agree our terms and condition then continue.",
+                Toasty.LENGTH_SHORT,
+                false
+            ).show()
             return@PrivacyPolicyViews
         }
         authVM.userPreferences.isTermsAccept = true
@@ -69,18 +69,9 @@ fun PrivacyPolicyScreen(navController: NavController, authVM: AuthVM) {
         navController.navigate(Screen.LoginScreen.route)
     },
         onTermsClick = {
-            Log.d("lsdajg", "PrivacyPolicyScreen: ")
-            val intent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("https://pakscrap.com/privacypolicy.html")
-            )
-            intent.setPackage("com.android.chrome") // Open in Chrome only
-            try {
-                context.startActivity(intent)
-            } catch (e: ActivityNotFoundException) {
-                // Chrome is not installed, open with another browser
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://pakscrap.com/privacypolicy.html")))
-            }
+            val intent =
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://pakscrap.com/privacypolicy.html"))
+            context.startActivity(intent)
         })
 }
 
@@ -89,7 +80,7 @@ fun PrivacyPolicyViews(
     onAgreeClick: (Boolean) -> Unit,
     onTermsClick: () -> Unit,
 ) {
-    var isSelected by rememberSaveable { mutableStateOf(false) }
+    var isSelected by rememberSaveable { mutableStateOf(true) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -171,13 +162,14 @@ fun PrivacyPolicyViews(
         }
     }
 }
+
 @Composable
 fun CustomRadioButton(isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(24.dp)
             .clip(CircleShape)
-            .background(if (isSelected) Color.Green else Color.Gray)
+            .background(if (isSelected) Color.Green else Color.Black)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -191,6 +183,7 @@ fun CustomRadioButton(isSelected: Boolean, onClick: () -> Unit) {
         }
     }
 }
+
 @Composable
 @Preview
 fun PrivacyPolicyPreview() {

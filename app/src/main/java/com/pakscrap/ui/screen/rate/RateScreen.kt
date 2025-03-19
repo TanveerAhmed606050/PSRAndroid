@@ -198,7 +198,7 @@ fun DashBoardScreen(
                 Spacer(modifier = Modifier.statusBarsPadding())
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(id = R.string.rate), fontSize = 16.sp,
+                    text = stringResource(id = R.string.scrap_rate), fontSize = 16.sp,
                     fontFamily = mediumFont,
                     color = DarkBlue,
                     textAlign = TextAlign.Center

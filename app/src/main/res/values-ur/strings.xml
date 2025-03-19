@@ -4,7 +4,8 @@
     <string name="pak_scrap_rate">پاکستان سکریپ کے نرخ</string>
     <string name="rate">نرخ</string>
     <string name="no_rate">کوئی نرخ نہیں۔</string>
-    <string name="become_premium_user">پریمیم صارف بنیں۔</string>
+    <string name="london_me">لندن میٹل ایکسچینج</string>
+    <string name="become_premium_user">پریمیم بنیں۔</string>
     <string name="no_prime_user">کوئی پریمیم صارف نہیں۔</string>
     <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
@@ -46,7 +47,7 @@
     <string name="sms">ایس ایم ایس</string>
     <string name="chat">گپ شپ</string>
     <string name="whats_app">واٹس ایپ</string>
-    <string name="ad_detail">اشتہار کی تفصیلات</string>
+    <string name="ad_detail">سکریپ کی تفصیلات</string>
     <string name="show_no">نمبر دکھائیں۔</string>
     <string name="home">ہوم</string>
     <string name="watch_ad">اشتہار دیکھیں</string>
@@ -78,6 +79,8 @@
     <string name="reset_details">بس اپنا نیا پاس ورڈ درج کریں تاکہ آپ اپنے اکاؤنٹ تک رسائی حاصل کر سکیں</string>
     <string name="reset_pass">پاس ورڈ ری سیٹ</string>
     <string name="reset">ری سیٹ</string>
+    <string name="resend_otp">OTP دوبارہ بھیجیں۔</string>
+    <string name="enter_otp">OTP درج کریں۔</string>
     <string name="send_otp">OTP بھیجیں۔</string>
     <string name="product">پروڈکٹ</string>
     <string name="old_pass">پرانا پاس ورڈ</string>

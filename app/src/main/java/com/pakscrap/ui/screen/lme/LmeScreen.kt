@@ -33,9 +33,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pakscrap.R
 import com.pakscrap.response.LmeData
 import com.pakscrap.response.mockup
-import com.pakscrap.R
 import com.pakscrap.ui.commonViews.GoogleAdBanner
 import com.pakscrap.ui.commonViews.LinearProgress
 import com.pakscrap.ui.screen.adPost.SearchBar
@@ -90,7 +90,7 @@ fun LmeScreenView(
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
-                text = stringResource(id = R.string.lme), fontSize = 16.sp,
+                text = stringResource(id = R.string.london_me), fontSize = 16.sp,
                 fontFamily = mediumFont,
                 color = DarkBlue
             )

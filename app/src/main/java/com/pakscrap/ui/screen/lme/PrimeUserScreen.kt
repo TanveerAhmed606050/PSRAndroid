@@ -36,15 +36,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pakscrap.response.PrimeUserData
-import com.pakscrap.utils.Utils.isRtlLocale
 import com.google.android.gms.ads.MobileAds
 import com.pakscrap.R
+import com.pakscrap.response.PrimeUserData
 import com.pakscrap.ui.commonViews.AppButton
 import com.pakscrap.ui.commonViews.LinearProgress
 import com.pakscrap.ui.commonViews.MyAsyncImage
 import com.pakscrap.ui.commonViews.showRewardedAd
 import com.pakscrap.ui.screen.adPost.SearchBar
+import com.pakscrap.ui.screen.adPost.openWhatsApp
 import com.pakscrap.ui.screen.rate.NoProductView
 import com.pakscrap.ui.screen.rate.RateVM
 import com.pakscrap.ui.theme.AppBG
@@ -52,6 +52,7 @@ import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightRed40
 import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.mediumFont
+import com.pakscrap.utils.Utils.isRtlLocale
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -82,7 +83,9 @@ fun PrimeUserScreen(rateVm: RateVM) {
             search = it
             rateVm.searchPrimeUser(search.text)
         },
-        onBecomePremiumClick = {})
+        onBecomePremiumClick = {
+            openWhatsApp(context, "+923244400343")
+        })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -127,6 +130,7 @@ fun PrimeUserScreen(
                 modifier = Modifier,
                 text = stringResource(id = R.string.become_premium_user),
                 onButtonClick = {
+                    onBecomePremiumClick()
                 })
             if (primeUserData?.isNotEmpty() == true) {
                 LazyColumn(
@@ -292,7 +296,8 @@ fun UserItemData(
             Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween)
+                horizontalArrangement = Arrangement.SpaceBetween
+            )
             {
                 Text(
                     text = primeUserData.businessDetails,
@@ -306,7 +311,7 @@ fun UserItemData(
 
         }
         Text(
-            modifier = Modifier.padding(start=20.dp, end = 20.dp, bottom = 10.dp),
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
             text = primeUserData.businessDetails,
             color = Color.DarkGray,
             fontFamily = mediumFont,

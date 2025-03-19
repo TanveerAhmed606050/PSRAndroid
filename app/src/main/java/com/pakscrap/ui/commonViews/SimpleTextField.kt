@@ -114,6 +114,7 @@ fun MyTextFieldWithBorder(
         } else null,
         textStyle = TextStyle(
             fontSize = 14.sp,
+            letterSpacing = 2.sp,
             fontFamily = regularFont,
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
             color = DarkBlue,
@@ -206,6 +207,7 @@ fun PasswordTextFields(
         } else null,
         textStyle = TextStyle(
             fontSize = 14.sp,
+            letterSpacing = 2.sp,
             fontFamily = regularFont,
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
             color = DarkBlue,
@@ -258,6 +260,7 @@ fun PhoneTextField(
         },
         textStyle = TextStyle(
             fontSize = 14.sp,
+            letterSpacing = 2.sp,
             fontFamily = regularFont,
             textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
             color = DarkBlue,

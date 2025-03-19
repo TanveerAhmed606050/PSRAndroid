@@ -34,6 +34,19 @@ android {
                 "proguard-rules.pro"
             )
         }
+        signingConfigs {
+            create("release") {
+                storeFile = file("E:\\pakscrap.keystore")
+                storePassword = "pakscrap"
+                keyAlias = "pakscrap"
+                keyPassword = "pakscrap"
+            }
+        }
+        buildTypes {
+            getByName("release") {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

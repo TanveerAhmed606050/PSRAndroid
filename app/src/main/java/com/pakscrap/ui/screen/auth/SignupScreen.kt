@@ -25,11 +25,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -53,12 +54,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import com.pakscrap.R
 import com.pakscrap.dto.UserCredential
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
 import com.pakscrap.response.LocationData
 import com.pakscrap.response.mockup
-import com.pakscrap.R
 import com.pakscrap.ui.commonViews.AppButton
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
@@ -78,6 +79,7 @@ import com.pakscrap.utils.Utils.isValidPassword
 import com.pakscrap.utils.Utils.isValidPhone
 import com.pakscrap.utils.Utils.isValidText
 import es.dmoral.toasty.Toasty
+import kotlinx.coroutines.delay
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -105,10 +107,11 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     //handle firebase validation
     if (message?.isNotEmpty() == true) {
         if (message?.contains("code sent to", ignoreCase = true)!!) {
-            Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
-            showDialog.value = true
+            Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, false).show()
+            if (!showDialog.value)
+                showDialog.value = true
         } else if (message == "Verification successful") {
-            Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, true).show()
+            Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, false).show()
             showDialog.value = false
             isPhoneNoVerified = true
         } else
@@ -126,6 +129,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                 false
             ).show()
         } else {
+            showDialog.value = true
             authVM.sendVerificationCode("+92$phoneNumber", context as Activity)
         }
         authVM.resetPasswordResponse = null
@@ -133,7 +137,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
 
     if (authData != null) {
         if (authData.status) {
-            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, true).show()
+            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, false).show()
             navController.navigate(Screen.HomeScreen.route) {
                 popUpTo(navController.graph.id)
             }
@@ -146,12 +150,14 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
         showDialog = showDialog,
         otpText = otpText.value,
         otpCount = 6, // Example OTP length
-        onOtpTextChange = { text, _ ->
-            otpText.value = text
+        onOtpTextChange = { otp, isLastDigit ->
+            otpText.value = otp
+            if (isLastDigit)
+                authVM.verifyCode(otpText.value)
         },
-        onConfirmBtn = {
-            authVM.verifyCode(otpText.value)
-        }
+        onResendOtp = {
+            authVM.sendVerificationCode("+92$phoneNumber", context as Activity)
+        },
     )
     SignupScreen(
         context = context,
@@ -167,7 +173,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                 if (isValidText(name).isNotEmpty())
                     Toasty.error(context, isValidText(name), Toast.LENGTH_SHORT, true).show()
                 else if (isValidPhone(phone).isNotEmpty())
-                    Toasty.error(context, isValidPhone("+92$phone"), Toast.LENGTH_SHORT, true)
+                    Toasty.error(context, isValidPhone("+92$phone"), Toast.LENGTH_SHORT, false)
                         .show()
                 else if (selectedCity.isEmpty() || selectedCity == context.getString(R.string.city))
                     Toasty.error(
@@ -177,10 +183,10 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                         false
                     ).show()
                 else if (isValidPassword(password).isNotEmpty())
-                    Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, true)
+                    Toasty.error(context, isValidPassword(password), Toast.LENGTH_SHORT, false)
                         .show()
                 else if (isValidPassword(confirmPass).isNotEmpty())
-                    Toasty.error(context, isValidPassword(confirmPass), Toast.LENGTH_SHORT, true)
+                    Toasty.error(context, isValidPassword(confirmPass), Toast.LENGTH_SHORT, false)
                         .show()
                 else if (password != confirmPass)
                     Toasty.error(
@@ -236,7 +242,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                 phoneNumber = phoneNo.takeLast(10)
                 authVM.phoneValidate(
                     UpdateUserData(
-                        phone = "+92$phoneNo"
+                        phone = "+92$phoneNumber"
                     )
                 )
             }
@@ -486,15 +492,33 @@ fun OtpDialog(
     otpText: String,
     otpCount: Int,
     onOtpTextChange: (String, Boolean) -> Unit,
-    onConfirmBtn: () -> Unit,
+    onResendOtp: () -> Unit,
 ) {
+    var timerSeconds by remember { mutableIntStateOf(60) }
+    var isResendEnabled by remember { mutableStateOf(false) }
+
+    // Start countdown when dialog opens
+    LaunchedEffect(showDialog.value) {
+        if (showDialog.value) {
+            timerSeconds = 60
+            isResendEnabled = false
+            while (timerSeconds > 0) {
+                delay(1000L)
+                timerSeconds--
+            }
+            isResendEnabled = true
+        }
+    }
+
     if (showDialog.value) {
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
             title = {
                 Text(
-                    text = "Enter OTP", fontFamily = mediumFont,
-                    color = DarkBlue, fontSize = 18.sp,
+                    text = stringResource(id = R.string.enter_otp),
+                    fontFamily = mediumFont,
+                    color = DarkBlue,
+                    fontSize = 18.sp
                 )
             },
             text = {
@@ -504,31 +528,45 @@ fun OtpDialog(
                     PinTextField(
                         otpText = otpText,
                         otpCount = otpCount,
-                        onOtpTextChange = onOtpTextChange
+                        onOtpTextChange = { value, isLastDigit ->
+                            onOtpTextChange(value, isLastDigit)
+                        }
                     )
+//                    Spacer(modifier = Modifier.height(40.dp))
+//                    AppButton(modifier = Modifier,
+//                        isEnable = isResendEnabled,
+//                        text = stringResource(id = R.string.resend_otp),
+//                        onButtonClick = {
+//                            if (isResendEnabled) {
+//                                onResendOtp()
+//                                timerSeconds = 60
+//                                isResendEnabled = false
+//                            }
+//                        })
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    onConfirmBtn()
-                }) {
-                    Text(
-                        stringResource(id = R.string.confirm),
-                        fontSize = 16.sp, fontFamily = mediumFont, color = DarkBlue,
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDialog.value = false }) {
-                    Text(
-                        stringResource(id = R.string.cancel),
-                        fontSize = 16.sp, fontFamily = mediumFont, color = Color.Red
-                    )
-                }
+                Text(
+                    if (isResendEnabled) stringResource(id = R.string.resend_otp)
+                    else "Resend OTP in $timerSeconds s",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            if (isResendEnabled) {
+                                onResendOtp()
+                                timerSeconds = 60
+                                isResendEnabled = false
+                            }
+                        },
+                    fontSize = 16.sp,
+                    fontFamily = mediumFont,
+                    color = if (isResendEnabled) DarkBlue else Color.Gray
+                )
             }
         )
     }
 }
+
 
 @Composable
 fun ListDialog(
