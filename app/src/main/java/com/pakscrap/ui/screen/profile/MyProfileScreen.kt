@@ -49,18 +49,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.pakscrap.MainActivity
+import com.pakscrap.R
 import com.pakscrap.dto.ImageUpdate
 import com.pakscrap.dto.ProfileOption
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
-import com.pakscrap.utils.LogoutSession
-import com.pakscrap.utils.Utils.createMultipartBodyPart
-import com.pakscrap.utils.Utils.isRtlLocale
-import com.pakscrap.utils.Utils.uriToFile
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
-import com.pakscrap.R
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.LogoutDialog
@@ -72,6 +69,11 @@ import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
 import com.pakscrap.ui.theme.regularFont
+import com.pakscrap.utils.LocaleHelper
+import com.pakscrap.utils.LogoutSession
+import com.pakscrap.utils.Utils.createMultipartBodyPart
+import com.pakscrap.utils.Utils.isRtlLocale
+import com.pakscrap.utils.Utils.uriToFile
 import es.dmoral.toasty.Toasty
 import java.util.Locale
 
@@ -87,14 +89,12 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     if (expandedLang) {
         ListDialog(dataList = languageList, onDismiss = { expandedLang = false },
             onConfirm = { selectedLanguage ->
-                authVM.userPreferences.isUrduSelected = selectedLanguage == "اردو"
                 expandedLang = false
-                if (authVM.userPreferences.isUrduSelected) {
+                if (LocaleHelper.getLanguage(context) == "en" && selectedLanguage == "اردو") {
                     switchLanguage(context, "ur")
-                } else {
+                } else if (LocaleHelper.getLanguage(context) == "ur" && selectedLanguage == "English") {
                     switchLanguage(context, "en")
                 }
-                (context as? Activity)?.recreate()
             })
     }
     val userId = authVM.userPreferences.getUserPreference()?.id ?: 0
@@ -163,10 +163,11 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         onItemClick = { screenRoute ->
             when (screenRoute) {
                 context.getString(R.string.logout) -> showDialog = true
-                context.getString(R.string.selected_language) -> {
+                "English" -> {
                     expandedLang = true
                 }
-                "whatsapp"->{
+
+                "whatsapp" -> {
                     openWhatsApp(context, "+923204882646")
                 }
 
@@ -349,7 +350,7 @@ fun ProfileOptionItem(
         }
 
         stringResource(id = R.string.selected_language) -> {
-            route = stringResource(id = R.string.selected_language)
+            route = "English"
             encodedUrl = ""
         }
     }
@@ -359,7 +360,7 @@ fun ProfileOptionItem(
             .fillMaxWidth()
             .padding(vertical = 14.dp, horizontal = 8.dp)
             .clickable {
-                if (encodedUrl.isNotEmpty()) {
+                if (encodedUrl.isNotEmpty() && encodedUrl != "whatsapp") {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(encodedUrl))
                     context.startActivity(intent)
                 } else if (route == context.getString(R.string.logout))
@@ -427,11 +428,10 @@ fun ProfileOptionItem(
 }
 
 fun switchLanguage(context: Context, language: String) {
-    val locale = Locale(language)
-    Locale.setDefault(locale)
-    val configuration = context.resources.configuration
-    configuration.setLocale(locale)
-    context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
+    LocaleHelper.setLanguage(context, language)
+    val intent = Intent(context, MainActivity::class.java)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    context.startActivity(intent)
 }
 
 @Preview

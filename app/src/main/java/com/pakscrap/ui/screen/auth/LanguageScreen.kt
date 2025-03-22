@@ -32,8 +32,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.pakscrap.navigation.Screen
 import com.pakscrap.R
+import com.pakscrap.navigation.Screen
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.screen.home.HomeVM
 import com.pakscrap.ui.screen.profile.switchLanguage
@@ -53,10 +53,8 @@ fun LanguageScreen(
             language = selectedLanguage
             if (language == "English") {
                 switchLanguage(context, "en")
-                homeVM.userPreferences.isUrduSelected = false
             } else {
                 switchLanguage(context, "ur")
-                homeVM.userPreferences.isUrduSelected = true
             }
         },
         nextClick = {

@@ -1,5 +1,6 @@
 package com.pakscrap
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -35,6 +36,7 @@ import com.pakscrap.ui.commonViews.LogoutDialog
 import com.pakscrap.ui.commonViews.loadRewardedAd
 import com.pakscrap.ui.screen.rate.RateVM
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.utils.LocaleHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -113,6 +115,9 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocaleHelper.updateLocale(newBase, LocaleHelper.getLanguage(newBase)))
+    }
 }
 
 @Composable
@@ -141,6 +146,7 @@ fun subscribeTopic() {
         }
 
 }
+
 
 @Preview(showBackground = true)
 @Composable

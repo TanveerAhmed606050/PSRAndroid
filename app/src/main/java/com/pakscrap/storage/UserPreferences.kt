@@ -20,16 +20,12 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         const val IS_FIRST_LAUNCH = "isFirstLaunch"
         const val LATEST_SEARCH = "latest_search"
         const val READ_TERMS = "read_terms"
-        const val IS_URDU_SELECTED = "urduSelected"
         const val NOTIFICATION_SWITCH = "isSelected"
     }
 
     var isFirstLaunch: Boolean
         get() = sharedPreferences.getBoolean(IS_FIRST_LAUNCH, true)
         set(value) = sharedPreferences.edit { putBoolean(IS_FIRST_LAUNCH, value) }
-    var isUrduSelected: Boolean
-        get() = sharedPreferences.getBoolean(IS_URDU_SELECTED, false)
-        set(value) = sharedPreferences.edit { putBoolean(IS_URDU_SELECTED, value) }
     var isTermsAccept: Boolean
         get() = sharedPreferences.getBoolean(READ_TERMS, false)
         set(value) = sharedPreferences.edit { putBoolean(READ_TERMS, value) }

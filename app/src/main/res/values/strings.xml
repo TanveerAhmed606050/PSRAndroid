@@ -41,6 +41,8 @@
     <string name="enter_pin">Enter your Pin</string>
     <string name="resend_otp">Resend OTP</string>
     <string name="enter_otp">Enter OTP</string>
+    <string name="pak">PAK</string>
+    <string name="scrap">SCRAP</string>
     <string name="name">Name</string>
     <string name="my_name">My Name</string>
     <string name="selected_language">English</string>
@@ -49,6 +51,8 @@
     <string name="lme">LME</string>
     <string name="london_me">London metal exchange</string>
     <string name="sms">SMS</string>
+    <string name="splash_1">Pakistan #1 Scrap App</string>
+    <string name="splash_2">for Scrap Bayer &amp; Seller</string>
     <string name="chat">Chat</string>
     <string name="whats_app">WhatsApp</string>
     <string name="ad_detail">Scrap Details</string>
