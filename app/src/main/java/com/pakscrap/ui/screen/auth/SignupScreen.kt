@@ -138,6 +138,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     if (authData != null) {
         if (authData.status) {
             Toasty.success(context, authData.message, Toast.LENGTH_SHORT, false).show()
+            authVM.userPreferences.isFirstLaunch = false
             navController.navigate(Screen.HomeScreen.route) {
                 popUpTo(navController.graph.id)
             }

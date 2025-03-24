@@ -123,6 +123,9 @@ class AuthVM @Inject constructor(
         isLoading = false
         if (result is Result.Success) {
             loginData = result.data
+            userPreferences.saveUserPreference(
+                loginData?.data ?: AuthData.mockup
+            )
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
