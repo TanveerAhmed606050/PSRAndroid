@@ -57,6 +57,7 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
             Toasty.success(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, false).show()
             navController.popBackStack()
             navController.popBackStack()
+            authVM.phone = ""
         } else
             Toasty.error(context, resetPasswordResponse.message, Toast.LENGTH_SHORT, false).show()
         authVM.resetPasswordResponse = null
@@ -87,7 +88,7 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
                             newPassword = password
                         )
                     )
-                }else{
+                } else {
                     Toasty.error(
                         context,
                         noNetworkMessage,

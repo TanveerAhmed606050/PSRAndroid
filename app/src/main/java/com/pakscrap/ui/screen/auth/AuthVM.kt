@@ -49,7 +49,6 @@ class AuthVM @Inject constructor(
     var resetPasswordResponse by mutableStateOf<InfoDataResponse?>(null)
 
     fun sendVerificationCode(phoneNumber: String, activity: Activity) {
-//        isLoading = true
         val options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
             .setPhoneNumber(phoneNumber)
             .setTimeout(60L, TimeUnit.SECONDS)

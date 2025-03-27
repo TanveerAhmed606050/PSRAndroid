@@ -30,11 +30,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature
-import com.pakscrap.utils.DevicePosture
-import com.pakscrap.utils.PSRNavigationContentPosition
-import com.pakscrap.utils.PSRNavigationType
-import com.pakscrap.utils.isBookPosture
-import com.pakscrap.utils.isSeparating
 import com.google.gson.Gson
 import com.pakscrap.R
 import com.pakscrap.ui.screen.adPost.AdPostVM
@@ -47,7 +42,7 @@ import com.pakscrap.ui.screen.auth.AuthVM
 import com.pakscrap.ui.screen.auth.ForgotPasswordScreen
 import com.pakscrap.ui.screen.auth.LanguageScreen
 import com.pakscrap.ui.screen.auth.LoginScreen
-import com.pakscrap.ui.screen.auth.PasswordScreen
+import com.pakscrap.ui.screen.auth.OTPScreen
 import com.pakscrap.ui.screen.auth.ResetPasswordScreen
 import com.pakscrap.ui.screen.auth.SignupScreen
 import com.pakscrap.ui.screen.home.HomeScreen
@@ -62,6 +57,11 @@ import com.pakscrap.ui.screen.profile.UpdatePasswordScreen
 import com.pakscrap.ui.screen.profile.UpdateProfileScreen
 import com.pakscrap.ui.screen.rate.RateScreen
 import com.pakscrap.ui.screen.rate.RateVM
+import com.pakscrap.utils.DevicePosture
+import com.pakscrap.utils.PSRNavigationContentPosition
+import com.pakscrap.utils.PSRNavigationType
+import com.pakscrap.utils.isBookPosture
+import com.pakscrap.utils.isSeparating
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -331,13 +331,15 @@ fun PSRNavHost(
             PrimeUserScreen(rateVM)
         }
         composable(
-            route = Screen.PasswordScreen.route,
+            route = Screen.OTPScreen.route + "myPhone/{data}",
+            arguments = listOf(navArgument("data") { type = NavType.StringType }),
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
-        ) {
-            PasswordScreen(navController)
+        ) { backStackEntry ->
+            val phoneNumber = backStackEntry.arguments?.getString("data")
+            OTPScreen(navController, authViewModel, phoneNumber)
         }
         composable(
             route = Screen.MyProfileScreen.route,

@@ -93,6 +93,7 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
         isOtpFieldsVisible = isOtpFieldsVisible,
         backClick = {
             navController.popBackStack()
+            authVM.phone = ""
         },
         sendOtpClick = {
             val phoneNo = authVM.phone.takeLast(10)
@@ -125,7 +126,7 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
                 authVM.verifyCode(pinValue)
         },
         onResendOtp = {
-            authVM.sendVerificationCode("+92$authVM.phone", context as Activity)
+            authVM.sendVerificationCode("+92${authVM.phone}", context as Activity)
         },
     )
 }
@@ -143,14 +144,16 @@ fun ForgotPasswordDesign(
 ) {
     var timerSeconds by remember { mutableIntStateOf(60) }
     var isResendEnabled by remember { mutableStateOf(isOtpFieldsVisible) }
+    var resendTrigger by remember { mutableIntStateOf(0) } // Force LaunchedEffect restart
     // Start countdown when dialog opens
-    LaunchedEffect(timerSeconds) {
-        if (timerSeconds > 0) {
+    LaunchedEffect(resendTrigger) {
+        timerSeconds = 60
+        isResendEnabled = false
+        while (timerSeconds > 0) {
             delay(1000L)
             timerSeconds--
-        } else {
-            isResendEnabled = true
         }
+        isResendEnabled = true
     }
 
     Box(
@@ -225,8 +228,7 @@ fun ForgotPasswordDesign(
                         .clickable {
                             if (isResendEnabled) {
                                 onResendOtp()
-                                timerSeconds = 60
-                                isResendEnabled = false
+                                resendTrigger++ // Change state to restart LaunchedEffect
                             }
                         },
                     fontSize = 16.sp,

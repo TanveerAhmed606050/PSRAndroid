@@ -198,13 +198,12 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                     ).show()
                 else {
                     phoneNumber = phone.takeLast(10)
-                    showDialog.value = true
-//                    authVM.register(
-//                        UserCredential(
-//                            phone = "+92$phoneNumber", name = name, password = password,
-//                            location = selectedCity
-//                        )
-//                    )
+                    authVM.register(
+                        UserCredential(
+                            phone = "+92$phoneNumber", name = name, password = password,
+                            location = selectedCity
+                        )
+                    )
                 }
             } else
                 Toasty.error(
@@ -498,9 +497,10 @@ fun OtpDialog(
 ) {
     var timerSeconds by remember { mutableIntStateOf(60) }
     var isResendEnabled by remember { mutableStateOf(false) }
+    var resendTrigger by remember { mutableIntStateOf(0) } // Force LaunchedEffect restart
 
-    // Start countdown when dialog opens
-    LaunchedEffect(showDialog.value) {
+    // Start countdown when dialog opens or resend is triggered
+    LaunchedEffect(showDialog.value, resendTrigger) {
         if (showDialog.value) {
             timerSeconds = 60
             isResendEnabled = false
@@ -514,14 +514,14 @@ fun OtpDialog(
 
     if (showDialog.value) {
         AlertDialog(
-            onDismissRequest = { showDialog.value = false },
+            onDismissRequest = { },
             title = {
-                Text(
-                    text = stringResource(id = R.string.enter_otp),
-                    fontFamily = mediumFont,
-                    color = DarkBlue,
-                    fontSize = 18.sp
-                )
+                Header(
+                    modifier = Modifier,
+                    headerText = stringResource(id = R.string.enter_otp),
+                    backClick = {
+                        showDialog.value = false
+                    })
             },
             text = {
                 Column(modifier = Modifier.padding(horizontal = 4.dp)) {
@@ -534,17 +534,6 @@ fun OtpDialog(
                             onOtpTextChange(value, isLastDigit)
                         }
                     )
-//                    Spacer(modifier = Modifier.height(40.dp))
-//                    AppButton(modifier = Modifier,
-//                        isEnable = isResendEnabled,
-//                        text = stringResource(id = R.string.resend_otp),
-//                        onButtonClick = {
-//                            if (isResendEnabled) {
-//                                onResendOtp()
-//                                timerSeconds = 60
-//                                isResendEnabled = false
-//                            }
-//                        })
                 }
             },
             confirmButton = {
@@ -553,11 +542,10 @@ fun OtpDialog(
                     else "Resend OTP in $timerSeconds s",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
+                        .clickable(enabled = isResendEnabled) {
                             if (isResendEnabled) {
                                 onResendOtp()
-                                timerSeconds = 60
-                                isResendEnabled = false
+                                resendTrigger++ // Change state to restart LaunchedEffect
                             }
                         },
                     fontSize = 16.sp,
@@ -568,7 +556,6 @@ fun OtpDialog(
         )
     }
 }
-
 
 @Composable
 fun ListDialog(
