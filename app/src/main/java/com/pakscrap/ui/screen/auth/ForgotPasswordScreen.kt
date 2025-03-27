@@ -1,6 +1,7 @@
 package com.pakscrap.ui.screen.auth
 
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.pakscrap.R
 import com.pakscrap.navigation.Screen
+import com.pakscrap.network.isNetworkAvailable
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.PhoneTextField
@@ -54,7 +56,8 @@ import kotlinx.coroutines.delay
 fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
     var isOtpFieldsVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    var phone by remember { mutableStateOf("") }
+    val noNetworkMessage = stringResource(id = R.string.network_error)
+//    var phone by remember { mutableStateOf("") }
     var pinValue by remember { mutableStateOf("") }
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
@@ -65,8 +68,9 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
     if (forgotPasswordResponse != null) {
         if (forgotPasswordResponse.status) {
             isOtpFieldsVisible = true
-            val phoneNo = phone.takeLast(10)
-            Toasty.success(context, forgotPasswordResponse.message, Toast.LENGTH_SHORT, false).show()
+            val phoneNo = authVM.phone.takeLast(10)
+            Toasty.success(context, forgotPasswordResponse.message, Toast.LENGTH_SHORT, false)
+                .show()
             authVM.sendVerificationCode("+92$phoneNo", context as Activity)
         } else
             Toasty.error(context, forgotPasswordResponse.message, Toast.LENGTH_SHORT, false).show()
@@ -76,34 +80,44 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
     val message by authVM.message.collectAsState()
     if (message?.isNotEmpty() == true) {
         Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, false).show()
-        if (message?.contains("code sent to", ignoreCase = true)!!)
-            if (message == "Verification successful") {
-                navController.navigate(Screen.ResetPasswordScreen.route + "myPhone/$phone")
-            }
+        if (message == "Verification successful") {
+//                navController.navigate(Screen.ResetPasswordScreen.route + "myPhone/$phone")
+            navController.navigate(Screen.ResetPasswordScreen.route)
+        }
         authVM.updateMessage("")
     }
 
     ForgotPasswordDesign(
-        phone = phone,
+        phone = authVM.phone,
         pinValue = pinValue,
         isOtpFieldsVisible = isOtpFieldsVisible,
         backClick = {
             navController.popBackStack()
         },
         sendOtpClick = {
-            val phoneNo = phone.takeLast(10)
+            val phoneNo = authVM.phone.takeLast(10)
             if (isValidPhone(phoneNo).isNotEmpty())
                 Toasty.error(context, isValidPhone(phoneNo), Toast.LENGTH_SHORT, false).show()
             else {
-                authVM.phoneValidate(
-                    UpdateUserData(
-                        phone = "+92$phoneNo"
+                if (isNetworkAvailable(context)) {
+                    authVM.phoneValidate(
+                        UpdateUserData(
+                            phone = "+92$phoneNo"
+                        )
                     )
-                )
+                } else {
+                    Toasty.error(
+                        context,
+                        noNetworkMessage,
+                        Toast.LENGTH_SHORT,
+                        false
+                    )
+                        .show()
+                }
             }
         },
         onPhone = {
-            phone = it
+            authVM.phone = it
         },
         onPinValue = { value, isLastDigit ->
             pinValue = value
@@ -111,7 +125,7 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
                 authVM.verifyCode(pinValue)
         },
         onResendOtp = {
-            authVM.sendVerificationCode("+92$phone", context as Activity)
+            authVM.sendVerificationCode("+92$authVM.phone", context as Activity)
         },
     )
 }

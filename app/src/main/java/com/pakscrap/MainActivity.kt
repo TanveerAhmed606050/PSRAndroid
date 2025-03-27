@@ -24,21 +24,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.pakscrap.navigation.PSRNavigation
-import com.pakscrap.navigation.Screen
-import com.pakscrap.storage.UserPreferences
-import com.pakscrap.utils.LogoutSession
-import com.pakscrap.utils.Utils.actionBar
 import com.google.accompanist.adaptive.calculateDisplayFeatures
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.firebase.messaging.FirebaseMessaging
+import com.pakscrap.navigation.PSRNavigation
+import com.pakscrap.navigation.Screen
+import com.pakscrap.storage.UserPreferences
+import com.pakscrap.ui.commonViews.GoogleInterstitialAd
 import com.pakscrap.ui.commonViews.LogoutDialog
 import com.pakscrap.ui.commonViews.loadRewardedAd
 import com.pakscrap.ui.screen.rate.RateVM
 import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.utils.LocaleHelper
+import com.pakscrap.utils.LogoutSession
+import com.pakscrap.utils.Utils.actionBar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,18 +57,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             //Load Rewarded Ads Launch Effect
             val rateVm = hiltViewModel<RateVM>()
+            GoogleInterstitialAd(this, onAdClick = {})
             loadRewardedAd(
                 context = this,
                 getString(R.string.rewarded_ad_unit_id),
                 onAdLoaded = {
                     rateVm.rewardedAd = it
                 })
-            if (rateVm.watchAd) {
-                LaunchedEffect(key1 = rateVm.watchAd) {
-                    delay(1 * 60 * 1000) // 15 minutes delay
-                    rateVm.watchAd = false // Reset watchAd to false
-                }
-            }
+//            if (rateVm.watchAd) {
+//                LaunchedEffect(key1 = rateVm.watchAd) {
+//                    delay(1 * 60 * 1000) // 1 minutes delay
+//                    rateVm.watchAd = false // Reset watchAd to false
+//                }
+//            }
 
             val scope = rememberCoroutineScope()
             val navController = rememberNavController()
@@ -115,8 +116,14 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.updateLocale(newBase, LocaleHelper.getLanguage(newBase)))
+        super.attachBaseContext(
+            LocaleHelper.updateLocale(
+                newBase,
+                LocaleHelper.getLanguage(newBase)
+            )
+        )
     }
 }
 

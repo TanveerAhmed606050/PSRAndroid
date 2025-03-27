@@ -6,6 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.FirebaseException
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.PhoneAuthCredential
+import com.google.firebase.auth.PhoneAuthOptions
+import com.google.firebase.auth.PhoneAuthProvider
 import com.pakscrap.dto.ImageUpdate
 import com.pakscrap.dto.UserCredential
 import com.pakscrap.repository.AuthRepository
@@ -18,11 +23,6 @@ import com.pakscrap.ui.screen.auth.models.InfoDataResponse
 import com.pakscrap.ui.screen.auth.models.mockup
 import com.pakscrap.ui.screen.profile.models.UpdateUserData
 import com.pakscrap.utils.Result
-import com.google.firebase.FirebaseException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.PhoneAuthCredential
-import com.google.firebase.auth.PhoneAuthOptions
-import com.google.firebase.auth.PhoneAuthProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +38,7 @@ class AuthVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
     private val _verificationId = MutableStateFlow<String?>(null)
+    var phone by mutableStateOf("")
 
     private val _message = MutableStateFlow("")
     val message: StateFlow<String?> = _message

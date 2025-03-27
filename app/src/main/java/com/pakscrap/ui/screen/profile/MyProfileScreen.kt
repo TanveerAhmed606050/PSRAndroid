@@ -1,6 +1,5 @@
 package com.pakscrap.ui.screen.profile
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -12,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,10 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -203,8 +202,7 @@ fun MyProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
@@ -212,10 +210,9 @@ fun MyProfileScreen(
                 modifier = null,
                 stringResource(id = R.string.my_profile),
                 backClick = { backClick() })
-            Spacer(modifier = Modifier.padding(top = 20.dp))
+            Spacer(modifier = Modifier.padding(top = 10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
-//                    Log.d("lsjag", "picture: $profilePic")
                     MyAsyncImage(imageUrl = profilePic, 50.dp, true)
                     Surface(
                         color = DarkBlue,
@@ -230,20 +227,31 @@ fun MyProfileScreen(
                                 painter = painterResource(id = R.drawable.edit_white_ic),
                                 contentDescription = "",
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.clickable { onBottomSheetShow() })
+                                modifier = Modifier.clickable { onBottomSheetShow() }
+                            )
                         }
                     }
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-            ProfileOptions(context, isChecked = isNotificationEnable, screenRoute = { route ->
-                onItemClick(route)
-            },
-                onNotificationSelection = { isChecked ->
-                    onNotificationSelection(isChecked)
-                })
+
+            // Wrap in LazyColumn for proper scrolling
+            LazyColumn(
+                modifier = Modifier.weight(1f), // Allow it to take available space
+                contentPadding = PaddingValues(bottom = 120.dp)
+            ) {
+                item {
+                    ProfileOptions(
+                        context = context,
+                        isChecked = isNotificationEnable,
+                        screenRoute = { route -> onItemClick(route) },
+                        onNotificationSelection = { isChecked -> onNotificationSelection(isChecked) }
+                    )
+                }
+            }
         }
     }
+
 }
 
 @Composable

@@ -358,15 +358,16 @@ fun PSRNavHost(
             ForgotPasswordScreen(navController, authViewModel)
         }
         composable(
-            route = Screen.ResetPasswordScreen.route + "myPhone/{data}",
-            arguments = listOf(navArgument("data") { type = NavType.StringType }),
+//            route = Screen.ResetPasswordScreen.route + "myPhone/{data}",
+//            arguments = listOf(navArgument("data") { type = NavType.StringType }),
+            route = Screen.ResetPasswordScreen.route,
             enterTransition = { slideInHorizontally { it } },
             exitTransition = { slideOutHorizontally { -it } },
             popEnterTransition = { slideInHorizontally { -it } },
             popExitTransition = { slideOutHorizontally { it } }
-        ) { backStackEntry ->
-            val phoneNumber = backStackEntry.arguments?.getString("data")
-            ResetPasswordScreen(navController, authViewModel, phoneNumber)
+        ) {
+//            val phoneNumber = backStackEntry.arguments?.getString("data")
+            ResetPasswordScreen(navController, authViewModel)
         }
         composable(
             route = Screen.UpdatePasswordScreen.route,

@@ -5,18 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.ads.rewarded.RewardedAd
 import com.pakscrap.repository.RateRepository
 import com.pakscrap.response.LmeData
 import com.pakscrap.response.LmeResponse
 import com.pakscrap.response.PrimeUser
 import com.pakscrap.response.PrimeUserData
 import com.pakscrap.storage.UserPreferences
-import com.pakscrap.utils.Result
-import com.google.android.gms.ads.rewarded.RewardedAd
 import com.pakscrap.ui.screen.rate.models.MainMetalData
 import com.pakscrap.ui.screen.rate.models.MetalRateResponse
 import com.pakscrap.ui.screen.rate.models.RateSuggestionResponse
 import com.pakscrap.ui.screen.rate.models.SubMetals
+import com.pakscrap.utils.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -38,7 +38,7 @@ class RateVM @Inject constructor(
     private var lmeMetalData by mutableStateOf<LmeResponse?>(null)
     var suggestMainMetals by mutableStateOf<List<MainMetalData>?>(null)
     var searchLmeMetalData by mutableStateOf<List<LmeData>?>(null)
-    var watchAd by mutableStateOf(false)
+    var watchInterstitialAd by mutableStateOf(false)
     var rewardedAd by mutableStateOf<RewardedAd?>(null)
 
     fun getPremiumUser() = viewModelScope.launch {
@@ -116,5 +116,11 @@ class RateVM @Inject constructor(
             it.submetalName.contains(searchText, ignoreCase = true) ||
                     it.submetalUrduName.contains(searchText)
         } ?: listOf()
+    }
+
+    fun updatePrimeUser(userData: PrimeUserData) {
+        searchPrimeUserData = searchPrimeUserData?.map {
+            if (it.id == userData.id) it.copy(watchAd = true) else it
+        }
     }
 }

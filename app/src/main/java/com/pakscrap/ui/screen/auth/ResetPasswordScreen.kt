@@ -1,5 +1,6 @@
 package com.pakscrap.ui.screen.auth
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.pakscrap.R
+import com.pakscrap.network.isNetworkAvailable
 import com.pakscrap.ui.commonViews.AppButton
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
@@ -41,8 +43,9 @@ import com.pakscrap.utils.Utils.isValidPassword
 import es.dmoral.toasty.Toasty
 
 @Composable
-fun ResetPasswordScreen(navController: NavController, authVM: AuthVM, phoneNumber: String?) {
+fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
+    val noNetworkMessage = stringResource(id = R.string.network_error)
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress) {
@@ -76,12 +79,23 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM, phoneNumbe
                     false
                 ).show()
             else {
-                authVM.resetPassword(
-                    UpdateUserData(
-                        phone = phoneNumber ?: "",
-                        newPassword = password
+                if (isNetworkAvailable(context)) {
+                    Log.d("lsjag", "ForgotPasswordScreen: ${authVM.phone}")
+                    authVM.resetPassword(
+                        UpdateUserData(
+                            phone = "+92${authVM.phone}",
+                            newPassword = password
+                        )
                     )
-                )
+                }else{
+                    Toasty.error(
+                        context,
+                        noNetworkMessage,
+                        Toast.LENGTH_SHORT,
+                        false
+                    )
+                        .show()
+                }
             }
 
         })

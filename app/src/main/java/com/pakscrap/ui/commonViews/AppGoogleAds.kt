@@ -110,24 +110,24 @@ fun GoogleInterstitialAd(context: Context, onAdClick: () -> Unit) {
                     }
 
                     override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                        println("Ad failed to show: ${adError.message}")
+                        Log.d("dgjls", "Ad failed to show")
                     }
 
                     override fun onAdShowedFullScreenContent() {
-                        println("Ad is showing.")
+                        Log.d("dgjls", "Ad is showing.")
                         interstitialAd = null // Clear the reference after the ad is shown
                     }
 
                     override fun onAdClicked() {
                         onAdClick()
-                        println("Ad was clicked.")
+                        Log.d("dgjls", "Ad was clicked.")
                     }
                 }
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
                 interstitialAd = null
-                println("Failed to load ad: ${error.message}")
+                Log.d("dgjls", "Failed to load ad")
             }
         }
     )

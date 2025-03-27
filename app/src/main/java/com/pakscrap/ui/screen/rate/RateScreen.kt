@@ -61,12 +61,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pakscrap.network.isNetworkAvailable
-import com.pakscrap.utils.Utils.isRtlLocale
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.pakscrap.R
+import com.pakscrap.network.isNetworkAvailable
+import com.pakscrap.ui.commonViews.GoogleInterstitialAd
 import com.pakscrap.ui.commonViews.LoadingDialog
+import com.pakscrap.ui.commonViews.showInterstitialAd
 import com.pakscrap.ui.screen.home.CityItems
 import com.pakscrap.ui.screen.rate.models.MainMetalData
 import com.pakscrap.ui.screen.rate.models.MetalData
@@ -77,6 +78,7 @@ import com.pakscrap.ui.theme.LightBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
+import com.pakscrap.utils.Utils.isRtlLocale
 import es.dmoral.toasty.Toasty
 import java.util.Locale
 
@@ -91,6 +93,12 @@ fun RateScreen(rateVM: RateVM) {
         LoadingDialog()
     if (!rateVM.isLoading)
         isRefreshing = false
+    //show Interstitial Ad
+    GoogleInterstitialAd(context, onAdClick = {})
+    if (!rateVM.watchInterstitialAd) {
+        showInterstitialAd(context)
+        rateVM.watchInterstitialAd = true
+    }
 
     var locationId = rateVM.userPreferences.getLocationList()?.data?.find {
         it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)

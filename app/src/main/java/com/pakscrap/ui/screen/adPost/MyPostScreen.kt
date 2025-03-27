@@ -176,7 +176,7 @@ fun MyPostScreen(
         }
         SmallFloatingActionButton(
             modifier = Modifier
-                .padding(bottom = 130.dp, end = 16.dp)
+                .padding(bottom = 120.dp, end = 16.dp)
                 .align(Alignment.BottomEnd),
             onClick = {
                 onPlusIconClick()

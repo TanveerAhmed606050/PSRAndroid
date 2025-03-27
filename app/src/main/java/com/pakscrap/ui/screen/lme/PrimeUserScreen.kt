@@ -42,6 +42,7 @@ import com.pakscrap.response.PrimeUserData
 import com.pakscrap.ui.commonViews.AppButton
 import com.pakscrap.ui.commonViews.LinearProgress
 import com.pakscrap.ui.commonViews.MyAsyncImage
+import com.pakscrap.ui.commonViews.loadRewardedAd
 import com.pakscrap.ui.commonViews.showRewardedAd
 import com.pakscrap.ui.screen.adPost.SearchBar
 import com.pakscrap.ui.screen.adPost.openWhatsApp
@@ -63,20 +64,33 @@ fun PrimeUserScreen(rateVm: RateVM) {
     MobileAds.initialize(context) { initializationStatus ->
         Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
     }
+    loadRewardedAd(
+        context = context,
+        context.getString(R.string.rewarded_ad_unit_id),
+        onAdLoaded = {
+            rateVm.rewardedAd = it
+//            Log.d("lsjag", "Ad Loaded Successfully")
+        })
+
     val primeUserData = rateVm.searchPrimeUserData
 
     LaunchedEffect(Unit) {
         rateVm.getPremiumUser()
     }
-    PrimeUserScreen(rateVm.watchAd, primeUserData,
-        onShowContact = { contact ->
-//            Log.d("lsjag", " $contact")
-            if (contact == context.getString(R.string.show_no))
-//                Log.d("lsjag", " $contact")
-                showRewardedAd(context as Activity, rewardedAd = rateVm.rewardedAd,
-                    onAdClick = {
-                        rateVm.watchAd = true
-                    })
+    PrimeUserScreen(primeUserData,
+        onShowContact = { userData ->
+//            Log.d("lsjag", "${userData.watchAd}")
+            if (!userData.watchAd) {
+//                Log.d("lsjag", "${userData.watchAd}")
+                if (rateVm.rewardedAd != null) {
+                    showRewardedAd(context as Activity, rewardedAd = rateVm.rewardedAd!!,
+                        onAdClick = {
+                            rateVm.updatePrimeUser(userData)
+                        })
+                } else {
+                    Log.d("lsjag", "Ad not loaded yet")
+                }
+            }
         },
         search = search,
         onSearch = {
@@ -91,8 +105,8 @@ fun PrimeUserScreen(rateVm: RateVM) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PrimeUserScreen(
-    watchAd: Boolean, primeUserData: List<PrimeUserData>?,
-    onShowContact: (String) -> Unit,
+    primeUserData: List<PrimeUserData>?,
+    onShowContact: (PrimeUserData) -> Unit,
     search: TextFieldValue,
     onSearch: (TextFieldValue) -> Unit,
     onBecomePremiumClick: () -> Unit,
@@ -140,7 +154,6 @@ fun PrimeUserScreen(
                 {
                     items(primeUserData.size) { index ->
                         UserItemData(
-                            watchAd = watchAd,
                             primeUserData[index],
                             onShowContact = { onShowContact(it) }
                         )
@@ -155,12 +168,11 @@ fun PrimeUserScreen(
 
 @Composable
 fun UserItemData(
-    watchAd: Boolean, primeUserData: PrimeUserData,
-    onShowContact: (String) -> Unit
+    primeUserData: PrimeUserData,
+    onShowContact: (PrimeUserData) -> Unit
 ) {
     val currentLocale = Locale.getDefault()
     isRtlLocale(currentLocale)
-    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -278,16 +290,16 @@ fun UserItemData(
                         .padding(10.dp, 5.dp)
                 ) {
                     Text(
-                        text = if (watchAd) primeUserData.whatsapp else stringResource(id = R.string.watch_ad),
+                        text = if (primeUserData.watchAd) primeUserData.whatsapp else stringResource(
+                            id = R.string.watch_ad
+                        ),
                         color = Color.White,
                         fontFamily = mediumFont,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
                         fontSize = 14.sp,
                         modifier = Modifier.clickable {
-                            onShowContact(
-                                if (watchAd) primeUserData.whatsapp else context.getString(R.string.show_no)
-                            )
+                            onShowContact(primeUserData)
                         }
                     )
                 }
@@ -327,7 +339,7 @@ fun UserItemData(
 @Composable
 fun PrimeUserScreenPreview() {
     PSP_AndroidTheme {
-        PrimeUserScreen(false, primeUserData = listOf(),
+        PrimeUserScreen(primeUserData = listOf(),
             onShowContact = {},
             search = TextFieldValue(""),
             onSearch = {},

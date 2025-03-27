@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -53,15 +54,16 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.pakscrap.utils.Constant
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.google.android.gms.ads.MobileAds
 import com.pakscrap.R
 import com.pakscrap.ui.commonViews.FullScreenImageDialog
+import com.pakscrap.ui.commonViews.loadRewardedAd
 import com.pakscrap.ui.commonViews.showRewardedAd
+import com.pakscrap.ui.screen.adPost.models.AdsData
 import com.pakscrap.ui.screen.adPost.models.mockup
 import com.pakscrap.ui.screen.rate.RateVM
-import com.pakscrap.ui.screen.adPost.models.AdsData
 import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
@@ -69,6 +71,7 @@ import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
+import com.pakscrap.utils.Constant
 import es.dmoral.toasty.Toasty
 
 @Composable
@@ -79,12 +82,23 @@ fun DetailAdScreen(
     isMyAd: Boolean?
 ) {
     val context = LocalContext.current
+    var watchAd by remember { mutableStateOf(false) }
+    MobileAds.initialize(context) { initializationStatus ->
+        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
+    }
+    loadRewardedAd(
+        context = context,
+        context.getString(R.string.rewarded_ad_unit_id),
+        onAdLoaded = {
+            rateVM.rewardedAd = it
+//            Log.d("lsjag", "Ad Loaded Successfully")
+        })
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
             // Permission granted, make the call
-            openCallApp(context, adData?.description ?: "")
+            openCallApp(context, adData?.phoneNumber ?: "")
         } else {
             Toasty.error(
                 context,
@@ -103,36 +117,37 @@ fun DetailAdScreen(
             imageList = listOf()
         )
     DetailAdScreenViews(
-        watchAd = rateVM.watchAd,
+        watchAd = watchAd,
         adsData = adData ?: AdsData.mockup,
         isMyAd = isMyAd ?: false, backClick = {
             navController.popBackStack()
         },
         onShowNoClick = { number ->
-            if (!rateVM.watchAd) {
+            Log.d("lsjag", "Number: $number")
+            if (!watchAd) {
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
                     onAdClick = {
-                        rateVM.watchAd = true
+                        watchAd = true
                     })
             } else {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE)
                     == PackageManager.PERMISSION_GRANTED
                 ) {
-                    openCallApp(context, number)
+                    openCallApp(context, adData?.phoneNumber ?: "")
                 } else {
                     callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
                 }
             }
         },
         onSMSClick = {
-            if (!rateVM.watchAd)
+            if (!watchAd)
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else
                 openSMSApp(context, phoneNumber = adData?.phoneNumber ?: "", message = "")
         },
         onWhatsAppCallClick = {
-            if (!rateVM.watchAd)
+            if (!watchAd)
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else

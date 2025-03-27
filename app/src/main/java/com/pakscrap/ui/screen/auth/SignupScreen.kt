@@ -198,12 +198,13 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                     ).show()
                 else {
                     phoneNumber = phone.takeLast(10)
-                    authVM.register(
-                        UserCredential(
-                            phone = "+92$phoneNumber", name = name, password = password,
-                            location = selectedCity
-                        )
-                    )
+                    showDialog.value = true
+//                    authVM.register(
+//                        UserCredential(
+//                            phone = "+92$phoneNumber", name = name, password = password,
+//                            location = selectedCity
+//                        )
+//                    )
                 }
             } else
                 Toasty.error(
