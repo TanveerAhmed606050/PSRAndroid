@@ -1,5 +1,6 @@
 package com.pakscrap.ui.screen.adPost
 
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -81,6 +82,8 @@ import com.pakscrap.ui.commonViews.CustomTextField
 import com.pakscrap.ui.commonViews.FullScreenImageDialog
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
+import com.pakscrap.ui.commonViews.loadRewardedAd
+import com.pakscrap.ui.commonViews.showRewardedAd
 import com.pakscrap.ui.screen.auth.ListDialog
 import com.pakscrap.ui.screen.rate.RateVM
 import com.pakscrap.ui.screen.rate.models.MainMetalData
@@ -99,13 +102,20 @@ import java.util.Locale
 @Composable
 fun CreateAdScreen(
     navController: NavController,
-    adPostVM: com.pakscrap.ui.screen.adPost.AdPostVM,
+    adPostVM: AdPostVM,
     rateVM: RateVM
 ) {
     val context = LocalContext.current
     MobileAds.initialize(context) { initializationStatus ->
         Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
     }
+    loadRewardedAd(
+        context = context,
+        context.getString(R.string.rewarded_ad_unit_id),
+        onAdLoaded = {
+            rateVM.rewardedAd = it
+//            Log.d("lsjag", "Ad Loaded Successfully")
+        })
     val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
     val mainMetalName = remember { mutableStateOf(TextFieldValue("")) }
     var subMetalName by remember { mutableStateOf("") }
@@ -237,9 +247,9 @@ fun CreateAdScreen(
                     price = price,
                     photos = imagePartList
                 )
-//                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
-//                    onAdClick = {
-//                    })
+                showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
+                    onAdClick = {
+                    })
             } else
                 Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
                     .show()

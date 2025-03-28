@@ -259,10 +259,10 @@ fun FullScreenImageDialog(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
-                val uri = if (serverImageList != null) serverImageList[page] else imageList[page]
+                val uri = if (serverImageList != null) Constant.MEDIA_BASE_URL + serverImageList[page] else imageList[page]
                 Box(modifier = Modifier) {
                     AsyncImage(
-                        model = Constant.MEDIA_BASE_URL + uri, contentDescription = "",
+                        model =  uri, contentDescription = "",
 //                        placeholder = painterResource(id = R.drawable.demo_scrap),
                         error = painterResource(id = R.drawable.demo_scrap),
                         contentScale = ContentScale.Crop,

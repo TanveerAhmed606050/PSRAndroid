@@ -41,15 +41,6 @@ object Utils {
         else "Enter valid name"
     }
 
-    fun convertImageFileToBase64(uri: Uri, contentResolver: ContentResolver): String {
-        val inputStream: InputStream? = contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-        val byteArray: ByteArray = byteArrayOutputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
-    }
-
     fun uriToFile(context: Context, uri: Uri): File {
         val contentResolver = context.contentResolver
         val tempFile = File(

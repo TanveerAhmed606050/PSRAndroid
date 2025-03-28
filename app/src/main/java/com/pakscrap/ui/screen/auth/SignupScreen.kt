@@ -48,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -88,7 +89,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
     val showDialog = remember { mutableStateOf(false) }
     var isPhoneNoVerified by remember { mutableStateOf(false) }
-    val otpText = remember { mutableStateOf("") }
+    var otpText by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
     var selectedCity by rememberSaveable { mutableStateOf("") }
     val message by authVM.message.collectAsState()
@@ -149,16 +150,17 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
     //OTP dialog
     OtpDialog(
         showDialog = showDialog,
-        otpText = otpText.value,
+        otpText = otpText,
         otpCount = 6, // Example OTP length
-        onOtpTextChange = { otp, isLastDigit ->
-            otpText.value = otp
-            if (isLastDigit)
-                authVM.verifyCode(otpText.value)
+        onOtpTextChange = { otp, _ ->
+            otpText = otp
         },
         onResendOtp = {
             authVM.sendVerificationCode("+92$phoneNumber", context as Activity)
         },
+        onVerifyOtp = {
+            authVM.verifyCode(otpText)
+        }
     )
     SignupScreen(
         context = context,
@@ -204,6 +206,7 @@ fun SignupScreen(navController: NavController, authVM: AuthVM) {
                             location = selectedCity
                         )
                     )
+                    showDialog.value = true
                 }
             } else
                 Toasty.error(
@@ -493,6 +496,7 @@ fun OtpDialog(
     otpText: String,
     otpCount: Int,
     onOtpTextChange: (String, Boolean) -> Unit,
+    onVerifyOtp: () -> Unit,
     onResendOtp: () -> Unit,
 ) {
     var timerSeconds by remember { mutableIntStateOf(60) }
@@ -525,7 +529,6 @@ fun OtpDialog(
             },
             text = {
                 Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-                    Spacer(modifier = Modifier.height(10.dp))
                     Spacer(modifier = Modifier.height(40.dp))
                     PinTextField(
                         otpText = otpText,
@@ -534,24 +537,46 @@ fun OtpDialog(
                             onOtpTextChange(value, isLastDigit)
                         }
                     )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    AppButton(modifier = Modifier, text = stringResource(id = R.string.verify_now),
+                        isEnable = otpText.length == 6,
+                        onButtonClick = { onVerifyOtp() })
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        if (isResendEnabled) stringResource(id = R.string.resend_otp)
+                        else "00:${String.format(Locale.getDefault(), "%02d", timerSeconds)}",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(enabled = isResendEnabled) {
+                                if (isResendEnabled) {
+                                    onResendOtp()
+                                    resendTrigger++ // Change state to restart LaunchedEffect
+                                }
+                            },
+                        fontSize = 16.sp,
+                        textDecoration = if (isResendEnabled) TextDecoration.Underline else TextDecoration.None,
+                        fontFamily = mediumFont,
+                        textAlign = TextAlign.Center,
+                        color = if (isResendEnabled) DarkBlue else Color.Gray
+                    )
                 }
             },
             confirmButton = {
-                Text(
-                    if (isResendEnabled) stringResource(id = R.string.resend_otp)
-                    else "Resend OTP in $timerSeconds s",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(enabled = isResendEnabled) {
-                            if (isResendEnabled) {
-                                onResendOtp()
-                                resendTrigger++ // Change state to restart LaunchedEffect
-                            }
-                        },
-                    fontSize = 16.sp,
-                    fontFamily = mediumFont,
-                    color = if (isResendEnabled) DarkBlue else Color.Gray
-                )
+//                Text(
+//                    if (isResendEnabled) stringResource(id = R.string.resend_otp)
+//                    else "00:$timerSeconds",
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clickable(enabled = isResendEnabled) {
+//                            if (isResendEnabled) {
+//                                onResendOtp()
+//                                resendTrigger++ // Change state to restart LaunchedEffect
+//                            }
+//                        },
+//                    fontSize = 16.sp,
+//                    fontFamily = mediumFont,
+//                    color = if (isResendEnabled) DarkBlue else Color.Gray
+//                )
             }
         )
     }

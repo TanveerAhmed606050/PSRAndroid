@@ -1,7 +1,6 @@
 package com.pakscrap.ui.screen.auth
 
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import com.pakscrap.R
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
+import com.pakscrap.ui.commonViews.AppButton
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.PhoneTextField
@@ -51,6 +52,7 @@ import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Utils.isValidPhone
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 @Composable
 fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
@@ -81,7 +83,7 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
     if (message?.isNotEmpty() == true) {
         Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, false).show()
         if (message == "Verification successful") {
-//                navController.navigate(Screen.ResetPasswordScreen.route + "myPhone/$phone")
+            //                navController.navigate(Screen.ResetPasswordScreen.route + "myPhone/$phone")
             navController.navigate(Screen.ResetPasswordScreen.route)
         }
         authVM.updateMessage("")
@@ -122,12 +124,15 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
         },
         onPinValue = { value, isLastDigit ->
             pinValue = value
-            if (isLastDigit)
-                authVM.verifyCode(pinValue)
+//            if (isLastDigit)
+//                authVM.verifyCode(pinValue)
         },
         onResendOtp = {
             authVM.sendVerificationCode("+92${authVM.phone}", context as Activity)
         },
+        onVerifyOtp = {
+            authVM.verifyCode(pinValue)
+        }
     )
 }
 
@@ -141,12 +146,13 @@ fun ForgotPasswordDesign(
     backClick: () -> Unit,
     sendOtpClick: () -> Unit,
     onResendOtp: () -> Unit,
+    onVerifyOtp: () -> Unit,
 ) {
     var timerSeconds by remember { mutableIntStateOf(60) }
     var isResendEnabled by remember { mutableStateOf(isOtpFieldsVisible) }
     var resendTrigger by remember { mutableIntStateOf(0) } // Force LaunchedEffect restart
     // Start countdown when dialog opens
-    LaunchedEffect(resendTrigger) {
+    LaunchedEffect(resendTrigger, isOtpFieldsVisible) {
         timerSeconds = 60
         isResendEnabled = false
         while (timerSeconds > 0) {
@@ -206,8 +212,8 @@ fun ForgotPasswordDesign(
                             },
                         textAlign = TextAlign.End,
                         color = LightBlue,
-                        fontFamily = regularFont,
-                        fontSize = 12.sp,
+                        fontFamily = mediumFont,
+                        fontSize = 14.sp,
                     )
                 }
             }
@@ -219,24 +225,28 @@ fun ForgotPasswordDesign(
                     onOtpTextChange = { value, isLastDigit ->
                         onPinValue(value, isLastDigit)
                     })
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+                AppButton(modifier = Modifier, text = stringResource(id = R.string.verify_now),
+                    isEnable = pinValue.length == 6,
+                    onButtonClick = { onVerifyOtp() })
+                Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     if (isResendEnabled) stringResource(id = R.string.resend_otp)
-                    else "Resend OTP in $timerSeconds s",
+                    else "00:${String.format(Locale.getDefault(), "%02d", timerSeconds)}",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable {
+                        .clickable(enabled = isResendEnabled) {
                             if (isResendEnabled) {
                                 onResendOtp()
                                 resendTrigger++ // Change state to restart LaunchedEffect
                             }
                         },
                     fontSize = 16.sp,
+                    textDecoration = if (isResendEnabled) TextDecoration.Underline else TextDecoration.None,
                     fontFamily = mediumFont,
-                    textAlign = TextAlign.End,
+                    textAlign = TextAlign.Center,
                     color = if (isResendEnabled) DarkBlue else Color.Gray
                 )
-
             }
         }
     }
@@ -254,7 +264,8 @@ fun ForgotPasswordPreview() {
             sendOtpClick = {},
             onPhone = {},
             onPinValue = { _, _ -> },
-            onResendOtp = {}
+            onResendOtp = {},
+            onVerifyOtp = {}
         )
     }
 }
