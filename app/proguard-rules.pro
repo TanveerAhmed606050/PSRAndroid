@@ -19,3 +19,13 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Keep your LocaleHelper class
+-keep class com.pakscrap.utils.LocaleHelper { *; }
+
+# Keep configuration changes related to locale
+-keepattributes *Annotation*,EnclosingMethod
+
+# Keep all resources and strings
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}

@@ -83,8 +83,8 @@ fun DetailAdScreen(
 ) {
     val context = LocalContext.current
     var watchAd by remember { mutableStateOf(false) }
-    MobileAds.initialize(context) { initializationStatus ->
-        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
+    MobileAds.initialize(context) {
+//        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
     }
     loadRewardedAd(
         context = context,
@@ -122,8 +122,7 @@ fun DetailAdScreen(
         isMyAd = isMyAd ?: false, backClick = {
             navController.popBackStack()
         },
-        onShowNoClick = { number ->
-            Log.d("lsjag", "Number: $number")
+        onShowNoClick = {
             if (!watchAd) {
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
                     onAdClick = {
@@ -293,46 +292,46 @@ fun DetailAdScreenViews(
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
-            }
-            if (watchAd) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { onSMSClick() }
+                if (watchAd) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.sms_ic),
-                            contentDescription = "",
-                            modifier = Modifier.size(30.dp)
-                        )
-                        Text(
-                            text = stringResource(id = R.string.sms),
-                            fontSize = 14.sp, fontFamily = regularFont,
-                            modifier = Modifier.padding(start = 4.dp),
-                            color = DarkBlue
-                        )
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { onWhatsAppCallClick() }
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.whatsapp_ic),
-                            contentDescription = "",
-                            modifier = Modifier.size(30.dp)
-                        )
-                        Text(
-                            text = stringResource(id = R.string.whats_app),
-                            fontSize = 14.sp, fontFamily = regularFont,
-                            modifier = Modifier.padding(start = 4.dp),
-                            color = DarkBlue
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { onSMSClick() }
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.sms_ic),
+                                contentDescription = "",
+                                modifier = Modifier.size(30.dp)
+                            )
+                            Text(
+                                text = stringResource(id = R.string.sms),
+                                fontSize = 14.sp, fontFamily = regularFont,
+                                modifier = Modifier.padding(start = 4.dp),
+                                color = DarkBlue
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { onWhatsAppCallClick() }
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.whatsapp_ic),
+                                contentDescription = "",
+                                modifier = Modifier.size(30.dp)
+                            )
+                            Text(
+                                text = stringResource(id = R.string.whats_app),
+                                fontSize = 14.sp, fontFamily = regularFont,
+                                modifier = Modifier.padding(start = 4.dp),
+                                color = DarkBlue
+                            )
+                        }
                     }
                 }
             }

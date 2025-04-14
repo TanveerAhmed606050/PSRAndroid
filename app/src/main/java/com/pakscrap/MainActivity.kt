@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.adaptive.calculateDisplayFeatures
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.pakscrap.navigation.PSRNavigation
 import com.pakscrap.navigation.Screen
@@ -41,11 +42,14 @@ import com.pakscrap.utils.Utils.actionBar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var userPreference: UserPreferences
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
@@ -54,6 +58,9 @@ class MainActivity : ComponentActivity() {
         actionBar(this)
         enableEdgeToEdge()
         subscribeTopic()
+        // Initialize Firebase Analytics
+        firebaseAnalytics = Firebase.analytics
+
         setContent {
             //Load Rewarded Ads Launch Effect
             val rateVm = hiltViewModel<RateVM>()

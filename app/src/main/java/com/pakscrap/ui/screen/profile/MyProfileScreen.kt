@@ -3,6 +3,7 @@ package com.pakscrap.ui.screen.profile
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,6 +68,7 @@ import com.pakscrap.ui.screen.auth.ListDialog
 import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
+import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.LocaleHelper
 import com.pakscrap.utils.LogoutSession
@@ -202,14 +204,16 @@ fun MyProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
-            Header(
-                modifier = null,
-                stringResource(id = R.string.my_profile),
-                backClick = { backClick() })
+            Text(
+                text = stringResource(id = R.string.my_profile),
+                fontSize = 16.sp,
+                fontFamily = mediumFont,
+                color = DarkBlue
+            )
             Spacer(modifier = Modifier.padding(top = 10.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box {
@@ -343,8 +347,8 @@ fun ProfileOptionItem(
         }
 
         stringResource(id = R.string.contact_us) -> {
-            encodedUrl = "whatsapp"
-            route = ""
+            encodedUrl = ""
+            route = "whatsapp"
         }
 
         stringResource(id = R.string.update_profile) -> {
@@ -368,7 +372,7 @@ fun ProfileOptionItem(
             .fillMaxWidth()
             .padding(vertical = 14.dp, horizontal = 8.dp)
             .clickable {
-                if (encodedUrl.isNotEmpty() && encodedUrl != "whatsapp") {
+                if (encodedUrl.isNotEmpty()) {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(encodedUrl))
                     context.startActivity(intent)
                 } else if (route == context.getString(R.string.logout))
@@ -437,7 +441,7 @@ fun ProfileOptionItem(
 
 fun switchLanguage(context: Context, language: String) {
     LocaleHelper.setLanguage(context, language)
-    val intent = Intent(context, MainActivity::class.java)
+    val intent = Intent(context.applicationContext, MainActivity::class.java)
     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
     context.startActivity(intent)
 }

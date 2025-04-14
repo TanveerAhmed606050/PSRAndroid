@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     kotlin("kapt")
     alias(libs.plugins.google.service.gms)
+    alias(libs.plugins.firebase.crashlytics)
     id("kotlin-parcelize")
     alias(libs.plugins.kotlin.compose)
 
@@ -17,8 +18,8 @@ android {
         applicationId = "com.pakscrap"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -26,6 +27,11 @@ android {
         }
     }
 
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -79,6 +85,7 @@ dependencies {
     implementation(libs.androidx.window)
     implementation(libs.androidx.media3.ui)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.play.services.measurement.api)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -124,6 +131,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.crashlytics)
     implementation(platform(libs.firebase.bom))
     // Pager libs
     implementation(libs.accompanist.pager)

@@ -1,7 +1,6 @@
 package com.pakscrap.ui.screen.rate
 
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -200,7 +199,7 @@ fun DashBoardScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
                     .padding(bottom = 120.dp)
             ) {
                 Spacer(modifier = Modifier.statusBarsPadding())
@@ -459,8 +458,8 @@ fun ProductList(mainMetalData: MetalData, search: TextFieldValue) {
             ProductItem(submetal)
             HorizontalDivider()
         }
-        Log.d("lsdjg", "search: ${search.text}")
         if (search.text.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = mainMetalData.metalDescription,
                 fontSize = 14.sp,

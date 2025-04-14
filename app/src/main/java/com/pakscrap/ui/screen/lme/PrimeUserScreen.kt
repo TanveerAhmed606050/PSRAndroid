@@ -1,8 +1,13 @@
 package com.pakscrap.ui.screen.lme
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.google.android.gms.ads.MobileAds
 import com.pakscrap.R
 import com.pakscrap.response.PrimeUserData
@@ -45,6 +51,7 @@ import com.pakscrap.ui.commonViews.MyAsyncImage
 import com.pakscrap.ui.commonViews.loadRewardedAd
 import com.pakscrap.ui.commonViews.showRewardedAd
 import com.pakscrap.ui.screen.adPost.SearchBar
+import com.pakscrap.ui.screen.adPost.openCallApp
 import com.pakscrap.ui.screen.adPost.openWhatsApp
 import com.pakscrap.ui.screen.rate.NoProductView
 import com.pakscrap.ui.screen.rate.RateVM
@@ -54,6 +61,7 @@ import com.pakscrap.ui.theme.LightRed40
 import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.utils.Utils.isRtlLocale
+import es.dmoral.toasty.Toasty
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -64,42 +72,56 @@ fun PrimeUserScreen(rateVm: RateVM) {
     MobileAds.initialize(context) { initializationStatus ->
         Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
     }
-    loadRewardedAd(
-        context = context,
+    loadRewardedAd(context = context,
         context.getString(R.string.rewarded_ad_unit_id),
         onAdLoaded = {
             rateVm.rewardedAd = it
 //            Log.d("lsjag", "Ad Loaded Successfully")
         })
+    val callPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            Toasty.error(
+                context,
+                context.getString(R.string.call_permission_error),
+                Toast.LENGTH_SHORT,
+                false
+            ).show()
+        }
+    }
 
     val primeUserData = rateVm.searchPrimeUserData
 
     LaunchedEffect(Unit) {
         rateVm.getPremiumUser()
     }
-    PrimeUserScreen(primeUserData,
-        onShowContact = { userData ->
-//            Log.d("lsjag", "${userData.watchAd}")
-            if (!userData.watchAd) {
-//                Log.d("lsjag", "${userData.watchAd}")
-                if (rateVm.rewardedAd != null) {
-                    showRewardedAd(context as Activity, rewardedAd = rateVm.rewardedAd!!,
-                        onAdClick = {
-                            rateVm.updatePrimeUser(userData)
-                        })
-                } else {
-                    Log.d("lsjag", "Ad not loaded yet")
-                }
+    PrimeUserScreen(primeUserData, onShowContact = { userData ->
+        if (!userData.watchAd) {
+            if (rateVm.rewardedAd != null) {
+                showRewardedAd(context as Activity, rewardedAd = rateVm.rewardedAd!!, onAdClick = {
+                    rateVm.updatePrimeUser(userData)
+                })
+            } else {
+                Log.d("lsjag", "Ad not loaded yet")
             }
-        },
-        search = search,
-        onSearch = {
-            search = it
-            rateVm.searchPrimeUser(search.text)
-        },
-        onBecomePremiumClick = {
-            openWhatsApp(context, "+923244400343")
-        })
+        } else {
+            if (ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CALL_PHONE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                openCallApp(context, userData.whatsapp)
+            } else {
+                callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
+            }
+        }
+    }, search = search, onSearch = {
+        search = it
+        rateVm.searchPrimeUser(search.text)
+    }, onBecomePremiumClick = {
+        openWhatsApp(context, "+923244400343")
+    })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -135,13 +157,11 @@ fun PrimeUserScreen(
                 LinearProgress(modifier = Modifier.padding(vertical = 3.dp))
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            SearchBar(search,
-                onSearchClick = {
-                    onSearch(it)
-                })
+            SearchBar(search, onSearchClick = {
+                onSearch(it)
+            })
             Spacer(modifier = Modifier.padding(top = 10.dp))
-            AppButton(
-                modifier = Modifier,
+            AppButton(modifier = Modifier,
                 text = stringResource(id = R.string.become_premium_user),
                 onButtonClick = {
                     onBecomePremiumClick()
@@ -150,26 +170,23 @@ fun PrimeUserScreen(
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 0.dp),
                     modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp)
-                )
-                {
+                ) {
                     items(primeUserData.size) { index ->
-                        UserItemData(
-                            primeUserData[index],
-                            onShowContact = { onShowContact(it) }
-                        )
+                        UserItemData(primeUserData[index], onShowContact = { onShowContact(it) })
                     }
 
                 }
-            } else
-                NoProductView(msg = stringResource(id = R.string.no_prime_user), color = DarkBlue)
+            } else NoProductView(
+                msg = stringResource(id = R.string.no_prime_user),
+                color = DarkBlue
+            )
         }
     }
 }
 
 @Composable
 fun UserItemData(
-    primeUserData: PrimeUserData,
-    onShowContact: (PrimeUserData) -> Unit
+    primeUserData: PrimeUserData, onShowContact: (PrimeUserData) -> Unit
 ) {
     val currentLocale = Locale.getDefault()
     isRtlLocale(currentLocale)
@@ -186,9 +203,7 @@ fun UserItemData(
             horizontalArrangement = Arrangement.Center
         ) {
             MyAsyncImage(
-                imageUrl = primeUserData.profileImage,
-                45.dp,
-                true
+                imageUrl = primeUserData.profileImage, 45.dp, true
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -227,8 +242,7 @@ fun UserItemData(
                     fontSize = 14.sp,
                 )
                 Text(
-                    text =
-                    stringResource(id = R.string.show_no),
+                    text = stringResource(id = R.string.show_no),
                     fontSize = 14.sp,
                     color = Color.DarkGray,
                     fontFamily = mediumFont,
@@ -284,15 +298,13 @@ fun UserItemData(
                 Row(
                     modifier = Modifier
                         .background(
-                            LightRed40,
-                            RoundedCornerShape(10.dp)
+                            LightRed40, RoundedCornerShape(10.dp)
                         )
                         .padding(10.dp, 5.dp)
                 ) {
-                    Text(
-                        text = if (primeUserData.watchAd) primeUserData.whatsapp else stringResource(
-                            id = R.string.watch_ad
-                        ),
+                    Text(text = if (primeUserData.watchAd) primeUserData.whatsapp else stringResource(
+                        id = R.string.watch_ad
+                    ),
                         color = Color.White,
                         fontFamily = mediumFont,
                         maxLines = 1,
@@ -300,17 +312,14 @@ fun UserItemData(
                         fontSize = 14.sp,
                         modifier = Modifier.clickable {
                             onShowContact(primeUserData)
-                        }
-                    )
+                        })
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Spacer(modifier = Modifier.height(20.dp))
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            )
-            {
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
                     text = primeUserData.businessDetails,
                     color = Color.DarkGray,

@@ -2,6 +2,8 @@ package com.pakscrap.ui.screen.home
 
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -25,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -49,12 +52,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.pakscrap.navigation.Screen
-import com.pakscrap.network.isNetworkAvailable
-import com.pakscrap.utils.Constant
-import com.pakscrap.utils.Utils.formatDate
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
 import com.pakscrap.R
+import com.pakscrap.navigation.Screen
+import com.pakscrap.network.isNetworkAvailable
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.screen.adPost.models.AdsData
 import com.pakscrap.ui.screen.adPost.models.mockup
@@ -72,6 +74,8 @@ import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
+import com.pakscrap.utils.Constant
+import com.pakscrap.utils.Utils.formatDate
 import es.dmoral.toasty.Toasty
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -146,7 +150,7 @@ fun HomeScreenViews(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(vertical = 8.dp, horizontal = 16.dp)
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Row(

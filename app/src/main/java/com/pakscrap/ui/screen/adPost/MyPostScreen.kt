@@ -144,9 +144,13 @@ fun MyPostScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
-            // Header section
-            Header(modifier = Modifier, headerText = stringResource(id = R.string.my_post),
-                backClick = { onBackClick() })
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(id = R.string.my_post), fontSize = 16.sp,
+                fontFamily = mediumFont,
+                color = DarkBlue,
+                textAlign = TextAlign.Center
+            )
 
             Spacer(modifier = Modifier.height(10.dp))
             if (adsData.loadState.refresh is LoadState.Loading ||

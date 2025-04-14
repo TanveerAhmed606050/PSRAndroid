@@ -233,7 +233,7 @@ fun FullScreenImageDialog(
                 durationMillis = 600,
                 easing = FastOutSlowInEasing
             )
-        ) { value, velocity ->
+        ) { value, _ ->
             rotation = value
         }
     }
@@ -263,7 +263,7 @@ fun FullScreenImageDialog(
                 Box(modifier = Modifier) {
                     AsyncImage(
                         model =  uri, contentDescription = "",
-//                        placeholder = painterResource(id = R.drawable.demo_scrap),
+                        placeholder = painterResource(id = R.drawable.demo_scrap),
                         error = painterResource(id = R.drawable.demo_scrap),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
