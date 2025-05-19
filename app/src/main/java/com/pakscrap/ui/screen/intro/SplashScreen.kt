@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -33,7 +34,6 @@ import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.regularFont
 import kotlinx.coroutines.delay
-
 
 @Composable
 fun SplashScreen(
@@ -58,74 +58,60 @@ fun SplashScreen(
 
 @Composable
 fun SplashScreen() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(DarkBG),
-    ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF00475C), // Dark top
+                            Color(0xFF007E9F)  // Lighter bottom
+                        )
+                    )
+                ),
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_splash), contentDescription = "",
+            Column(
                 modifier = Modifier
-                    .height(200.dp)
-                    .width(200.dp),
-                contentScale = ContentScale.Fit
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Row {
-                Text(
-                    text = stringResource(id = R.string.pak),
-                    color = Color.White, fontFamily = boldFont,
-                    fontSize = 36.sp
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_splash), contentDescription = "",
+                    modifier = Modifier
+                        .height(200.dp)
+                        .width(200.dp),
+                    contentScale = ContentScale.Fit
                 )
-                Spacer(modifier = Modifier.padding(start = 8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                Row {
+                    Text(
+                        text = stringResource(id = R.string.pak),
+                        color = Color.White, fontFamily = boldFont,
+                        fontSize = 36.sp
+                    )
+                    Spacer(modifier = Modifier.padding(start = 8.dp))
+                    Text(
+                        text = stringResource(id = R.string.scrap),
+                        color = DarkBlue, fontFamily = boldFont,
+                        fontSize = 36.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = stringResource(id = R.string.scrap),
-                    color = DarkBlue, fontFamily = boldFont,
-                    fontSize = 36.sp
+                    text = stringResource(id = R.string.splash_1),
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontFamily = boldFont,
+                )
+                Text(
+                    text = stringResource(id = R.string.splash_2),
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    fontFamily = regularFont,
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(id = R.string.splash_1),
-                fontSize = 18.sp,
-                color = Color.White,
-                fontFamily = boldFont,
-            )
-            Text(
-                text = stringResource(id = R.string.splash_2),
-                fontSize = 14.sp,
-                color = Color.White,
-                fontFamily = regularFont,
-            )
         }
-//        Column(
-//            modifier = Modifier.fillMaxSize(),
-//            verticalArrangement = Arrangement.Bottom,
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            Text(
-//                text = stringResource(id = R.string.from),
-//                fontSize = 18.sp,
-//                color = Color.White,
-//                fontFamily = mediumFont,
-//                modifier = Modifier.padding(bottom = 0.dp),
-//            )
-//            Text(
-//                text = stringResource(id = R.string.pak_scrap_rate),
-//                fontSize = 18.sp,
-//                color = Color.White,
-//                fontFamily = boldFont,
-//                modifier = Modifier.padding(bottom = 20.dp),
-//            )
-//            Spacer(modifier = Modifier.padding(bottom = 30.dp))
-//        }
-    }
 }
 
 

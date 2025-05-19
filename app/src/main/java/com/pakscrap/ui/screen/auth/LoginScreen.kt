@@ -30,11 +30,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.pakscrap.dto.UserCredential
+import com.pakscrap.ui.screen.auth.models.UserCredential
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
 import com.pakscrap.R
-import com.pakscrap.ui.commonViews.AppButton
+import com.pakscrap.ui.commonViews.AppBlueButton
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.PasswordTextFields
 import com.pakscrap.ui.commonViews.PhoneTextField
@@ -42,6 +42,7 @@ import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Utils.isRtlLocale
@@ -57,24 +58,24 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
     showProgress = authVM.isLoading
     if (showProgress)
         LoadingDialog()
-    val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
+    val locationList = authVM.userPreferences.getCitiesList()?.data ?: listOf()
     if (isNetworkAvailable(context)) {
         if (locationList.isEmpty())
-            authVM.getLocation()
+            authVM.getCities()
     }
-    val noNetworkMessage = stringResource(id = R.string.network_error)
+    val connectivityError = stringResource(id = R.string.network_error)
     //login api response
-    val authData = authVM.loginData
-    if (authData != null) {
-        if (authData.status) {
-            Toasty.success(context, authData.message, Toast.LENGTH_SHORT, false).show()
+    val userData = authVM.userData
+    if (userData != null) {
+        if (userData.status) {
+            Toasty.success(context, userData.message, Toast.LENGTH_SHORT, false).show()
             authVM.userPreferences.isFirstLaunch = false
             navController.navigate(Screen.HomeScreen.route) {
                 popUpTo(navController.graph.id)
             }
         } else
-            Toasty.error(context, authData.message, Toast.LENGTH_SHORT, false).show()
-        authVM.loginData = null
+            Toasty.error(context, userData.message, Toast.LENGTH_SHORT, false).show()
+        authVM.userData = null
     }
 
     LoginScreen(onLoginButtonClick = { phoneNumber, password ->
@@ -97,7 +98,7 @@ fun LoginScreen(navController: NavController, authVM: AuthVM) {
         } else
             Toasty.error(
                 context,
-                noNetworkMessage,
+                connectivityError,
                 Toast.LENGTH_SHORT,
                 false
             )
@@ -120,7 +121,7 @@ fun LoginScreen(
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
 
-    var phoneNumber by remember { mutableStateOf("") }
+    var phoneNo by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
     Box(
@@ -128,21 +129,22 @@ fun LoginScreen(
             .fillMaxSize()
             .background(AppBG)
     ) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
-                text = stringResource(id = R.string.login_in), color = LightBlue,
+                text = stringResource(id = R.string.login_in), color = DarkBlue,
                 textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth(),
-                fontFamily = mediumFont,
+                fontFamily = boldFont,
+                fontSize = 18.sp,
             )
             Spacer(modifier = Modifier.height(80.dp))
 
             PhoneTextField(
-                value = phoneNumber,
+                value = phoneNo,
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Next,
                 placeholder = stringResource(id = R.string.phone),
-                onValueChange = { phoneNumber = it },
+                onValueChange = { phoneNo = it },
                 imageId = R.drawable.baseline_phone_24,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -168,17 +170,17 @@ fun LoginScreen(
                         },
                     color = DarkBlue,
                     fontSize = 14.sp,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                 )
             }
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            AppButton(
+            AppBlueButton(
                 modifier = Modifier
                     .widthIn(min = 300.dp, max = 600.dp)
                     .padding(bottom = 30.dp),
                 text = stringResource(id = R.string.login_in)
             ) {
-                onLoginButtonClick(phoneNumber, password)
+                onLoginButtonClick(phoneNo, password)
             }
             Row(
                 modifier = Modifier
@@ -193,14 +195,14 @@ fun LoginScreen(
                                 onSignup()
                             },
                         color = LightBlue,
-                        fontFamily = mediumFont,
-                        fontSize = 12.sp,
+                        fontFamily = boldFont,
+                        fontSize = 14.sp,
                         textAlign = TextAlign.Center
                     )
                 Text(
                     modifier = Modifier.padding(8.dp),
                     text = stringResource(id = R.string.dont_acc),
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = DarkBlue,
                     fontFamily = regularFont,
                     textAlign = TextAlign.Center
@@ -213,7 +215,7 @@ fun LoginScreen(
                                 onSignup()
                             },
                         color = LightBlue,
-                        fontFamily = mediumFont,
+                        fontFamily = boldFont,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Center
                     )

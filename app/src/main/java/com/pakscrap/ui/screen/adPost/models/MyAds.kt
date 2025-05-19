@@ -11,7 +11,7 @@ data class MyAds(
 }
 
 val MyAds.Companion.mockup by lazy {
-    MyAds(data = listOf(), message = "viris", status = false)
+    MyAds(data = listOf(), message = "success", status = false)
 }
 
 data class AdsData(
@@ -43,20 +43,20 @@ data class AdsData(
 
 val AdsData.Companion.mockup by lazy {
     AdsData(
-        approvalStatus = "reprimique",
-        city = "Note",
-        createdAt = "nihil",
-        description = "augue",
+        approvalStatus = "false",
+        city = "Lahore",
+        createdAt = "1 pm",
+        description = "demo description",
         id = 3279,
-        metalName = "Moises Patton",
-        name = "Silvia Ratliff",
-        phoneNumber = "(406) 146-9575",
+        metalName = "Iron",
+        name = "Kanchi tok",
+        phoneNumber = "+923451234567",
         photos = listOf(),
-        price = "voluptatum",
-        status = "sapien",
-        submetal = "utroque",
-        updatedAt = "indoctum",
-        userId = "semper",
+        price = "12",
+        status = "false",
+        submetal = "scrap",
+        updatedAt = "12/12/25",
+        userId = "123",
         videoPath = ""
     )
 }

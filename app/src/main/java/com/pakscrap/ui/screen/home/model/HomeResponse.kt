@@ -42,7 +42,7 @@ val LmeMetal.Companion.mockup by lazy {
     LmeMetal(
         changeInRate = "1%",
         createdAt = "",
-        expiryDate = "21",
+        expiryDate = "21-12-25",
         id = 1795,
         name = "Iron",
         price = "123",

@@ -1,7 +1,7 @@
 package com.pakscrap.repository
 
-import com.pakscrap.dto.ImageUpdate
-import com.pakscrap.dto.UserCredential
+import com.pakscrap.ui.screen.profile.models.ImageUpdate
+import com.pakscrap.ui.screen.auth.models.UserCredential
 import com.pakscrap.network.ApiInterface
 import com.pakscrap.ui.screen.profile.models.UpdateUserData
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -20,8 +20,8 @@ class AuthRepository @Inject constructor(
         apiInterface.register(userCredential)
     }
 
-    suspend fun getLocation() = loadResource {
-        apiInterface.getLocation()
+    suspend fun getCities() = loadResource {
+        apiInterface.getCities()
     }
 
     suspend fun updateUserImage(imageUpdate: ImageUpdate) = loadResource {

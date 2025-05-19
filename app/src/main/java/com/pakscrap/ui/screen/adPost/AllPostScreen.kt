@@ -36,7 +36,7 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.pakscrap.dto.AdPostDto
+import com.pakscrap.ui.screen.adPost.models.AdPostDto
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
 import com.google.gson.Gson
@@ -56,34 +56,34 @@ import kotlinx.coroutines.flow.flowOf
 @Composable
 fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
-    var search by remember { mutableStateOf(TextFieldValue("")) }
+    var searchText by remember { mutableStateOf(TextFieldValue("")) }
     var selectedCity by rememberSaveable {
         mutableStateOf(
-            adPostVM.userPreferences.getUserPreference()?.location ?: "Lahore"
+            adPostVM.userPreferences.getUserData()?.location ?: "Lahore"
         )
     }
-    val adsData = adPostVM.locationAds.collectAsLazyPagingItems()
-    val noInternetMessage = stringResource(id = R.string.network_error)
-    val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
-    val locationData = locationList.map { it.name }
-    LaunchedEffect(selectedCity, search) {
+    val adsByCities = adPostVM.adsByCities.collectAsLazyPagingItems()
+    val connectivityError = stringResource(id = R.string.network_error)
+    val citiesList = adPostVM.userPreferences.getCitiesList()?.data ?: listOf()
+    val citiesData = citiesList.map { it.name }
+    LaunchedEffect(selectedCity, searchText) {
         if (isNetworkAvailable(context))
-            adPostVM.getAdsByLocation(
+            adPostVM.getAdsByCities(
                 AdPostDto(
-                    metalName = search.text,
+                    metalName = searchText.text,
                     city = selectedCity,
                     perPage = "10",
                     page = "1"
                 )
             )
         else
-            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
+            Toasty.error(context, connectivityError, Toast.LENGTH_SHORT, false)
                 .show()
     }
     AllPostScreenUI(selectedCity = selectedCity,
-        search = search,
-        adsData = adsData,
-        cityList = locationData,
+        search = searchText,
+        adsData = adsByCities,
+        cityList = citiesData,
         onCityItemClick = { locationName ->
             selectedCity = locationName
         },
@@ -94,7 +94,7 @@ fun AllPostScreen(navController: NavController, adPostVM: AdPostVM) {
             navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson/$isMyAd")
         },
         onSearch = {
-            search = it
+            searchText = it
         },
         onBackClick = {
             navController.popBackStack()
@@ -151,9 +151,9 @@ fun AllPostScreenUI(
                     val cityName = cityList?.get(index) ?: ""
                     CityItems(
                         cityName = cityName,
-                        selectedCity = selectedCity, // Check if this city is selected
+                        selectedCity = selectedCity,
                         onCityItemClick = { city ->
-                            onCityItemClick(city) // Trigger the callback
+                            onCityItemClick(city)
                         }
                     )
                 }

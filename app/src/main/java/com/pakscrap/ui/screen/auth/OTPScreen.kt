@@ -53,6 +53,7 @@ import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import es.dmoral.toasty.Toasty
 import kotlinx.coroutines.delay
@@ -61,9 +62,8 @@ import kotlinx.coroutines.delay
 fun OTPScreen(navController: NavController, authVM: AuthVM, phoneNumber: String?) {
     val isOtpFieldsVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val noNetworkMessage = stringResource(id = R.string.network_error)
-//    var phone by remember { mutableStateOf("") }
-    var pinValue by remember { mutableStateOf("") }
+    val connectivityError = stringResource(id = R.string.network_error)
+    var otpValue by remember { mutableStateOf("") }
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress) {
@@ -83,18 +83,18 @@ fun OTPScreen(navController: NavController, authVM: AuthVM, phoneNumber: String?
     }
     OTPScreen(
         isOtpFieldsVisible = isOtpFieldsVisible,
-        pinValue = pinValue,
+        pinValue = otpValue,
         backClick = {
             navController.popBackStack()
         },
         onNextClick = {
             if (isNetworkAvailable(context)) {
 
-                authVM.verifyCode(pinValue)
+                authVM.verifyCode(otpValue)
             } else {
                 Toasty.error(
                     context,
-                    noNetworkMessage,
+                    connectivityError,
                     Toast.LENGTH_SHORT,
                     false
                 )
@@ -105,7 +105,7 @@ fun OTPScreen(navController: NavController, authVM: AuthVM, phoneNumber: String?
             authVM.sendVerificationCode("+92$phoneNumber", context as Activity)
         },
         onPinValue = { value, _ ->
-            pinValue = value
+            otpValue = value
         },
     )
 }
@@ -158,9 +158,9 @@ fun OTPScreen(
                         }
                     },
                 fontSize = 16.sp,
-                fontFamily = mediumFont,
+                fontFamily = boldFont,
                 textAlign = TextAlign.End,
-                color = if (isResendEnabled) DarkBlue else Color.Gray
+                color = if (isResendEnabled) DarkBlue else Color.DarkGray
             )
 
         }
@@ -220,8 +220,8 @@ fun PinTextField(
                         index = index,
                         text = otpText,
                         modifier = Modifier
-                            .weight(1f) // Ensure equal width for each CharView
-                            .aspectRatio(0.8f) // Optional: Adjust aspect ratio for better appearance
+                            .weight(1f)
+                            .aspectRatio(0.8f)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
@@ -244,8 +244,6 @@ private fun CharView(
 
     Text(
         modifier = modifier
-//            .width(40.dp)
-//            .height(50.dp)
             .drawBehind {
                 val strokeWidth = 2.dp.toPx()
                 val y = size.height - strokeWidth / 2
@@ -261,6 +259,7 @@ private fun CharView(
         style = MaterialTheme.typography.titleLarge,
         color = DarkBlue,
         textAlign = TextAlign.Center,
+        fontFamily = mediumFont,
         fontSize = 16.sp
     )
 }

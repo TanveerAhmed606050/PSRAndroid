@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,7 +68,6 @@ import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.boldFont
-import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Constant
 import es.dmoral.toasty.Toasty
@@ -82,22 +80,18 @@ fun DetailAdScreen(
     isMyAd: Boolean?
 ) {
     val context = LocalContext.current
-    var watchAd by remember { mutableStateOf(false) }
-    MobileAds.initialize(context) {
-//        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
-    }
+    var isAdWatched by remember { mutableStateOf(false) }
+    MobileAds.initialize(context)
     loadRewardedAd(
         context = context,
         context.getString(R.string.rewarded_ad_unit_id),
         onAdLoaded = {
             rateVM.rewardedAd = it
-//            Log.d("lsjag", "Ad Loaded Successfully")
         })
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            // Permission granted, make the call
             openCallApp(context, adData?.phoneNumber ?: "")
         } else {
             Toasty.error(
@@ -108,25 +102,25 @@ fun DetailAdScreen(
             ).show()
         }
     }
-    var showDialog by remember { mutableStateOf(false) }
-    if (showDialog)
+    var isShowDialog by remember { mutableStateOf(false) }
+    if (isShowDialog)
         FullScreenImageDialog(
             serverImageList = adData?.photos ?: listOf(), onDismissRequest = {
-                showDialog = false
+                isShowDialog = false
             },
             imageList = listOf()
         )
     DetailAdScreenViews(
-        watchAd = watchAd,
+        watchAd = isAdWatched,
         adsData = adData ?: AdsData.mockup,
         isMyAd = isMyAd ?: false, backClick = {
             navController.popBackStack()
         },
         onShowNoClick = {
-            if (!watchAd) {
+            if (!isAdWatched) {
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd,
                     onAdClick = {
-                        watchAd = true
+                        isAdWatched = true
                     })
             } else {
                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE)
@@ -139,21 +133,21 @@ fun DetailAdScreen(
             }
         },
         onSMSClick = {
-            if (!watchAd)
+            if (!isAdWatched)
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else
                 openSMSApp(context, phoneNumber = adData?.phoneNumber ?: "", message = "")
         },
         onWhatsAppCallClick = {
-            if (!watchAd)
+            if (!isAdWatched)
                 showRewardedAd(context as Activity, rewardedAd = rateVM.rewardedAd!!,
                     onAdClick = {})
             else
                 openWhatsApp(context, adData?.phoneNumber ?: "")
         },
         onImageClick = {
-            showDialog = true
+            isShowDialog = true
         }
     )
 }
@@ -207,12 +201,12 @@ fun DetailAdScreenViews(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .align(Alignment.BottomStart)  // Align to bottom left
-                    .padding(start = 10.dp, bottom = 10.dp) // Adjust padding
+                    .align(Alignment.BottomStart)
+                    .padding(start = 10.dp, bottom = 10.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_photo_24),
-                    contentDescription = "Gallery",
+                    contentDescription = "",
                     modifier = Modifier
                         .size(24.dp)
                         .padding(start = 10.dp)
@@ -226,26 +220,24 @@ fun DetailAdScreenViews(
                     fontFamily = boldFont,
                     color = Color.White,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-
             Image(
                 painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(20.dp)
                     .background(
                         color = Color.DarkGray.copy(0.6f),
                         shape = RoundedCornerShape(10.dp)
                     )
-                    .size(32.dp) // Set the size for the background container
+                    .size(32.dp)
                     .padding(8.dp)
                     .clickable { backClick() },
             )
         }
         Column(modifier = Modifier.padding(20.dp)) {
-
             Text(
                 text = adsData.name,
                 color = LightBlue, fontSize = 16.sp,
@@ -253,13 +245,13 @@ fun DetailAdScreenViews(
             )
             Text(
                 text = adsData.metalName,
-                color = Color.Gray, fontSize = 14.sp,
-                fontFamily = regularFont,
+                color = Color.DarkGray, fontSize = 14.sp,
+                fontFamily = boldFont,
             )
             Text(
                 text = "Rs. ${adsData.price}",
                 color = Color.DarkGray, fontSize = 14.sp,
-                fontFamily = mediumFont,
+                fontFamily = regularFont,
             )
             Text(
                 text = adsData.city,
@@ -287,7 +279,7 @@ fun DetailAdScreenViews(
                         text = if (watchAd) adsData.phoneNumber else
                             stringResource(id = R.string.show_no),
                         fontSize = 16.sp,
-                        fontFamily = regularFont,
+                        fontFamily = boldFont,
                         color = Color.White,
                         modifier = Modifier.padding(start = 8.dp)
                     )
@@ -311,7 +303,7 @@ fun DetailAdScreenViews(
                             )
                             Text(
                                 text = stringResource(id = R.string.sms),
-                                fontSize = 14.sp, fontFamily = regularFont,
+                                fontSize = 14.sp, fontFamily = boldFont,
                                 modifier = Modifier.padding(start = 4.dp),
                                 color = DarkBlue
                             )
@@ -327,7 +319,7 @@ fun DetailAdScreenViews(
                             )
                             Text(
                                 text = stringResource(id = R.string.whats_app),
-                                fontSize = 14.sp, fontFamily = regularFont,
+                                fontSize = 14.sp, fontFamily = boldFont,
                                 modifier = Modifier.padding(start = 4.dp),
                                 color = DarkBlue
                             )
@@ -337,9 +329,14 @@ fun DetailAdScreenViews(
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
+                text = "Description",
+                color = Color.DarkGray, fontSize = 12.sp,
+                fontFamily = boldFont,
+            )
+            Text(
                 text = adsData.description,
-                color = Color.Gray, fontSize = 14.sp,
-                fontFamily = mediumFont,
+                color = Color.Gray, fontSize = 12.sp,
+                fontFamily = regularFont,
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
@@ -348,14 +345,11 @@ fun DetailAdScreenViews(
 
 fun openWhatsApp(context: Context, phoneNumber: String) {
     try {
-        // Format the phone number
-        val formattedNumber = phoneNumber.removePrefix("+").replace(" ", "")
+        val numberFormat = phoneNumber.removePrefix("+").replace(" ", "")
         val url =
-            "https://api.whatsapp.com/send?phone=$formattedNumber&text=${Uri.encode("Hi i am connecting through PakScrap...")}"
-        // Create the intent
+            "https://api.whatsapp.com/send?phone=$numberFormat&text=${Uri.encode("Hi i am connecting through PakScrap...")}"
         val intent = Intent(Intent.ACTION_VIEW, url.toUri())
         context.startActivity(intent)
-        // Check if WhatsApp can handle the intent
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
         } else {
@@ -390,7 +384,6 @@ fun openSMSApp(context: Context, phoneNumber: String, message: String) {
     ) {
         context.startActivity(intent)
     } else {
-        // Request permission
         ActivityCompat.requestPermissions(
             context as Activity, arrayOf(Manifest.permission.SEND_SMS), 1122
         )
@@ -398,7 +391,7 @@ fun openSMSApp(context: Context, phoneNumber: String, message: String) {
 }
 
 fun openCallApp(context: Context, phoneNumber: String) {
-    val callIntent = Intent(Intent.ACTION_DIAL).apply {
+    val actionDial = Intent(Intent.ACTION_DIAL).apply {
         data = Uri.parse("tel:$phoneNumber")
     }
 
@@ -407,9 +400,8 @@ fun openCallApp(context: Context, phoneNumber: String) {
             Manifest.permission.CALL_PHONE
         ) == PackageManager.PERMISSION_GRANTED
     ) {
-        context.startActivity(callIntent)
+        context.startActivity(actionDial)
     } else {
-        // Request permission
         ActivityCompat.requestPermissions(
             context as Activity, arrayOf(Manifest.permission.CALL_PHONE), 1223
         )

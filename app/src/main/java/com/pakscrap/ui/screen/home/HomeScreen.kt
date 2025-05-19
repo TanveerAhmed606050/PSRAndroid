@@ -2,8 +2,6 @@ package com.pakscrap.ui.screen.home
 
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -27,7 +25,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -52,7 +49,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
 import com.pakscrap.R
 import com.pakscrap.navigation.Screen
@@ -90,20 +86,20 @@ fun HomeScreen(navController: NavController, homeVM: HomeVM) {
 
     var selectedCity by remember {
         mutableStateOf(
-            homeVM.userPreferences.getUserPreference()?.location ?: "Lahore"
+            homeVM.userPreferences.getUserData()?.location ?: "Lahore"
         )
     }
-    val noInternetMessage = stringResource(id = R.string.network_error)
+    val connectivityError = stringResource(id = R.string.network_error)
 
     val cityList =
-        homeVM.userPreferences.getLocationList()?.data?.map { it.name }
+        homeVM.userPreferences.getCitiesList()?.data?.map { it.name }
     val homeResponse = homeVM.homeResponse
     if (isNetworkAvailable(context)) {
         LaunchedEffect(Unit) {
             homeVM.getHomeData()
         }
     } else
-        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
+        Toasty.error(context, connectivityError, Toast.LENGTH_SHORT, false)
             .show()
 
     HomeScreenViews(
@@ -157,15 +153,15 @@ fun HomeScreenViews(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                horizontalArrangement = Arrangement.SpaceBetween, // Ensures content is spaced properly
-                verticalAlignment = Alignment.CenterVertically // Aligns content vertically centered
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = stringResource(id = R.string.app_name),
                     fontSize = 16.sp,
-                    fontFamily = mediumFont,
+                    fontFamily = boldFont,
                     color = DarkBlue,
-                    modifier = Modifier.weight(1f), // Takes equal space and helps centering
+                    modifier = Modifier.weight(1f),
                     textAlign = TextAlign.Center,
                 )
             }
@@ -184,7 +180,7 @@ fun HomeScreenViews(
                 else {
                     LazyRow(
                         contentPadding = PaddingValues(vertical = 8.dp),
-                        modifier = Modifier.height(220.dp) // Explicit height for LazyRow
+                        modifier = Modifier.height(220.dp)
                     ) {
                         items(adsData?.size ?: 0) { index ->
                             HomeAdsItems(
@@ -205,15 +201,15 @@ fun HomeScreenViews(
                 Spacer(modifier = Modifier.height(5.dp))
                 LazyRow(
                     contentPadding = PaddingValues(vertical = 8.dp),
-                    modifier = Modifier.height(60.dp) // Explicit height for LazyRow
+                    modifier = Modifier.height(60.dp)
                 ) {
                     items(cityList?.size ?: 0) { index ->
                         val cityName = cityList?.get(index) ?: ""
                         CityItems(
                             cityName = cityName,
-                            selectedCity = selectedCity, // Check if this city is selected
+                            selectedCity = selectedCity,
                             onCityItemClick = { city ->
-                                onCityItemClick(city) // Trigger the callback
+                                onCityItemClick(city)
                             }
                         )
                     }
@@ -223,8 +219,8 @@ fun HomeScreenViews(
                 else {
                     Spacer(modifier = Modifier.height(0.dp))
                     Card(
-                        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
-                        colors = CardDefaults.cardColors(containerColor = Color.White), // Set the background color
+                        elevation = CardDefaults.elevatedCardElevation(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier
                             .heightIn(max = 170.dp)
@@ -253,10 +249,10 @@ fun HomeScreenViews(
                 SeeAllView(stringResource(id = R.string.lme), clickAllViews = { onSeeAllLME() })
                 Spacer(modifier = Modifier.height(10.dp))
                 LazyRow(
-                    modifier = Modifier.height(100.dp) // Explicit height for LazyRow
+                    modifier = Modifier.height(100.dp)
                 ) {
                     items(lmeData?.take(3)?.size ?: 0) { index ->
-                        HomeLmeItem(lmeData = lmeData?.get(index) ?: LmeMetal.mockup)
+                        HomeLmeItem(lmeMetalData = lmeData?.get(index) ?: LmeMetal.mockup)
                         Spacer(modifier = Modifier.width(10.dp))
                     }
                 }
@@ -269,10 +265,10 @@ fun HomeScreenViews(
 @Composable
 fun CityItems(
     cityName: String,
-    selectedCity: String, // Add a flag to indicate selection
+    selectedCity: String,
     onCityItemClick: (String) -> Unit,
 ) {
-    val isSelected = selectedCity.contains(cityName, ignoreCase = true)  // false
+    val isSelected = selectedCity.contains(cityName, ignoreCase = true)
     Box(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -303,11 +299,11 @@ fun HomeAdsItems(
             .fillMaxSize()
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { onAdsClick(adData) },
-        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
+        elevation = CardDefaults.elevatedCardElevation(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize() // Make Box take up the full size of the Card
+            modifier = Modifier.fillMaxSize()
         ) {
             AsyncImage(
                 model = Constant.MEDIA_BASE_URL + adData.photos[0], contentDescription = "",
@@ -318,11 +314,11 @@ fun HomeAdsItems(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomStart) // Align the Row at the bottom of the Box
-                    .background(Color.White.copy(1f)), // Add some padding for better spacing
+                    .align(Alignment.BottomStart)
+                    .background(Color.White.copy(1f)),
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 8.dp), // Take up equal horizontal space
+                    modifier = Modifier.padding(horizontal = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(modifier = Modifier.height(2.dp))
@@ -330,7 +326,7 @@ fun HomeAdsItems(
                         modifier = Modifier.fillMaxWidth(),
                         text = adData.metalName,
                         fontSize = 14.sp,
-                        fontFamily = regularFont,
+                        fontFamily = boldFont,
                         color = Color.DarkGray,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
@@ -340,8 +336,8 @@ fun HomeAdsItems(
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = "PKR ${adData.price}",
-                        fontSize = 14.sp,
-                        fontFamily = boldFont,
+                        fontSize = 12.sp,
+                        fontFamily = regularFont,
                         color = Color.DarkGray,
                         textAlign = TextAlign.Start,
                         maxLines = 1,
@@ -380,10 +376,10 @@ fun ScrapRateItem(rateData: Rate) {
             Text(
                 modifier = Modifier,
                 text = rateData.metalName,
-                color = Color.DarkGray, fontSize = 14.sp, fontFamily = regularFont,
+                color = Color.DarkGray, fontSize = 12.sp, fontFamily = regularFont,
                 textAlign = TextAlign.Start,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 modifier = Modifier
@@ -398,14 +394,14 @@ fun ScrapRateItem(rateData: Rate) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeLmeItem(lmeData: LmeMetal) {
+fun HomeLmeItem(lmeMetalData: LmeMetal) {
     Card(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { },
-        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
+        elevation = CardDefaults.elevatedCardElevation(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier
@@ -415,30 +411,30 @@ fun HomeLmeItem(lmeData: LmeMetal) {
         ) {
             Column(modifier = Modifier.padding(end = 2.dp)) {
                 Text(
-                    text = lmeData.name,
-                    fontSize = 14.sp,
+                    text = lmeMetalData.name,
+                    fontSize = 12.sp,
                     color = Color.DarkGray,
                     maxLines = 1,
                     fontFamily = regularFont,
-                    overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                    overflow = TextOverflow.Ellipsis
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
-                    text = "${lmeData.changeInRate}%", modifier = Modifier
+                    text = "${lmeMetalData.changeInRate}%", modifier = Modifier
                         .background(
-                            if (lmeData.changeInRate.toFloat() < 0) LightRed40 else
+                            if (lmeMetalData.changeInRate.toFloat() < 0) LightRed40 else
                                 LightGreen40,
                             RoundedCornerShape(10.dp)
                         )
                         .padding(vertical = 3.dp, horizontal = 6.dp),
                     color = Color.White,
-                    fontFamily = mediumFont,
+                    fontFamily = regularFont,
                     fontSize = 12.sp
                 )
             }
             Column {
                 Text(
-                    text = "Rs. ${lmeData.price}",
+                    text = "Rs. ${lmeMetalData.price}",
                     modifier = Modifier
                         .align(Alignment.End),
                     fontSize = 14.sp,
@@ -447,7 +443,7 @@ fun HomeLmeItem(lmeData: LmeMetal) {
                 )
                 Spacer(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
-                    text = "Expiry: ${formatDate(lmeData.expiryDate)}",
+                    text = "Expiry: ${formatDate(lmeMetalData.expiryDate)}",
                     modifier = Modifier.padding(vertical = 3.dp, horizontal = 6.dp),
                     fontSize = 12.sp,
                     fontFamily = regularFont,
@@ -464,12 +460,12 @@ fun SeeAllView(text: String, clickAllViews: () -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = text, color = Color.DarkGray,
-            fontFamily = mediumFont, fontSize = 14.sp,
+            fontFamily = regularFont, fontSize = 14.sp,
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.see_all), color = DarkBlue,
-            fontFamily = boldFont, fontSize = 12.sp,
+            fontFamily = boldFont, fontSize = 14.sp,
             textAlign = TextAlign.End,
             modifier = Modifier
                 .padding(3.dp)

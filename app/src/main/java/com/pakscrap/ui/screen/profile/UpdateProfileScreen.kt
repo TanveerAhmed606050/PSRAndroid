@@ -49,15 +49,15 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.pakscrap.dto.UserCredential
+import com.pakscrap.ui.screen.auth.models.UserCredential
 import com.pakscrap.network.isNetworkAvailable
 import com.pakscrap.response.LocationData
 import com.pakscrap.response.mockup
 import com.pakscrap.R
-import com.pakscrap.ui.commonViews.AppButton
+import com.pakscrap.ui.commonViews.AppBlueButton
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
-import com.pakscrap.ui.commonViews.MyTextFieldWithBorder
+import com.pakscrap.ui.commonViews.TextFieldWithBorder
 import com.pakscrap.ui.screen.auth.AuthVM
 import com.pakscrap.ui.screen.auth.ListDialog
 import com.pakscrap.ui.theme.AppBG
@@ -77,12 +77,12 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
     showProgress = authVM.isLoading
     if (showProgress)
         LoadingDialog()
-    val userData = authVM.loginData
+    val userData = authVM.userData
     if (userData != null) {
         if (userData.status) {
             Toasty.success(
                 context,
-                authVM.loginData?.message ?: "",
+                authVM.userData?.message ?: "",
                 Toast.LENGTH_SHORT,
                 false
             )
@@ -91,39 +91,39 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
         } else
             Toasty.error(
                 context,
-                authVM.loginData?.message ?: "",
+                authVM.userData?.message ?: "",
                 Toast.LENGTH_SHORT,
                 false
             )
                 .show()
-        authVM.loginData = null
+        authVM.userData = null
     }
 
     var name by remember {
         mutableStateOf(
-            sharedPreferences.getUserPreference()?.name ?: ""
+            sharedPreferences.getUserData()?.name ?: ""
         )
     }
     var phone by remember {
         mutableStateOf(
-            sharedPreferences.getUserPreference()?.phone ?: ""
+            sharedPreferences.getUserData()?.phone ?: ""
         )
     }
     var address by remember {
         mutableStateOf(
-            sharedPreferences.getUserPreference()?.location ?: ""
+            sharedPreferences.getUserData()?.location ?: ""
         )
     }
-    val userId = sharedPreferences.getUserPreference()?.id ?: 0
-    val locationList = authVM.userPreferences.getLocationList()?.data ?: listOf()
+    val userId = sharedPreferences.getUserData()?.id ?: 0
+    val citiesList = authVM.userPreferences.getCitiesList()?.data ?: listOf()
 
     val capturedImageUri by remember {
         mutableStateOf(
-            sharedPreferences.getUserPreference()?.profilePic ?: ""
+            sharedPreferences.getUserData()?.profilePic ?: ""
         )
     }
 
-    UpdateProfileScreen(locationList, name, address, phone, capturedImageUri,
+    UpdateProfileScreen(citiesList, name, address, phone, capturedImageUri,
         onAddress = {
             address = it
         }, onName = {
@@ -134,9 +134,9 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
         backClick = { navController.popBackStack() },
         updateButtonClick = {
             if (address.isEmpty())
-                address = sharedPreferences.getUserPreference()?.location ?: ""
+                address = sharedPreferences.getUserData()?.location ?: ""
             if (name.isEmpty())
-                name = sharedPreferences.getUserPreference()?.name ?: ""
+                name = sharedPreferences.getUserData()?.name ?: ""
             if (isNetworkAvailable(context))
                 authVM.updateUserData(
                     UserCredential(
@@ -161,7 +161,7 @@ fun UpdateProfileScreen(navController: NavController, authVM: AuthVM) {
 
 @Composable
 fun UpdateProfileScreen(
-    locationList: List<LocationData>,
+    citiesList: List<LocationData>,
     name: String, address: String, phone: String, imageUri: String,
     onName: (String) -> Unit, onPhone: (String) -> Unit,
     onAddress: (String) -> Unit,
@@ -170,14 +170,14 @@ fun UpdateProfileScreen(
     onCitySelect: (String) -> Unit,
 ) {
     var expandedCity by remember { mutableStateOf(false) }
-    val locationData = locationList.map { it.name }
+    val citiesData = citiesList.map { it.name }
     val currentLocale = Locale.getDefault()
     val isRtl = isRtlLocale(currentLocale)
 
     if (expandedCity) {
-        ListDialog(dataList = locationData, onDismiss = { expandedCity = false },
+        ListDialog(dataList = citiesData, onDismiss = { expandedCity = false },
             onConfirm = { locationName ->
-                val locationId = locationList.find { it.name == locationName }?.name ?: ""
+                val locationId = citiesList.find { it.name == locationName }?.name ?: ""
                 onCitySelect(locationId)
                 onAddress(locationName)
                 expandedCity = false
@@ -188,7 +188,7 @@ fun UpdateProfileScreen(
             .fillMaxSize()
             .background(AppBG)
     ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Spacer(modifier = Modifier.statusBarsPadding())
             Header(
                 modifier = null,
@@ -215,7 +215,7 @@ fun UpdateProfileScreen(
                         .border(1.dp, Color.LightGray, CircleShape)
                 )
                 Spacer(modifier = Modifier.height(30.dp))
-                MyTextFieldWithBorder(
+                TextFieldWithBorder(
                     value = name,
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next,
@@ -226,7 +226,7 @@ fun UpdateProfileScreen(
                     imageId = R.drawable.baseline_person_24
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                MyTextFieldWithBorder(
+                TextFieldWithBorder(
                     value = phone,
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next,
@@ -240,7 +240,7 @@ fun UpdateProfileScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            if (locationList.isNotEmpty())
+                            if (citiesList.isNotEmpty())
                                 expandedCity = true
                             else
                                 onCitySelect("empty")
@@ -268,7 +268,8 @@ fun UpdateProfileScreen(
                         painter = painterResource(id = R.drawable.baseline_location_pin_24),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(horizontal = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .size(24.dp),
                         colorFilter = ColorFilter.tint(DarkBlue),
                     )
                     if (isRtl) {
@@ -290,7 +291,7 @@ fun UpdateProfileScreen(
                         .fillMaxHeight()
                         .wrapContentHeight(Alignment.Bottom)
                 ) {
-                    AppButton(modifier = Modifier.padding(bottom = 20.dp),
+                    AppBlueButton(modifier = Modifier.padding(bottom = 20.dp),
                         text = stringResource(id = R.string.update_profile),
                         onButtonClick = { updateButtonClick() })
                 }

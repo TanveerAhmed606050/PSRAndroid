@@ -11,8 +11,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import com.pakscrap.dto.ImageUpdate
-import com.pakscrap.dto.UserCredential
+import com.pakscrap.ui.screen.profile.models.ImageUpdate
+import com.pakscrap.ui.screen.auth.models.UserCredential
 import com.pakscrap.repository.AuthRepository
 import com.pakscrap.response.LocationResponse
 import com.pakscrap.response.mockup
@@ -43,8 +43,8 @@ class AuthVM @Inject constructor(
     private val _message = MutableStateFlow("")
     val message: StateFlow<String?> = _message
 
-    var loginData by mutableStateOf<AuthResponse?>(null)
-    private var locationData by mutableStateOf<LocationResponse?>(null)
+    var userData by mutableStateOf<AuthResponse?>(null)
+    private var citiesData by mutableStateOf<LocationResponse?>(null)
 
     var resetPasswordResponse by mutableStateOf<InfoDataResponse?>(null)
 
@@ -108,9 +108,9 @@ class AuthVM @Inject constructor(
         val result = authRepository.userLogin(userCredential)
         isLoading = false
         if (result is Result.Success) {
-            loginData = result.data
-            userPreferences.saveUserPreference(
-                loginData?.data ?: AuthData.mockup
+            userData = result.data
+            userPreferences.saveUserData(
+                userData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
@@ -122,21 +122,21 @@ class AuthVM @Inject constructor(
         val result = authRepository.register(userCredential)
         isLoading = false
         if (result is Result.Success) {
-            loginData = result.data
-            userPreferences.saveUserPreference(
-                loginData?.data ?: AuthData.mockup
+            userData = result.data
+            userPreferences.saveUserData(
+                userData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
     }
 
-    fun getLocation() = viewModelScope.launch {
-        val result = authRepository.getLocation()
+    fun getCities() = viewModelScope.launch {
+        val result = authRepository.getCities()
         if (result is Result.Success) {
-            locationData = result.data
-            if (locationData != null)
-                userPreferences.saveLocationList(locationData ?: LocationResponse.mockup)
+            citiesData = result.data
+            if (citiesData != null)
+                userPreferences.saveCitiesList(citiesData ?: LocationResponse.mockup)
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
@@ -144,14 +144,12 @@ class AuthVM @Inject constructor(
 
     fun updateUserImage(imageUpdate: ImageUpdate) = viewModelScope.launch {
         isLoading = true
-//        Log.d("lsjag", "api: $imageUpdate")
         val result = authRepository.updateUserImage(imageUpdate)
-//        Log.d("lsjag", "result: $result")
         isLoading = false
         if (result is Result.Success) {
-            loginData = result.data
-            userPreferences.saveUserPreference(
-                loginData?.data ?: AuthData.mockup
+            userData = result.data
+            userPreferences.saveUserData(
+                userData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
@@ -185,13 +183,12 @@ class AuthVM @Inject constructor(
         val result = authRepository.updateUserData(userCredential)
         isLoading = false
         if (result is Result.Success) {
-            loginData = result.data
-            userPreferences.saveUserPreference(
-                loginData?.data ?: AuthData.mockup
+            userData = result.data
+            userPreferences.saveUserData(
+                userData?.data ?: AuthData.mockup
             )
         } else if (result is Result.Failure) {
             error = result.exception.message ?: "Failure"
         }
     }
-
 }

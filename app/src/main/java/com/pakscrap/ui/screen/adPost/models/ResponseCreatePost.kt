@@ -3,7 +3,7 @@ package com.pakscrap.ui.screen.adPost.models
 import com.google.gson.annotations.SerializedName
 
 data class ResponseCreatePost(
-    val `data`: CreatePostData,
+    val data: CreatePostData,
     val message: String,
     val status: Boolean
 )

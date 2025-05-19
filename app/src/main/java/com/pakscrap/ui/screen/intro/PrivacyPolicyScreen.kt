@@ -47,6 +47,7 @@ import com.pakscrap.ui.commonViews.WhiteButton
 import com.pakscrap.ui.screen.auth.AuthVM
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import es.dmoral.toasty.Toasty
@@ -54,11 +55,12 @@ import es.dmoral.toasty.Toasty
 @Composable
 fun PrivacyPolicyScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
+
     PrivacyPolicyViews(onAgreeClick = { isSelected ->
         if (!isSelected) {
             Toasty.error(
                 context,
-                "Please agree our terms and condition then continue.",
+                context.getString(R.string.agree_terms),
                 Toasty.LENGTH_SHORT,
                 false
             ).show()
@@ -106,7 +108,6 @@ fun PrivacyPolicyViews(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
             Row(
                 modifier = Modifier
                     .padding(top = 10.dp)
@@ -117,11 +118,11 @@ fun PrivacyPolicyViews(
                     isSelected = !isSelected
                 })
 
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 val annotatedString = buildAnnotatedString {
                     withStyle(
                         style = SpanStyle(
-                            fontSize = 12.sp, fontFamily = regularFont, color = Color.Black
+                            fontSize = 14.sp, fontFamily = regularFont, color = Color.Black
                         )
                     ) {
                         append("By Continuing, you agree to PakScrapRate's ")
@@ -131,12 +132,11 @@ fun PrivacyPolicyViews(
                     pushStringAnnotation(tag = "terms", annotation = "terms")
                     withStyle(
                         style = SpanStyle(
-                            fontSize = 14.sp, fontFamily = mediumFont, color = Color.White
+                            fontSize = 14.sp, fontFamily = boldFont, color = Color.White
                         )
                     ) {
-                        append("terms & privacy policy")
+                        append(" terms & privacy policy")
                     }
-                    // End annotation
                     pop()
                 }
 
@@ -155,7 +155,7 @@ fun PrivacyPolicyViews(
 
             WhiteButton(
                 modifier = Modifier.padding(vertical = 20.dp),
-                text = stringResource(id = R.string.agree_continue),
+                btnName = stringResource(id = R.string.agree_continue),
                 onButtonClick = { onAgreeClick(isSelected) }
             )
             Spacer(modifier = Modifier.padding(bottom = 40.dp))
@@ -175,7 +175,7 @@ fun CustomRadioButton(isSelected: Boolean, onClick: () -> Unit) {
     ) {
         if (isSelected) {
             Icon(
-                imageVector = Icons.Default.Check, // Black tick
+                imageVector = Icons.Default.Check,
                 contentDescription = "Selected",
                 tint = Color.Black,
                 modifier = Modifier.size(16.dp)

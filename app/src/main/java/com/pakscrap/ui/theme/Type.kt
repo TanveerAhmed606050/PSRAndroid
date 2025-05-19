@@ -35,14 +35,14 @@ val Typography = Typography(
     */
 )
 val regularFont = FontFamily(//400
-    Font(R.font.trip_sans, weight = FontWeight.Normal)
+    Font(R.font.almarai_regular)
 )
 val boldFont = FontFamily(//700
-    Font(R.font.trip_sans_bold, weight = FontWeight.Bold)
+    Font(R.font.almarai_bold)
 )
 val mediumFont = FontFamily(//500
-    Font(R.font.trip_sans_medium, weight = FontWeight.Medium)
+    Font(R.font.almarai_light)
 )
-val ultraFont = FontFamily(//800
-    Font(R.font.trip_sans_ultra, weight = FontWeight.Bold)
+val ExtraBoldFont = FontFamily(//800
+    Font(R.font.almarai_extra_bold)
 )

@@ -1,20 +1,14 @@
 package com.pakscrap.utils
 
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Base64
 import androidx.core.view.WindowCompat
 import com.pakscrap.R
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -22,7 +16,7 @@ object Utils {
     // Function to load cities from JSON file in assets
     fun isValidPhone(phoneNumber: String): String {
         val phoneNumberPattern = Regex("^[+]?[0-9]{10}\$")
-        return if (phoneNumberPattern.matches(phoneNumber)) "" else "Enter valid number"
+        return if (phoneNumberPattern.matches(phoneNumber)) "" else "Enter valid phone number"
     }
 
     fun isValidPassword(password: String): String {
@@ -38,7 +32,7 @@ object Utils {
             && text.length >= 3
         )
             ""
-        else "Enter valid name"
+        else "Enter valid text"
     }
 
     fun uriToFile(context: Context, uri: Uri): File {
@@ -82,7 +76,7 @@ object Utils {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val outputFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
 
-        val date = inputFormat.parse(inputDate)
-        return outputFormat.format(date ?: "")
+        val outputDate = inputFormat.parse(inputDate)
+        return outputFormat.format(outputDate ?: "")
     }
 }

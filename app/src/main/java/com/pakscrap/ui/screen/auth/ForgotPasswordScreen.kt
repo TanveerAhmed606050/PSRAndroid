@@ -38,7 +38,7 @@ import androidx.navigation.NavController
 import com.pakscrap.R
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
-import com.pakscrap.ui.commonViews.AppButton
+import com.pakscrap.ui.commonViews.AppBlueButton
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.PhoneTextField
@@ -47,6 +47,7 @@ import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Utils.isValidPhone
@@ -58,9 +59,8 @@ import java.util.Locale
 fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
     var isOtpFieldsVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val noNetworkMessage = stringResource(id = R.string.network_error)
-//    var phone by remember { mutableStateOf("") }
-    var pinValue by remember { mutableStateOf("") }
+    val connectivityError = stringResource(id = R.string.network_error)
+    var otpValue by remember { mutableStateOf("") }
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress) {
@@ -83,7 +83,6 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
     if (message?.isNotEmpty() == true) {
         Toasty.success(context, message ?: "", Toast.LENGTH_SHORT, false).show()
         if (message == "Verification successful") {
-            //                navController.navigate(Screen.ResetPasswordScreen.route + "myPhone/$phone")
             navController.navigate(Screen.ResetPasswordScreen.route)
         }
         authVM.updateMessage("")
@@ -91,7 +90,7 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
 
     ForgotPasswordDesign(
         phone = authVM.phone,
-        pinValue = pinValue,
+        pinValue = otpValue,
         isOtpFieldsVisible = isOtpFieldsVisible,
         backClick = {
             navController.popBackStack()
@@ -111,7 +110,7 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
                 } else {
                     Toasty.error(
                         context,
-                        noNetworkMessage,
+                        connectivityError,
                         Toast.LENGTH_SHORT,
                         false
                     )
@@ -122,16 +121,14 @@ fun ForgotPasswordScreen(navController: NavController, authVM: AuthVM) {
         onPhone = {
             authVM.phone = it
         },
-        onPinValue = { value, isLastDigit ->
-            pinValue = value
-//            if (isLastDigit)
-//                authVM.verifyCode(pinValue)
+        onPinValue = { value, _ ->
+            otpValue = value
         },
         onResendOtp = {
             authVM.sendVerificationCode("+92${authVM.phone}", context as Activity)
         },
         onVerifyOtp = {
-            authVM.verifyCode(pinValue)
+            authVM.verifyCode(otpValue)
         }
     )
 }
@@ -150,7 +147,7 @@ fun ForgotPasswordDesign(
 ) {
     var timerSeconds by remember { mutableIntStateOf(60) }
     var isResendEnabled by remember { mutableStateOf(isOtpFieldsVisible) }
-    var resendTrigger by remember { mutableIntStateOf(0) } // Force LaunchedEffect restart
+    var resendTrigger by remember { mutableIntStateOf(0) }
     // Start countdown when dialog opens
     LaunchedEffect(resendTrigger, isOtpFieldsVisible) {
         timerSeconds = 60
@@ -185,7 +182,7 @@ fun ForgotPasswordDesign(
                     fontFamily = regularFont,
                     fontSize = 12.sp
                 )
-                Spacer(modifier = Modifier.padding(top = 10.dp))
+                Spacer(modifier = Modifier.padding(top = 4.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -197,7 +194,7 @@ fun ForgotPasswordDesign(
                         placeholder = stringResource(id = R.string.phone),
                         onValueChange = { onPhone(it) },
                         imageId = R.drawable.baseline_phone_24,
-                        modifier = Modifier.weight(1f) // Ensure it takes available space
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -212,7 +209,7 @@ fun ForgotPasswordDesign(
                             },
                         textAlign = TextAlign.End,
                         color = LightBlue,
-                        fontFamily = mediumFont,
+                        fontFamily = boldFont,
                         fontSize = 14.sp,
                     )
                 }
@@ -226,7 +223,7 @@ fun ForgotPasswordDesign(
                         onPinValue(value, isLastDigit)
                     })
                 Spacer(modifier = Modifier.height(20.dp))
-                AppButton(modifier = Modifier, text = stringResource(id = R.string.verify_now),
+                AppBlueButton(modifier = Modifier, text = stringResource(id = R.string.verify_now),
                     isEnable = pinValue.length == 6,
                     onButtonClick = { onVerifyOtp() })
                 Spacer(modifier = Modifier.height(20.dp))
@@ -238,14 +235,14 @@ fun ForgotPasswordDesign(
                         .clickable(enabled = isResendEnabled) {
                             if (isResendEnabled) {
                                 onResendOtp()
-                                resendTrigger++ // Change state to restart LaunchedEffect
+                                resendTrigger++
                             }
                         },
                     fontSize = 16.sp,
                     textDecoration = if (isResendEnabled) TextDecoration.Underline else TextDecoration.None,
-                    fontFamily = mediumFont,
+                    fontFamily = boldFont,
                     textAlign = TextAlign.Center,
-                    color = if (isResendEnabled) DarkBlue else Color.Gray
+                    color = if (isResendEnabled) DarkBlue else Color.DarkGray
                 )
             }
         }

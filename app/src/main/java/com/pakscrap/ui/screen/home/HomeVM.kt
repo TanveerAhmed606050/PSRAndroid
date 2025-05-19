@@ -21,6 +21,7 @@ class HomeVM @Inject constructor(
     var isLoading by mutableStateOf(false)
     var error by mutableStateOf("")
     var homeResponse by mutableStateOf<HomeResponse?>(null)
+
     fun getHomeData() = viewModelScope.launch {
         if (homeResponse != null)
             return@launch

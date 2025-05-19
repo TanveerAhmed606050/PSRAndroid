@@ -21,5 +21,5 @@ data class LocationData(
     companion object
 }
 val LocationData.Companion.mockup by lazy {
-LocationData(id = 6777, name = "Freida Johns", urduName = "Perry Erickson")
+LocationData(id = 6777, name = "Lahore", urduName = "Lahore")
 }

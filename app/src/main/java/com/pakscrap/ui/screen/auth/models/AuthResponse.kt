@@ -27,10 +27,10 @@ val AuthData.Companion.mockup by lazy {
     AuthData(
         createdAt = "",
         id = 2268,
-        location = "utamur",
-        name = "Luciano O'Neil",
-        phone = "(896) 723-3609",
-        updatedAt = "",
+        location = "Lahore",
+        name = "User",
+        phone = "+923451234567",
+        updatedAt = "12-11-25",
         profilePic = ""
     )
 }

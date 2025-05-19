@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.pakscrap.dto.AdPostDto
+import com.pakscrap.ui.screen.adPost.models.AdPostDto
 import com.pakscrap.network.ApiInterface
 import com.pakscrap.repository.GenericPagingRepository
 import com.pakscrap.repository.HomeRepository
@@ -39,15 +39,14 @@ class AdPostVM @Inject constructor(
     var error by mutableStateOf("")
     var adPostResponse by mutableStateOf<ResponseCreatePost?>(null)
     var allAdsData by mutableStateOf<Flow<PagingData<AdsData>>>(flowOf(PagingData.empty()))
-    private var currentRequest: AdPostDto? = null
+    private var currentAdRequest: AdPostDto? = null
 
-    private var _locationAds = MutableStateFlow<PagingData<AdsData>>(PagingData.empty())
+    private var _adsByCity = MutableStateFlow<PagingData<AdsData>>(PagingData.empty())
+    val adsByCities: StateFlow<PagingData<AdsData>> get() = _adsByCity
 
-    val locationAds: StateFlow<PagingData<AdsData>> get() = _locationAds
-
-    fun getAdsByLocation(adPostDto: AdPostDto) {
-        if (currentRequest?.city == adPostDto.city && currentRequest?.metalName == adPostDto.metalName) return // Prevent unnecessary reloads
-        currentRequest = adPostDto
+    fun getAdsByCities(adPostDto: AdPostDto) {
+        if (currentAdRequest?.city == adPostDto.city && currentAdRequest?.metalName == adPostDto.metalName) return // Prevent unnecessary reloads
+        currentAdRequest = adPostDto
         viewModelScope.launch {
             genericPagingRepository.getPagingData(
                 requestData = adPostDto,
@@ -62,7 +61,7 @@ class AdPostVM @Inject constructor(
                 }
             ).cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
-                    _locationAds.value = pagingData
+                    _adsByCity.value = pagingData
                 }
         }
     }
@@ -82,7 +81,7 @@ class AdPostVM @Inject constructor(
         allAdsData = response
     }
 
-    fun createPost(
+    fun createUserPost(
         userId: String,
         metalName: String,
         phoneNumber: String,
@@ -113,7 +112,6 @@ class AdPostVM @Inject constructor(
         }
     }
 
-    // Helper function to convert String to RequestBody
     private fun String.toRequestBody(): RequestBody {
         return this.toRequestBody("text/plain".toMediaTypeOrNull())
     }

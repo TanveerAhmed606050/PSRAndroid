@@ -18,10 +18,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pakscrap.ui.theme.DarkBlue
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 
 @Composable
-fun AppButton(
+fun AppBlueButton(
     modifier: Modifier, text: String, isEnable: Boolean = true,
     onButtonClick: () -> Unit,
 ) {
@@ -44,7 +45,7 @@ fun AppButton(
             text = text,
             fontSize = 16.sp,
             color = Color.White,
-            fontFamily = mediumFont,
+            fontFamily = boldFont,
             textAlign = TextAlign.Center,
         )
     }
@@ -52,7 +53,7 @@ fun AppButton(
 
 @Composable
 fun WhiteButton(
-    modifier: Modifier, text: String, isEnable: Boolean = true,
+    modifier: Modifier, btnName: String, isEnable: Boolean = true,
     onButtonClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -71,10 +72,10 @@ fun WhiteButton(
         enabled = isEnable,
     ) {
         Text(
-            text = text,
+            text = btnName,
             fontSize = 16.sp,
             color = DarkBlue,
-            fontFamily = mediumFont,
+            fontFamily = boldFont,
             textAlign = TextAlign.Center,
         )
     }

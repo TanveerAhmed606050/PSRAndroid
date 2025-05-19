@@ -5,9 +5,6 @@ import androidx.window.layout.FoldingFeature
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-/**
- * Information about the posture of the device
- */
 sealed interface DevicePosture {
     data object NormalPosture : DevicePosture
 
@@ -25,7 +22,7 @@ sealed interface DevicePosture {
 fun isBookPosture(foldFeature: FoldingFeature?): Boolean {
     contract { returns(true) implies (foldFeature != null) }
     return foldFeature?.state == FoldingFeature.State.HALF_OPENED &&
-        foldFeature.orientation == FoldingFeature.Orientation.VERTICAL
+            foldFeature.orientation == FoldingFeature.Orientation.VERTICAL
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -34,23 +31,10 @@ fun isSeparating(foldFeature: FoldingFeature?): Boolean {
     return foldFeature?.state == FoldingFeature.State.FLAT && foldFeature.isSeparating
 }
 
-/**
- * Different type of navigation supported by app depending on device size and state.
- */
 enum class PSRNavigationType {
     BOTTOM_NAVIGATION, NAVIGATION_RAIL, PERMANENT_NAVIGATION_DRAWER
 }
 
-/**
- * Different position of navigation content inside Navigation Rail, Navigation Drawer depending on device size and state.
- */
 enum class PSRNavigationContentPosition {
     TOP, CENTER
-}
-
-/**
- * App Content shown depending on device size and state.
- */
-enum class PSRContentType {
-    SINGLE_PANE, DUAL_PANE
 }

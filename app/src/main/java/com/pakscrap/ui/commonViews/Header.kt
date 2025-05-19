@@ -18,14 +18,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pakscrap.R
 import com.pakscrap.ui.theme.DarkBlue
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 
 @Composable
-fun Header(modifier: Modifier?,headerText:String, backClick: () -> Unit) {
+fun Header(modifier: Modifier?, headerText: String, backClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp),
+            .height(30.dp),
     ) {
         Image(
             painter = painterResource(id = R.drawable.baseline_arrow_back_ios_24),
@@ -33,7 +34,8 @@ fun Header(modifier: Modifier?,headerText:String, backClick: () -> Unit) {
             modifier = Modifier
                 .size(30.dp)
                 .padding(6.dp)
-                .clickable { backClick() }.align(Alignment.CenterStart),
+                .clickable { backClick() }
+                .align(Alignment.CenterStart),
             colorFilter = ColorFilter.tint(DarkBlue)
         )
         Text(
@@ -42,7 +44,7 @@ fun Header(modifier: Modifier?,headerText:String, backClick: () -> Unit) {
             fontSize = 16.sp,
             modifier = Modifier
                 .align(Alignment.Center),
-            fontFamily = mediumFont
+            fontFamily = boldFont
         )
     }
 }

@@ -3,7 +3,6 @@ package com.pakscrap.ui.screen.profile
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,21 +53,20 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.pakscrap.MainActivity
 import com.pakscrap.R
-import com.pakscrap.dto.ImageUpdate
-import com.pakscrap.dto.ProfileOption
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
-import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.LogoutDialog
 import com.pakscrap.ui.commonViews.MyAsyncImage
 import com.pakscrap.ui.screen.adPost.openWhatsApp
 import com.pakscrap.ui.screen.auth.AuthVM
 import com.pakscrap.ui.screen.auth.ListDialog
+import com.pakscrap.ui.screen.profile.models.ImageUpdate
+import com.pakscrap.ui.screen.profile.models.ProfileOption
 import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
-import com.pakscrap.ui.theme.mediumFont
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.LocaleHelper
 import com.pakscrap.utils.LogoutSession
@@ -82,9 +80,9 @@ import java.util.Locale
 @Composable
 fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
-    val userData = authVM.userPreferences.getUserPreference()
+    val userData = authVM.userPreferences.getUserData()
     var capturedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var showDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
     var expandedLang by remember { mutableStateOf(false) }
     val languageList = listOf("اردو", "English")
     if (expandedLang) {
@@ -98,8 +96,8 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 }
             })
     }
-    val userId = authVM.userPreferences.getUserPreference()?.id ?: 0
-    val authData = authVM.loginData
+    val userId = authVM.userPreferences.getUserData()?.id ?: 0
+    val authData = authVM.userData
     var profilePic = userData?.profilePic ?: ""
     // Display the auth data
     if (authData != null) {
@@ -108,27 +106,27 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             profilePic = authData.data.profilePic
         } else
             Toasty.error(context, authData.message, Toast.LENGTH_SHORT, false).show()
-        authVM.loginData = null
+        authVM.userData = null
     }
 
-    if (showDialog)
+    if (showLogoutDialog)
         LogoutDialog(onOkClick = {
-            showDialog = false
+            showLogoutDialog = false
             authVM.userPreferences.clearStorage()
             LogoutSession.clearError()
             navController.navigate(Screen.LoginScreen.route) {
-                popUpTo(0) { inclusive = true } // Clears all previous screens
+                popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
         },
             onDismissRequest = {
-                showDialog = false
+                showLogoutDialog = false
             })
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress)
         LoadingDialog()
-    val noInternetMessage = stringResource(id = R.string.network_error)
+    val connectivityError = stringResource(id = R.string.network_error)
 
     val pickImageLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
@@ -140,7 +138,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
             if (isNetworkAvailable(context)) {
                 authVM.updateUserImage(ImageUpdate("$userId", image = imagePart))
             } else
-                Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
+                Toasty.error(context, connectivityError, Toast.LENGTH_SHORT, false)
                     .show()
         }
     }
@@ -163,7 +161,7 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
         },
         onItemClick = { screenRoute ->
             when (screenRoute) {
-                context.getString(R.string.logout) -> showDialog = true
+                context.getString(R.string.logout) -> showLogoutDialog = true
                 "English" -> {
                     expandedLang = true
                 }
@@ -175,7 +173,6 @@ fun MyProfileScreen(navController: NavController, authVM: AuthVM) {
                 else -> navController.navigate(screenRoute)
             }
         },
-        backClick = { navController.popBackStack() },
         onNotificationSelection = { isChecked ->
             if (!permissionState.status.isGranted) {
                 permissionState.launchPermissionRequest()
@@ -193,7 +190,6 @@ fun MyProfileScreen(
     profilePic: String,
     onItemClick: (String) -> Unit,
     onBottomSheetShow: () -> Unit,
-    backClick: () -> Unit,
     onNotificationSelection: (Boolean) -> Unit,
 ) {
     Box(
@@ -211,7 +207,7 @@ fun MyProfileScreen(
             Text(
                 text = stringResource(id = R.string.my_profile),
                 fontSize = 16.sp,
-                fontFamily = mediumFont,
+                fontFamily = boldFont,
                 color = DarkBlue
             )
             Spacer(modifier = Modifier.padding(top = 10.dp))
@@ -241,7 +237,7 @@ fun MyProfileScreen(
 
             // Wrap in LazyColumn for proper scrolling
             LazyColumn(
-                modifier = Modifier.weight(1f), // Allow it to take available space
+                modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(bottom = 120.dp)
             ) {
                 item {
@@ -255,7 +251,6 @@ fun MyProfileScreen(
             }
         }
     }
-
 }
 
 @Composable
@@ -400,7 +395,7 @@ fun ProfileOptionItem(
                     option.iconId
                 ), contentDescription = null,
                 colorFilter = ColorFilter.tint(LightBlue),
-                modifier = Modifier.size(if (isRtl) 20.dp else 30.dp)
+                modifier = Modifier.size(if (isRtl) 24.dp else 30.dp)
             )
         }
         if (isRtl)
@@ -412,7 +407,7 @@ fun ProfileOptionItem(
             color = option.color,
             textAlign = TextAlign.End,
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         )
         if (!isRtl)
             Spacer(modifier = Modifier.weight(1f))
@@ -433,7 +428,7 @@ fun ProfileOptionItem(
                 painter = if (isRtl) painterResource(option.iconId) else painterResource(id = R.drawable.next_blk),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(LightBlue),
-                modifier = Modifier.size(if (isRtl) 30.dp else 20.dp)
+                modifier = Modifier.size(if (isRtl) 30.dp else 24.dp)
             )
         }
     }
@@ -454,7 +449,6 @@ fun MyProfileScreenPreview() {
         onBottomSheetShow = {},
         profilePic = "",
         onItemClick = {},
-        backClick = {},
         onNotificationSelection = {},
         isNotificationEnable = false
     )

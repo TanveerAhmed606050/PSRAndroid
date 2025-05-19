@@ -75,6 +75,7 @@ import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Utils.isRtlLocale
@@ -99,49 +100,49 @@ fun RateScreen(rateVM: RateVM) {
         rateVM.watchInterstitialAd = true
     }
 
-    var locationId = rateVM.userPreferences.getLocationList()?.data?.find {
-        it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
-    }?.id ?: 0 // get location id
+    var citiesId = rateVM.userPreferences.getCitiesList()?.data?.find {
+        it.name.equals(rateVM.userPreferences.getUserData()?.location, ignoreCase = true)
+    }?.id ?: 0
 
-    val locationList = rateVM.userPreferences.getLocationList()?.data ?: listOf()
+    val citiesList = rateVM.userPreferences.getCitiesList()?.data ?: listOf()
 
-    var search by remember { mutableStateOf(TextFieldValue("")) }
+    var searchRate by remember { mutableStateOf(TextFieldValue("")) }
     val sharedPreferences = rateVM.userPreferences
 
-    var location by remember { mutableStateOf("Lahore") }
-    val noInternetMessage = stringResource(id = R.string.network_error)
-    val locationData = locationList.map { it.name }
+    var selectedCity by remember { mutableStateOf("Lahore") }
+    val connectivityError = stringResource(id = R.string.network_error)
+    val citiesData = citiesList.map { it.name }
 
     val subMetalData = rateVM.subMetalResponse
     val suggestedSearchList = rateVM.suggestMainMetals
 
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
-            location = sharedPreferences.getUserPreference()?.location ?: "Lahore"
-            rateVM.getMainMetals("$locationId", "")
-            rateVM.getSubMetals("$locationId", search.text)
+            selectedCity = sharedPreferences.getUserData()?.location ?: "Lahore"
+            rateVM.getMainMetals("$citiesId", "")
+            rateVM.getSubMetals("$citiesId", searchRate.text)
         }
     } else
-        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
+        Toasty.error(context, connectivityError, Toast.LENGTH_SHORT, false)
             .show()
 
-    DashBoardScreen(search, location,
-        cityList = locationData,
+    DashBoardScreen(searchRate, selectedCity,
+        cityList = citiesData,
         productList = subMetalData?.data, isRefreshing,
         suggestedSearchList = suggestedSearchList,
         onSearch = { query ->
-            search = query
-            rateVM.searchMainMetals(search.text)
+            searchRate = query
+            rateVM.searchMainMetals(searchRate.text)
         },
         onPullDown = {
             isRefreshing = true
             if (isNetworkAvailable(context)) {
                 if (subMetalData == null)
-                    rateVM.getSubMetals("$locationId", search.text)
+                    rateVM.getSubMetals("$citiesId", searchRate.text)
             } else
                 Toasty.error(
                     context,
-                    noInternetMessage,
+                    connectivityError,
                     Toast.LENGTH_SHORT,
                     false
                 )
@@ -149,24 +150,24 @@ fun RateScreen(rateVM: RateVM) {
 
         },
         onSearchClick = { searchText ->
-            search = searchText
+            searchRate = searchText
             rateVM.userPreferences.lastSearchMetal = searchText.text
-            locationId = rateVM.userPreferences.getLocationList()?.data?.find {
-                it.name.equals(location, ignoreCase = true)
+            citiesId = rateVM.userPreferences.getCitiesList()?.data?.find {
+                it.name.equals(selectedCity, ignoreCase = true)
             }?.id ?: 0
             if (isNetworkAvailable(context)) {
-                rateVM.getSubMetals("$locationId", searchText.text)
+                rateVM.getSubMetals("$citiesId", searchText.text)
             } else
                 Toasty.error(
-                    context, noInternetMessage, Toast.LENGTH_SHORT, false
+                    context, connectivityError, Toast.LENGTH_SHORT, false
                 ).show()
         },
         onCityItemClick = { locationName ->
-            location = locationName
-            locationId = rateVM.userPreferences.getLocationList()?.data?.find {
+            selectedCity = locationName
+            citiesId = rateVM.userPreferences.getCitiesList()?.data?.find {
                 it.name.equals(locationName, ignoreCase = true)
             }?.id ?: 0
-            rateVM.getSubMetals("$locationId", search.text)
+            rateVM.getSubMetals("$citiesId", searchRate.text)
         })
 }
 
@@ -194,7 +195,7 @@ fun DashBoardScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AppBG) // Background color
+                .background(AppBG)
         ) {
             Column(
                 modifier = Modifier
@@ -206,7 +207,7 @@ fun DashBoardScreen(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(id = R.string.scrap_rate), fontSize = 16.sp,
-                    fontFamily = mediumFont,
+                    fontFamily = boldFont,
                     color = DarkBlue,
                     textAlign = TextAlign.Center
                 )
@@ -221,20 +222,19 @@ fun DashBoardScreen(
                     })
                 LazyRow(
                     contentPadding = PaddingValues(vertical = 8.dp),
-                    modifier = Modifier.height(60.dp) // Explicit height for LazyRow
+                    modifier = Modifier.height(60.dp)
                 ) {
                     items(cityList?.size ?: 0) { index ->
                         val cityName = cityList?.get(index) ?: ""
                         CityItems(
                             cityName = cityName,
-                            selectedCity = selectedCity, // Check if this city is selected
+                            selectedCity = selectedCity,
                             onCityItemClick = { city ->
-                                onCityItemClick(city) // Trigger the callback
+                                onCityItemClick(city)
                             }
                         )
                     }
                 }
-
                 Spacer(modifier = Modifier.height(0.dp))
 
                 if (productList?.isEmpty() != false)
@@ -249,7 +249,6 @@ fun DashBoardScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(120.dp))
-
             }
         }
     }
@@ -318,7 +317,7 @@ fun SearchBar(
                 textStyle = TextStyle(
                     fontSize = 14.sp,
                     fontFamily = regularFont,
-                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start, // Align input text as well
+                    textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                     color = DarkBlue,
                 ),
                 placeholder = {
@@ -352,7 +351,7 @@ fun SearchBar(
                     .menuAnchor(type = MenuAnchorType.PrimaryEditable),
                 keyboardOptions = KeyboardOptions.Default.copy(
                     capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Search // Set the IME action to 'Search'
+                    imeAction = ImeAction.Search
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
@@ -411,7 +410,7 @@ fun SearchBar(
                                     selection = TextRange(mainMetal.urduName.length)
                                 )
                             )
-                            expandedDropDown = false // Hide dropdown after selection
+                            expandedDropDown = false
                         },
                     )
 // Add a Divider after each item except the last one
@@ -441,15 +440,15 @@ fun ProductList(mainMetalData: MetalData, search: TextFieldValue) {
         ) {
             Text(
                 text = "${mainMetalData.metalName} Scrap",
-                color = LightBlue,
+                color = DarkBlue,
                 fontSize = 14.sp,
-                fontFamily = mediumFont
+                fontFamily = boldFont
             )
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = stringResource(id = R.string.price_kg),
-                color = LightBlue,
-                fontFamily = mediumFont,
+                color = DarkBlue,
+                fontFamily = boldFont,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(end = 0.dp)
             )
@@ -462,12 +461,12 @@ fun ProductList(mainMetalData: MetalData, search: TextFieldValue) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = mainMetalData.metalDescription,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 color = Color.Black,
-                fontFamily = mediumFont,
+                fontFamily = regularFont,
                 modifier = Modifier
                     .background(Color.White, shape = RoundedCornerShape(8.dp))
-                    .padding(4.dp)
+                    .padding(8.dp)
             )
         }
     }
@@ -493,32 +492,32 @@ fun ProductItem(subMetalDetail: SubMetals) {
                 fontSize = 14.sp,
                 color = Color.Black,
                 maxLines = 1,
-                fontFamily = mediumFont,
+                fontFamily = regularFont,
                 modifier = Modifier
                     .weight(2f)
                     .padding(4.dp),
-                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                overflow = TextOverflow.Ellipsis
             )
             Text(
                 text = " -  ${subMetalDetail.submetalUrduName}",
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = Color.Black,
                 maxLines = 1,
-                fontFamily = mediumFont,
+                fontFamily = regularFont,
                 modifier = Modifier
                     .weight(2f)
                     .padding(4.dp),
-                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                overflow = TextOverflow.Ellipsis
             )
         }
         Box(
             modifier = Modifier
                 .background(DarkBlue, shape = RoundedCornerShape(8.dp))
-                .padding(8.dp), contentAlignment = Alignment.Center
+                .padding(vertical = 8.dp, horizontal = 4.dp), contentAlignment = Alignment.Center
         ) {
             Text(
                 text = subMetalDetail.priceMin + "-" + subMetalDetail.priceMax,
-                modifier = Modifier.padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = 4.dp),
                 fontSize = 12.sp,
                 fontFamily = regularFont,
                 color = Color.White,
@@ -537,7 +536,7 @@ fun NoProductView(msg: String, color: Color) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = msg, color = color, fontFamily = mediumFont,
+            text = msg, color = color, fontFamily = boldFont,
             fontSize = 16.sp
         )
     }

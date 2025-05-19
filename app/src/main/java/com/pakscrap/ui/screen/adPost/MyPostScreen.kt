@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -65,11 +64,10 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
 import com.google.gson.Gson
 import com.pakscrap.R
-import com.pakscrap.dto.AdPostDto
 import com.pakscrap.navigation.Screen
 import com.pakscrap.network.isNetworkAvailable
-import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
+import com.pakscrap.ui.screen.adPost.models.AdPostDto
 import com.pakscrap.ui.screen.adPost.models.AdsData
 import com.pakscrap.ui.screen.adPost.models.mockup
 import com.pakscrap.ui.screen.rate.NoProductView
@@ -78,7 +76,6 @@ import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightRed40
 import com.pakscrap.ui.theme.PSP_AndroidTheme
 import com.pakscrap.ui.theme.boldFont
-import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Constant
 import com.pakscrap.utils.Utils.isRtlLocale
@@ -88,29 +85,29 @@ import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MyPostScreen(navController: NavController, adPostVM: com.pakscrap.ui.screen.adPost.AdPostVM) {
+fun MyPostScreen(navController: NavController, adPostVM: AdPostVM) {
     val context = LocalContext.current
-    val adsData = adPostVM.allAdsData.collectAsLazyPagingItems()
+    val allAdsData = adPostVM.allAdsData.collectAsLazyPagingItems()
     var showProgress by remember { mutableStateOf(false) }
     showProgress = adPostVM.isLoading
     if (showProgress)
         LoadingDialog()
-    val noInternetMessage = stringResource(id = R.string.network_error)
+    val connectivityError = stringResource(id = R.string.network_error)
     LaunchedEffect(Unit) {
         if (isNetworkAvailable(context))
             adPostVM.getAdsByUserid(
                 AdPostDto(
-                    userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
+                    userId = "${adPostVM.userPreferences.getUserData()?.id}",
                     perPage = "10",
                     page = "1"
                 )
             )
         else
-            Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
+            Toasty.error(context, connectivityError, Toast.LENGTH_SHORT, false)
                 .show()
     }
     MyPostScreen(
-        adsData = adsData,
+        adsData = allAdsData,
         onPlusIconClick = {
             navController.navigate(Screen.AdScreen.route)
         },
@@ -119,9 +116,7 @@ fun MyPostScreen(navController: NavController, adPostVM: com.pakscrap.ui.screen.
             val encodedJson = Uri.encode(adDataJson)
             val isMyAd = true
             navController.navigate(Screen.AdDetailScreen.route + "Details/$encodedJson/$isMyAd")
-        },
-        onBackClick = { navController.popBackStack() })
-
+        })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -130,7 +125,6 @@ fun MyPostScreen(
     adsData: LazyPagingItems<AdsData>,
     onPlusIconClick: () -> Unit,
     onAdsClick: (AdsData) -> Unit,
-    onBackClick: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -147,7 +141,7 @@ fun MyPostScreen(
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = stringResource(id = R.string.my_post), fontSize = 16.sp,
-                fontFamily = mediumFont,
+                fontFamily = boldFont,
                 color = DarkBlue,
                 textAlign = TextAlign.Center
             )
@@ -188,7 +182,7 @@ fun MyPostScreen(
             containerColor = AppBG
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.add_post),
+                painter = painterResource(id = R.drawable.add_post_ic),
                 contentDescription = "",
                 tint = DarkBlue,
                 modifier = Modifier.size(25.dp)
@@ -205,31 +199,30 @@ fun AdsItemsView(
     modifier: Modifier,
     onAdsClick: (AdsData) -> Unit,
 ) {
-    // Display the current image
     Card(
         modifier = modifier
             .height(150.dp)
             .fillMaxWidth()
             .background(Color.White, RoundedCornerShape(10.dp))
             .clickable { onAdsClick(adData) },
-        elevation = CardDefaults.elevatedCardElevation(8.dp), // Use CardDefaults for elevation
-        colors = CardDefaults.cardColors(containerColor = Color.White) // Set the background color
+        elevation = CardDefaults.elevatedCardElevation(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize() // Make Box take up the full size of the Card
+            modifier = Modifier.fillMaxSize()
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .background(Color.White), // Add some padding for better spacing
+                    .background(Color.White),
             ) {
                 Card(
                     modifier = Modifier
                         .height(150.dp)
                         .width(150.dp)
                         .padding(1.dp),
-                    shape = RoundedCornerShape(15.dp), // Set corner radius
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(DarkBlue),
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
@@ -243,7 +236,7 @@ fun AdsItemsView(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight()
-                                .clip(RoundedCornerShape(15.dp)),
+                                .clip(RoundedCornerShape(12.dp)),
                             contentScale = ContentScale.Crop
                         )
                         Row(
@@ -254,7 +247,7 @@ fun AdsItemsView(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_photo_24),
-                                contentDescription = "Gallery",
+                                contentDescription = "",
                                 modifier = Modifier
                                     .size(24.dp)
                                     .padding(start = 10.dp)
@@ -268,11 +261,10 @@ fun AdsItemsView(
                                 fontFamily = boldFont,
                                 color = Color.White,
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
-
                 }
 
                 Column(
@@ -283,8 +275,8 @@ fun AdsItemsView(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start,
                         text = adData.metalName,
-                        fontSize = 14.sp,
-                        fontFamily = regularFont,
+                        fontSize = 16.sp,
+                        fontFamily = boldFont,
                         color = Color.DarkGray,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
@@ -295,10 +287,10 @@ fun AdsItemsView(
                         textAlign = TextAlign.Start,
                         text = "PKR ${adData.price}",
                         fontSize = 14.sp,
-                        fontFamily = mediumFont,
+                        fontFamily = regularFont,
                         color = Color.DarkGray,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -306,11 +298,11 @@ fun AdsItemsView(
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start,
                         text = adData.city,
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         fontFamily = regularFont,
                         color = Color.DarkGray,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -320,7 +312,7 @@ fun AdsItemsView(
                         fontFamily = regularFont,
                         color = Color.Gray,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                        overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
@@ -329,10 +321,10 @@ fun AdsItemsView(
                 Text(
                     text = adData.approvalStatus,
                     color = if (adData.approvalStatus == "pending") Color.Black else Color.White,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                     textAlign = TextAlign.End,
                     modifier = Modifier
-                        .align(Alignment.TopEnd) // Aligns the text to the bottom right (end) of the Box
+                        .align(Alignment.TopEnd)
                         .background(
                             color = when (adData.approvalStatus) {
                                 "rejected" -> LightRed40
@@ -344,7 +336,7 @@ fun AdsItemsView(
                             },
                             shape = RoundedCornerShape(4.dp)
                         )
-                        .padding(4.dp) // Adds some padding for better appearance
+                        .padding(4.dp)
                 )
             }
         }
@@ -371,7 +363,6 @@ fun SearchBar(
         OutlinedTextField(
             value = search,
             onValueChange = { value ->
-                // Update the search query with the new value and move cursor to the end
                 onSearchClick(value.copy(selection = TextRange(value.text.length)))
             },
             leadingIcon = if (!isRtl) {
@@ -429,7 +420,7 @@ fun SearchBar(
                     isFocused = focusState.isFocused
                 },
             keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Search // Set the IME action to 'Search'
+                imeAction = ImeAction.Search
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
@@ -461,8 +452,7 @@ fun HomeScreenPreview() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             MyPostScreen(adsData = flowOf(PagingData.from(listOf(AdsData.mockup))).collectAsLazyPagingItems(),
                 onPlusIconClick = {},
-                onAdsClick = {},
-                onBackClick = {})
+                onAdsClick = {})
         }
     }
 }

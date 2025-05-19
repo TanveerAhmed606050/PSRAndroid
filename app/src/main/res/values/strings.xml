@@ -64,7 +64,7 @@
     <string name="full_name">Full Name</string>
     <string name="search">Search</string>
     <string name="language">Language</string>
-    <string name="no_ads">Ads Loading</string>
+    <string name="no_ads">No Ad</string>
     <string name="file_size">5MB maximum file size accepted in the following formats: jpg, jpeg, png, .gif</string>
     <string name="city">City</string>
     <string name="location">Location</string>
@@ -125,5 +125,6 @@
     <string name="no_lme">No LME Found</string>
     <string name="empty_error">Please enter all fields</string>
     <string name="call_permission_error">Call Permission Denied</string>
+    <string name="agree_terms">Please agree our terms and condition then continue.</string>
 
 </resources>

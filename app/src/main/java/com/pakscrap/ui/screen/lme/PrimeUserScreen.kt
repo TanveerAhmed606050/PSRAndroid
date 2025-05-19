@@ -45,7 +45,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.ads.MobileAds
 import com.pakscrap.R
 import com.pakscrap.response.PrimeUserData
-import com.pakscrap.ui.commonViews.AppButton
+import com.pakscrap.ui.commonViews.AppBlueButton
 import com.pakscrap.ui.commonViews.LinearProgress
 import com.pakscrap.ui.commonViews.MyAsyncImage
 import com.pakscrap.ui.commonViews.loadRewardedAd
@@ -59,7 +59,9 @@ import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightRed40
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
+import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Utils.isRtlLocale
 import es.dmoral.toasty.Toasty
 import java.util.Locale
@@ -68,15 +70,12 @@ import java.util.Locale
 @Composable
 fun PrimeUserScreen(rateVm: RateVM) {
     val context = LocalContext.current
-    var search by remember { mutableStateOf(TextFieldValue("")) }
-    MobileAds.initialize(context) { initializationStatus ->
-        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
-    }
+    var searchUser by remember { mutableStateOf(TextFieldValue("")) }
+    MobileAds.initialize(context)
     loadRewardedAd(context = context,
         context.getString(R.string.rewarded_ad_unit_id),
         onAdLoaded = {
             rateVm.rewardedAd = it
-//            Log.d("lsjag", "Ad Loaded Successfully")
         })
     val callPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -116,9 +115,9 @@ fun PrimeUserScreen(rateVm: RateVM) {
                 callPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
             }
         }
-    }, search = search, onSearch = {
-        search = it
-        rateVm.searchPrimeUser(search.text)
+    }, search = searchUser, onSearch = {
+        searchUser = it
+        rateVm.searchPrimeUser(searchUser.text)
     }, onBecomePremiumClick = {
         openWhatsApp(context, "+923244400343")
     })
@@ -149,7 +148,7 @@ fun PrimeUserScreen(
             Text(
                 text = stringResource(id = R.string.prime_user),
                 fontSize = 16.sp,
-                fontFamily = mediumFont,
+                fontFamily = boldFont,
                 color = DarkBlue
             )
             if (primeUserData == null) {
@@ -161,7 +160,7 @@ fun PrimeUserScreen(
                 onSearch(it)
             })
             Spacer(modifier = Modifier.padding(top = 10.dp))
-            AppButton(modifier = Modifier,
+            AppBlueButton(modifier = Modifier,
                 text = stringResource(id = R.string.become_premium_user),
                 onButtonClick = {
                     onBecomePremiumClick()
@@ -220,24 +219,24 @@ fun UserItemData(
                 Text(
                     text = stringResource(id = R.string.name),
                     color = Color.DarkGray,
-                    fontFamily = mediumFont,
+                    fontFamily = regularFont,
                     fontSize = 14.sp,
                 )
                 Text(
                     text = stringResource(id = R.string.business_name),
                     fontSize = 14.sp,
-                    fontFamily = mediumFont,
+                    fontFamily = regularFont,
                     color = Color.DarkGray,
                 )
                 Text(
                     text = stringResource(id = R.string.address),
-                    fontFamily = mediumFont,
+                    fontFamily = regularFont,
                     color = Color.DarkGray,
                     fontSize = 14.sp,
                 )
                 Text(
                     text = stringResource(id = R.string.metals),
-                    fontFamily = mediumFont,
+                    fontFamily = regularFont,
                     color = Color.DarkGray,
                     fontSize = 14.sp,
                 )
@@ -245,14 +244,8 @@ fun UserItemData(
                     text = stringResource(id = R.string.show_no),
                     fontSize = 14.sp,
                     color = Color.DarkGray,
-                    fontFamily = mediumFont,
+                    fontFamily = regularFont,
                 )
-//                Text(
-//                    text = stringResource(id = R.string.business_detail),
-//                    fontFamily = mediumFont,
-//                    color = Color.DarkGray,
-//                    fontSize = 14.sp,
-//                )
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Column(
@@ -267,32 +260,32 @@ fun UserItemData(
                     color = Color.DarkGray,
                     fontSize = 14.sp,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                    fontFamily = mediumFont,
+                    overflow = TextOverflow.Ellipsis,
+                    fontFamily = boldFont,
                 )
                 Text(
                     text = primeUserData.businessName,
                     color = Color.DarkGray,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
-                    fontFamily = mediumFont,
+                    fontFamily = boldFont,
                 )
                 Text(
                     text = primeUserData.location,
                     color = Color.DarkGray,
-                    fontFamily = mediumFont,
+                    fontFamily = boldFont,
                     fontSize = 14.sp,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = primeUserData.type,
                     color = Color.DarkGray,
-                    fontFamily = mediumFont,
+                    fontFamily = boldFont,
                     fontSize = 14.sp,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                    overflow = TextOverflow.Ellipsis,
                 )
 
                 Row(
@@ -306,9 +299,9 @@ fun UserItemData(
                         id = R.string.watch_ad
                     ),
                         color = Color.White,
-                        fontFamily = mediumFont,
+                        fontFamily = boldFont,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
+                        overflow = TextOverflow.Ellipsis,
                         fontSize = 14.sp,
                         modifier = Modifier.clickable {
                             onShowContact(primeUserData)
@@ -323,11 +316,9 @@ fun UserItemData(
                 Text(
                     text = primeUserData.businessDetails,
                     color = Color.DarkGray,
-                    fontFamily = mediumFont,
+                    fontFamily = boldFont,
                     fontSize = 14.sp,
-                    maxLines = 3,
-                    // overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-                )
+                    maxLines = 3)
             }
 
         }
@@ -335,11 +326,9 @@ fun UserItemData(
             modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 10.dp),
             text = primeUserData.businessDetails,
             color = Color.DarkGray,
-            fontFamily = mediumFont,
+            fontFamily = regularFont,
             fontSize = 14.sp,
-            maxLines = 3,
-            // overflow = TextOverflow.Ellipsis, // This will show "..." for truncated text
-        )
+            maxLines = 3)
     }
 }
 

@@ -24,17 +24,17 @@ import com.pakscrap.R
 
 @Composable
 fun GoogleAdBanner() {
-    val adSize = AdSize.BANNER
+    val adsSize = AdSize.BANNER
     val testAdUnitId =
-        stringResource(id = R.string.banner_ad_unit_id) // Replace with your actual Ad Unit ID
+        stringResource(id = R.string.banner_ad_unit_id)
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         factory = { context ->
             AdView(context).apply {
-                setAdSize(adSize)
-                adUnitId = testAdUnitId // Replace with your actual Ad Unit ID
+                setAdSize(adsSize)
+                adUnitId = testAdUnitId
                 loadAd(AdRequest.Builder().build())
             }
         }
@@ -45,13 +45,11 @@ fun loadRewardedAd(context: Context, adUnitId: String, onAdLoaded: (RewardedAd) 
     val adRequest = AdRequest.Builder().build()
     RewardedAd.load(context, adUnitId, adRequest, object : RewardedAdLoadCallback() {
         override fun onAdLoaded(ad: RewardedAd) {
-            Log.d("lsjag", "onAdLoaded: ")
             onAdLoaded(ad)
         }
 
         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
             // Handle the error
-            Log.d("lsjag", "onAdFailedToLoad: ${loadAdError.message}")
         }
     })
 }
@@ -64,26 +62,20 @@ fun showRewardedAd(
     rewardedAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
         override fun onAdShowedFullScreenContent() {
             onAdClick()
-            Log.d("RewardedAd", "Ad is shown in full screen.")
         }
 
         override fun onAdClicked() {
             onAdClick()
-            Log.d("RewardedAd", "User clicked the rewarded ad.")
         }
 
         override fun onAdDismissedFullScreenContent() {
             onAdClick()
-            Log.d("RewardedAd", "User closed the rewarded ad without completing it.")
-            // You can reload a new ad here if needed
         }
 
     }
 
     rewardedAd?.show(activity) { rewardItem: RewardItem ->
-        // This callback is invoked when the user earns the reward.
-        Log.d("RewardedAd", "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
-        // Here, you can update your app state to reflect the reward.
+        Log.d("ksksd", "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
     }
 }
 
@@ -101,33 +93,26 @@ fun GoogleInterstitialAd(context: Context, onAdClick: () -> Unit) {
         object : InterstitialAdLoadCallback() {
             override fun onAdLoaded(ad: InterstitialAd) {
                 interstitialAd = ad
-                println("Ad successfully loaded.")
-                // Attach listeners to the ad
                 ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                     override fun onAdDismissedFullScreenContent() {
                         onAdClick()
-                        println("Ad was dismissed (canceled or closed).")
                     }
 
                     override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                        Log.d("dgjls", "Ad failed to show")
                     }
 
                     override fun onAdShowedFullScreenContent() {
-                        Log.d("dgjls", "Ad is showing.")
                         interstitialAd = null // Clear the reference after the ad is shown
                     }
 
                     override fun onAdClicked() {
                         onAdClick()
-                        Log.d("dgjls", "Ad was clicked.")
                     }
                 }
             }
 
             override fun onAdFailedToLoad(error: LoadAdError) {
                 interstitialAd = null
-                Log.d("dgjls", "Failed to load ad")
             }
         }
     )
@@ -137,6 +122,6 @@ fun showInterstitialAd(context: Context) {
     if (interstitialAd != null) {
         interstitialAd?.show(context as Activity)
     } else {
-        Log.d("dgjls", "The interstitial ad wasn't ready yet.")
+        Log.d("ksksd", "The interstitial ad wasn't ready.")
     }
 }

@@ -58,11 +58,9 @@ class MainActivity : ComponentActivity() {
         actionBar(this)
         enableEdgeToEdge()
         subscribeTopic()
-        // Initialize Firebase Analytics
         firebaseAnalytics = Firebase.analytics
 
         setContent {
-            //Load Rewarded Ads Launch Effect
             val rateVm = hiltViewModel<RateVM>()
             GoogleInterstitialAd(this, onAdClick = {})
             loadRewardedAd(
@@ -71,12 +69,6 @@ class MainActivity : ComponentActivity() {
                 onAdLoaded = {
                     rateVm.rewardedAd = it
                 })
-//            if (rateVm.watchAd) {
-//                LaunchedEffect(key1 = rateVm.watchAd) {
-//                    delay(1 * 60 * 1000) // 1 minutes delay
-//                    rateVm.watchAd = false // Reset watchAd to false
-//                }
-//            }
 
             val scope = rememberCoroutineScope()
             val navController = rememberNavController()
@@ -138,19 +130,17 @@ class MainActivity : ComponentActivity() {
 fun SetupSystemUi() {
     val systemUiController = rememberSystemUiController()
 
-    // Set navigation bar color and icon theme
     systemUiController.setNavigationBarColor(
-        color = Color.Transparent, // Replace with your desired color
+        color = Color.Transparent,
         transformColorForLightContent = { Color.Black },
         navigationBarContrastEnforced = true,
-        darkIcons = true // Use true for dark icons, false for light icons
+        darkIcons = true
     )
 
-    // Optionally, set the status bar color as well
     systemUiController.setStatusBarColor(
         color = Color.Transparent,
         transformColorForLightContent = { Color.Black },
-        darkIcons = true, // Use true for dark icons, false for light icons
+        darkIcons = true,
     )
 }
 
@@ -159,12 +149,4 @@ fun subscribeTopic() {
         .addOnCompleteListener {
         }
 
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PSP_AndroidTheme {
-    }
 }

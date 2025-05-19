@@ -46,6 +46,7 @@ import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.LightGreen40
 import com.pakscrap.ui.theme.LightRed40
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.mediumFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Utils.formatDate
@@ -73,7 +74,7 @@ fun LmeScreen(dashboardVM: RateVM) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LmeScreenView(
-    lmeData: List<LmeData>?,
+    lmeMetalData: List<LmeData>?,
     search: TextFieldValue,
     onSearch: (TextFieldValue) -> Unit,
 ) {
@@ -91,10 +92,10 @@ fun LmeScreenView(
             Spacer(modifier = Modifier.statusBarsPadding())
             Text(
                 text = stringResource(id = R.string.london_me), fontSize = 16.sp,
-                fontFamily = mediumFont,
+                fontFamily = boldFont,
                 color = DarkBlue
             )
-            if (lmeData == null) {
+            if (lmeMetalData == null) {
                 Spacer(modifier = Modifier.padding(top = 10.dp))
                 LinearProgress(modifier = Modifier.padding(vertical = 3.dp))
             }
@@ -104,8 +105,8 @@ fun LmeScreenView(
                     onSearch(it)
                 })
             Spacer(modifier = Modifier.padding(top = 20.dp))
-            if (lmeData?.isNotEmpty() == true)
-                LmeList(lmeData = lmeData)
+            if (lmeMetalData?.isNotEmpty() == true)
+                LmeList(lmeData = lmeMetalData)
             else
                 NoProductView(msg = stringResource(id = R.string.no_lme), color = DarkBlue)
         }
@@ -122,7 +123,6 @@ fun LmeList(lmeData: List<LmeData>?) {
             .padding(bottom = 120.dp),
         contentPadding = PaddingValues(vertical = 0.dp)
     ) {
-
         items(lmeData?.size ?: 0) { index ->
             Spacer(modifier = Modifier.padding(4.dp))
             LmeItem(lmeData?.get(index) ?: LmeData.mockup)
@@ -150,9 +150,9 @@ fun LmeItem(lmeData: LmeData) {
                 fontSize = 14.sp,
                 color = Color.DarkGray,
                 maxLines = 1,
-                fontFamily = mediumFont,
+                fontFamily = boldFont,
                 modifier = Modifier.weight(1f),
-                overflow = TextOverflow.Ellipsis // This will show "..." for truncated text
+                overflow = TextOverflow.Ellipsis
             )
             Box(
                 modifier = Modifier
@@ -163,7 +163,7 @@ fun LmeItem(lmeData: LmeData) {
                     text = "Rs. ${lmeData.price}",
                     modifier = Modifier.padding(horizontal = 2.dp),
                     fontSize = 14.sp,
-                    fontFamily = mediumFont,
+                    fontFamily = regularFont,
                     color = Color.DarkGray,
                 )
             }

@@ -16,14 +16,14 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun LinearProgress(modifier: Modifier = Modifier){
-    var showProgress by remember { mutableStateOf(true) }
+    var showLinearProgress by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        delay(6000) // Delay for 6 seconds
-        showProgress = false
+        delay(6000)
+        showLinearProgress = false
     }
 
-    if (showProgress) {
+    if (showLinearProgress) {
         LinearProgressIndicator(
             modifier = modifier.fillMaxWidth(),
             color = LightBlue,

@@ -1,6 +1,6 @@
 package com.pakscrap.network
 
-import com.pakscrap.dto.UserCredential
+import com.pakscrap.ui.screen.auth.models.UserCredential
 import com.pakscrap.response.LmeResponse
 import com.pakscrap.response.LocationResponse
 import com.pakscrap.response.PrimeUser
@@ -34,7 +34,7 @@ interface ApiInterface {
     ): AuthResponse
 
     @GET("locations")
-    suspend fun getLocation(): LocationResponse
+    suspend fun getCities(): LocationResponse
 
     @Multipart
     @POST("updateUserImage")

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -77,7 +76,7 @@ import com.pakscrap.R
 import com.pakscrap.network.isNetworkAvailable
 import com.pakscrap.response.LocationData
 import com.pakscrap.response.mockup
-import com.pakscrap.ui.commonViews.AppButton
+import com.pakscrap.ui.commonViews.AppBlueButton
 import com.pakscrap.ui.commonViews.CustomTextField
 import com.pakscrap.ui.commonViews.FullScreenImageDialog
 import com.pakscrap.ui.commonViews.Header
@@ -91,6 +90,7 @@ import com.pakscrap.ui.screen.rate.models.SubMetals
 import com.pakscrap.ui.theme.AppBG
 import com.pakscrap.ui.theme.DarkBlue
 import com.pakscrap.ui.theme.PSP_AndroidTheme
+import com.pakscrap.ui.theme.boldFont
 import com.pakscrap.ui.theme.regularFont
 import com.pakscrap.utils.Utils.createMultipartBodyPart
 import com.pakscrap.utils.Utils.isRtlLocale
@@ -106,17 +106,14 @@ fun CreateAdScreen(
     rateVM: RateVM
 ) {
     val context = LocalContext.current
-    MobileAds.initialize(context) { initializationStatus ->
-        Log.d("RewardedAd", "Mobile Ads initialized: $initializationStatus")
-    }
+    MobileAds.initialize(context)
     loadRewardedAd(
         context = context,
         context.getString(R.string.rewarded_ad_unit_id),
         onAdLoaded = {
             rateVM.rewardedAd = it
-//            Log.d("lsjag", "Ad Loaded Successfully")
         })
-    val locationList = adPostVM.userPreferences.getLocationList()?.data ?: listOf()
+    val citiesList = adPostVM.userPreferences.getCitiesList()?.data ?: listOf()
     val mainMetalName = remember { mutableStateOf(TextFieldValue("")) }
     var subMetalName by remember { mutableStateOf("") }
     var selectedCity by remember { mutableStateOf("Lahore") }
@@ -125,8 +122,8 @@ fun CreateAdScreen(
     val suggestedSearchList = rateVM.suggestMainMetals
     val suggestedSubMetalList = rateVM.suggestSubMetals
     val adPostResponse = adPostVM.adPostResponse
-    val noInternetMessage = stringResource(id = R.string.network_error)
-// Display the error message
+    val internetError = stringResource(id = R.string.network_error)
+
     if (errorMessage != null) {
         Toasty.error(context, errorMessage ?: "", Toast.LENGTH_SHORT, false)
             .show()
@@ -141,9 +138,9 @@ fun CreateAdScreen(
         navController.popBackStack()
         adPostVM.adPostResponse = null
     }
-    val locationId = rateVM.userPreferences.getLocationList()?.data?.find {
-        it.name.equals(rateVM.userPreferences.getUserPreference()?.location, ignoreCase = true)
-    }?.id ?: 0 // get location id
+    val locationId = rateVM.userPreferences.getCitiesList()?.data?.find {
+        it.name.equals(rateVM.userPreferences.getUserData()?.location, ignoreCase = true)
+    }?.id ?: 0
     if (isNetworkAvailable(context)) {
         LaunchedEffect(key1 = Unit) {
             rateVM.getMainMetals("$locationId", "")
@@ -151,7 +148,7 @@ fun CreateAdScreen(
             rateVM.suggestSubMetals = rateVM.subMetalsList
         }
     } else
-        Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
+        Toasty.error(context, internetError, Toast.LENGTH_SHORT, false)
             .show()
 
     var showDialog by remember { mutableStateOf(false) }
@@ -164,28 +161,28 @@ fun CreateAdScreen(
     if (showProgress)
         LoadingDialog()
 
-    // Launcher for selecting multiple images
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         val maxFileSizeMb = 10
-        val maxFileSizeBytes = maxFileSizeMb * 1024 * 1024  // Convert MB to bytes
+        val maxFileSizeBytes = maxFileSizeMb * 1024 * 1024
 
         val totalSize = uris.sumOf { uri ->
             getFileSizeFromUri(context, uri)
         }
         if (totalSize <= maxFileSizeBytes) {
-            selectedImages = uris.take(3) // Limit to the first 3 images
+            selectedImages = uris.take(3)
             errorMessage = null
         } else {
-            selectedImages = emptyList() // Clear selection
-            errorMessage = "Total file size exceeds $maxFileSizeMb MB. Please select smaller files."
+            selectedImages = emptyList()
+            errorMessage =
+                "Total file size exceeds $maxFileSizeMb MB. Please select small size images."
         }
     }
 
     AdScreenView(
         selectedImages,
-        locationList = locationList,
+        locationList = citiesList,
         subMetalSearch = subMetalName,
         search = mainMetalName.value,
         selectedCity = selectedCity,
@@ -218,7 +215,7 @@ fun CreateAdScreen(
             selectedCity = selectedLocation
         },
         onAddImageClick = {
-            launcher.launch("image/*") // Open the gallery to select images
+            launcher.launch("image/*")
         },
         onAdPostClick = { metalName, desc, price ->
             if (metalName.isEmpty() || desc.isEmpty() || price.isEmpty() || selectedImages.isEmpty()) {
@@ -236,10 +233,10 @@ fun CreateAdScreen(
                     selectedImages.map { imageFile -> uriToFile(context, uri = imageFile) }
                 val imagePartList =
                     fileList.map { file -> createMultipartBodyPart(file, "photos[]") }
-                adPostVM.createPost(
-                    userId = "${adPostVM.userPreferences.getUserPreference()?.id}",
+                adPostVM.createUserPost(
+                    userId = "${adPostVM.userPreferences.getUserData()?.id}",
                     metalName = mainMetalName.value.text,
-                    phoneNumber = "${adPostVM.userPreferences.getUserPreference()?.phone}",
+                    phoneNumber = "${adPostVM.userPreferences.getUserData()?.phone}",
                     submetal = subMetalName,
                     city = selectedCity,
                     name = metalName,
@@ -251,7 +248,7 @@ fun CreateAdScreen(
                     onAdClick = {
                     })
             } else
-                Toasty.error(context, noInternetMessage, Toast.LENGTH_SHORT, false)
+                Toasty.error(context, internetError, Toast.LENGTH_SHORT, false)
                     .show()
         },
         onSelectedImageClick = {
@@ -304,7 +301,7 @@ fun AdScreenView(
     ) {
         Column(
             modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 20.dp),
+                .padding(vertical = 8.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.statusBarsPadding())
@@ -322,6 +319,7 @@ fun AdScreenView(
                 text = stringResource(id = R.string.main_metal),
                 color = DarkBlue,
                 fontFamily = regularFont,
+                fontSize = 16.sp,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -343,6 +341,7 @@ fun AdScreenView(
                 text = stringResource(id = R.string.sub_metal),
                 color = DarkBlue,
                 fontFamily = regularFont,
+                fontSize = 16.sp,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -360,6 +359,7 @@ fun AdScreenView(
                 text = stringResource(id = R.string.my_name),
                 color = DarkBlue,
                 fontFamily = regularFont,
+                fontSize = 16.sp,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -381,6 +381,7 @@ fun AdScreenView(
             Text(
                 text = stringResource(id = R.string.price),
                 color = DarkBlue,
+                fontSize = 16.sp,
                 fontFamily = regularFont,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                 modifier = Modifier
@@ -404,6 +405,7 @@ fun AdScreenView(
                 text = stringResource(id = R.string.city),
                 color = DarkBlue,
                 fontFamily = regularFont,
+                fontSize = 16.sp,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -452,7 +454,8 @@ fun AdScreenView(
                         painter = painterResource(id = R.drawable.baseline_location_pin_24),
                         contentDescription = null,
                         modifier = Modifier
-                            .padding(end = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .size(16.dp),
                         colorFilter = ColorFilter.tint(DarkBlue)
                     )
                 }
@@ -462,6 +465,7 @@ fun AdScreenView(
                 text = stringResource(id = R.string.description),
                 color = DarkBlue,
                 fontFamily = regularFont,
+                fontSize = 16.sp,
                 textAlign = if (isRtl) TextAlign.End else TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -480,7 +484,7 @@ fun AdScreenView(
                 imageId = R.drawable.edit_square_ic
             )
             Spacer(modifier = Modifier.height(20.dp))
-            AppButton(
+            AppBlueButton(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 30.dp),
@@ -525,7 +529,7 @@ fun ImagePickerUI(
                 ) {
                     Image(
                         painter = rememberAsyncImagePainter(uri),
-                        contentDescription = "Selected Image $page",
+                        contentDescription = "",
                         modifier = Modifier
                             .fillMaxSize()
                             .clickable { onSelectedImageClick(uri) },
@@ -533,11 +537,11 @@ fun ImagePickerUI(
                     )
                 }
             }
-            // Instruction text
             Text(
                 text = stringResource(id = R.string.file_size),
                 color = Color.Black,
                 fontSize = 14.sp,
+                fontFamily = regularFont,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
@@ -552,7 +556,7 @@ fun ImagePickerUI(
                     text = stringResource(id = R.string.add_images),
                     color = Color.White,
                     fontSize = 16.sp,
-                    fontFamily = regularFont,
+                    fontFamily = boldFont,
                 )
             }
 
@@ -575,7 +579,6 @@ fun SubMetalBar(
     var expandedDropDown by remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // Observe the search text and update dropdown state based on focus and list availability
     LaunchedEffect(isFocused) {
         expandedDropDown = isFocused && (suggestedSearchList?.isNotEmpty() == true)
     }
@@ -595,7 +598,6 @@ fun SubMetalBar(
                 onValueChange = {
                     onSearch(it)
                     if (it.length < search.length && !expandedDropDown) {
-                        // Backspace detected
                         expandedDropDown = true
                     }
                 },
@@ -613,8 +615,8 @@ fun SubMetalBar(
                     )
                 },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = DarkBlue, // Change focused border color
-                    unfocusedBorderColor = Color.White, // Change unfocused border color
+                    focusedBorderColor = DarkBlue,
+                    unfocusedBorderColor = Color.White,
                     focusedTextColor = DarkBlue,
                     unfocusedTextColor = DarkBlue
                 ),
@@ -711,10 +713,9 @@ fun SubMetalBar(
                             onSearchClick(
                                 subMetal.submetalName,
                             )
-                            expandedDropDown = false // Hide dropdown after selection
+                            expandedDropDown = false
                         },
                     )
-// Add a Divider after each item except the last one
                     if (index < suggestedSearchList.size - 1) {
                         HorizontalDivider(
                             color = Color.White,

@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.pakscrap.R
-import com.pakscrap.ui.commonViews.AppButton
+import com.pakscrap.ui.commonViews.AppBlueButton
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.PasswordTextFields
@@ -77,7 +77,7 @@ fun UpdatePasswordScreen(navController: NavHostController, profileVM: ProfileVM)
         else {
             profileVM.updatePassword(
                 UpdateUserData(
-                    userId = "${profileVM.userPreferences.getUserPreference()?.id}",
+                    userId = "${profileVM.userPreferences.getUserData()?.id}",
                     currentPassword = oldPassword,
                     newPassword = newPassword,
                 )
@@ -91,7 +91,7 @@ fun UpdatePasswordScreen(
     backClick: () -> Unit,
     updateBtnClick: (String, String, String) -> Unit
 ) {
-    var newPassword by remember { mutableStateOf("") }
+    var firstPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var oldPassword by remember { mutableStateOf("") }
 
@@ -116,7 +116,7 @@ fun UpdatePasswordScreen(
                 text = stringResource(R.string.change_pass_detail),
                 color = DarkBlue,
                 fontFamily = regularFont,
-                fontSize = 12.sp
+                fontSize = 14.sp
             )
             Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
@@ -130,12 +130,12 @@ fun UpdatePasswordScreen(
             )
             Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
-                value = newPassword,
+                value = firstPassword,
                 KeyboardType.Password,
                 ImeAction.Next,
                 placeholder = stringResource(id = R.string.password),
                 onValueChange = { newText ->
-                    newPassword = newText
+                    firstPassword = newText
                 }
             )
             Spacer(modifier = Modifier.padding(top = 20.dp))
@@ -155,9 +155,9 @@ fun UpdatePasswordScreen(
                     .wrapContentHeight(Alignment.Bottom)
                     .padding(bottom = 40.dp)
             ) {
-                AppButton(modifier = Modifier,
+                AppBlueButton(modifier = Modifier,
                     text = stringResource(id = R.string.update_pass),
-                    onButtonClick = { updateBtnClick(oldPassword, newPassword, confirmPassword) })
+                    onButtonClick = { updateBtnClick(oldPassword, firstPassword, confirmPassword) })
             }
         }
     }

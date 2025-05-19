@@ -3,8 +3,8 @@ package com.pakscrap.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.pakscrap.response.LocationResponse
 import com.google.gson.Gson
+import com.pakscrap.response.LocationResponse
 import com.pakscrap.ui.screen.auth.models.AuthData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -36,11 +36,11 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         set(value) = sharedPreferences.edit { putBoolean(NOTIFICATION_SWITCH, value) }
     private val gson = Gson()
 
-    fun saveUserPreference(loginData: AuthData) {
+    fun saveUserData(loginData: AuthData) {
         sharedPreferences.edit { putString(USER_DATA, gson.toJson(loginData)) }
     }
 
-    fun getUserPreference(): AuthData? {
+    fun getUserData(): AuthData? {
         val json = sharedPreferences.getString(USER_DATA, null)
         return try {
             gson.fromJson(json, AuthData::class.java)
@@ -53,13 +53,13 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
         get() = sharedPreferences.getString(LATEST_SEARCH, "iron") ?: ""
         set(value) = sharedPreferences.edit { putString(LATEST_SEARCH, value) }
 
-    fun saveLocationList(locationData: LocationResponse) {
+    fun saveCitiesList(citiesData: LocationResponse) {
         sharedPreferences.edit {
-            putString(LOCATION_LIST, gson.toJson(locationData))
+            putString(LOCATION_LIST, gson.toJson(citiesData))
         }
     }
 
-    fun getLocationList(): LocationResponse? {
+    fun getCitiesList(): LocationResponse? {
         val json = sharedPreferences.getString(LOCATION_LIST, null)
         return try {
             gson.fromJson(json, LocationResponse::class.java)
@@ -69,5 +69,4 @@ class UserPreferences @Inject constructor(@ApplicationContext private val contex
     }
 
     fun clearStorage() = sharedPreferences.edit().clear().apply()
-
 }

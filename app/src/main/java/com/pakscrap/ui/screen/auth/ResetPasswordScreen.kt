@@ -1,6 +1,5 @@
 package com.pakscrap.ui.screen.auth
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.pakscrap.R
 import com.pakscrap.network.isNetworkAvailable
-import com.pakscrap.ui.commonViews.AppButton
+import com.pakscrap.ui.commonViews.AppBlueButton
 import com.pakscrap.ui.commonViews.Header
 import com.pakscrap.ui.commonViews.LoadingDialog
 import com.pakscrap.ui.commonViews.PasswordTextFields
@@ -45,7 +44,7 @@ import es.dmoral.toasty.Toasty
 @Composable
 fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
     val context = LocalContext.current
-    val noNetworkMessage = stringResource(id = R.string.network_error)
+    val connectivityError = stringResource(id = R.string.network_error)
     var showProgress by remember { mutableStateOf(false) }
     showProgress = authVM.isLoading
     if (showProgress) {
@@ -81,7 +80,6 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
                 ).show()
             else {
                 if (isNetworkAvailable(context)) {
-                    Log.d("lsjag", "ForgotPasswordScreen: ${authVM.phone}")
                     authVM.resetPassword(
                         UpdateUserData(
                             phone = "+92${authVM.phone}",
@@ -91,14 +89,13 @@ fun ResetPasswordScreen(navController: NavController, authVM: AuthVM) {
                 } else {
                     Toasty.error(
                         context,
-                        noNetworkMessage,
+                        connectivityError,
                         Toast.LENGTH_SHORT,
                         false
                     )
                         .show()
                 }
             }
-
         })
 }
 
@@ -107,7 +104,7 @@ fun ResetPasswordDesign(
     backClick: () -> Unit,
     resetPasswordClick: (String, String) -> Unit,
 ) {
-    var newPassword by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     Box(
         modifier = Modifier
@@ -124,34 +121,32 @@ fun ResetPasswordDesign(
                 modifier = null,
                 stringResource(id = R.string.reset_pass),
                 backClick = { backClick() })
-
             Spacer(modifier = Modifier.padding(top = 20.dp))
             Text(
                 text = stringResource(R.string.reset_details),
                 color = DarkBlue,
                 fontFamily = regularFont,
-                fontSize = 12.sp
+                fontSize = 14.sp
             )
             Spacer(modifier = Modifier.padding(top = 20.dp))
 
             PasswordTextFields(
-                value = newPassword,
+                value = password,
                 KeyboardType.Password,
                 ImeAction.Next,
                 placeholder = stringResource(id = R.string.password),
                 onValueChange = { newText ->
-                    newPassword = newText
+                    password = newText
                 }
             )
-
             Spacer(modifier = Modifier.padding(top = 20.dp))
             PasswordTextFields(
                 value = confirmPassword,
                 KeyboardType.Password,
                 ImeAction.Next,
                 placeholder = stringResource(id = R.string.confirm_pass),
-                onValueChange = { newText ->
-                    confirmPassword = newText
+                onValueChange = { value ->
+                    confirmPassword = value
                 }
             )
         }
@@ -162,11 +157,10 @@ fun ResetPasswordDesign(
                 .wrapContentHeight(Alignment.Bottom)
                 .padding(bottom = 40.dp, start = 20.dp, end = 20.dp)
         ) {
-            AppButton(modifier = Modifier,
+            AppBlueButton(modifier = Modifier,
                 text = stringResource(id = R.string.reset),
-                onButtonClick = { resetPasswordClick(newPassword, confirmPassword) })
+                onButtonClick = { resetPasswordClick(password, confirmPassword) })
         }
-
     }
 }
 

@@ -40,7 +40,6 @@ import com.pakscrap.ui.screen.adPost.MyPostScreen
 import com.pakscrap.ui.screen.adPost.models.AdsData
 import com.pakscrap.ui.screen.auth.AuthVM
 import com.pakscrap.ui.screen.auth.ForgotPasswordScreen
-import com.pakscrap.ui.screen.auth.LanguageScreen
 import com.pakscrap.ui.screen.auth.LoginScreen
 import com.pakscrap.ui.screen.auth.OTPScreen
 import com.pakscrap.ui.screen.auth.ResetPasswordScreen
@@ -276,15 +275,6 @@ fun PSRNavHost(
             PrivacyPolicyScreen(navController, authViewModel)
         }
 
-        composable(
-            route = Screen.LanguagesScreen.route,
-            enterTransition = { slideInHorizontally { it } },
-            exitTransition = { slideOutHorizontally { -it } },
-            popEnterTransition = { slideInHorizontally { -it } },
-            popExitTransition = { slideOutHorizontally { it } }
-        ) {
-            LanguageScreen(navController, homeVM)
-        }
         composable(
             route = Screen.LoginScreen.route,
             enterTransition = { slideInHorizontally { it } },
