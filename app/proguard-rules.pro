@@ -20,7 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 # Keep your LocaleHelper class
--keep class com.pakscrap.utils.LocaleHelper { *; }
+-keep class com.pakscrap.android.utils.LocaleHelper { *; }
 
 # Keep configuration changes related to locale
 -keepattributes *Annotation*,EnclosingMethod
