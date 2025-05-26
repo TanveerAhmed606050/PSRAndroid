@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "859175072247",
-    "project_id": "pak-scrap",
-    "storage_bucket": "pak-scrap.firebasestorage.app"
+    "project_number": "636812633672",
+    "project_id": "pakscrapandroid",
+    "storage_bucket": "pakscrapandroid.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:859175072247:android:46f10c86f63a62e6c5bef2",
+        "mobilesdk_app_id": "1:636812633672:android:3372c5c18ad4e1793cda7d",
         "android_client_info": {
-          "package_name": "com.pakscrap"
+          "package_name": "com.pakscrap.android"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBA7leWftlw4oP6a_o2Py0sHbgz-opD780"
+          "current_key": "AIzaSyDxsMf31fq8ulhvfjssaMYwF3PoCQ-LF9o"
         }
       ],
       "services": {
@@ -23,7 +23,7 @@
           "other_platform_oauth_client": []
         }
       },
-      "admob_app_id": "ca-app-pub-2684750191705026~9772782341"
+      "admob_app_id": "ca-app-pub-1476088334275309~1757118967"
     }
   ],
   "configuration_version": "1"

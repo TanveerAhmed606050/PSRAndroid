@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -45,8 +46,10 @@ import com.pakscrap.R
 import com.pakscrap.android.navigation.Screen
 import com.pakscrap.android.ui.commonViews.WhiteButton
 import com.pakscrap.android.ui.screen.auth.AuthVM
+import com.pakscrap.android.ui.theme.AppBG
 import com.pakscrap.android.ui.theme.DarkBlue
 import com.pakscrap.android.ui.theme.PSP_AndroidTheme
+import com.pakscrap.android.ui.theme.Purple40
 import com.pakscrap.android.ui.theme.boldFont
 import com.pakscrap.android.ui.theme.regularFont
 import es.dmoral.toasty.Toasty
@@ -85,7 +88,14 @@ fun PrivacyPolicyViews(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBlue),
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF00475C), // Dark top
+                        Color(0xFF007E9F)  // Lighter bottom
+                    )
+                )
+            ),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -121,7 +131,7 @@ fun PrivacyPolicyViews(
                 val annotatedString = buildAnnotatedString {
                     withStyle(
                         style = SpanStyle(
-                            fontSize = 14.sp, fontFamily = regularFont, color = Color.Black
+                            fontSize = 14.sp, fontFamily = regularFont, color = AppBG
                         )
                     ) {
                         append("By Continuing, you agree to PakScrapRate's ")
@@ -168,7 +178,7 @@ fun CustomRadioButton(isSelected: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .size(24.dp)
             .clip(CircleShape)
-            .background(if (isSelected) Color.Green else Color.Black)
+            .background(if (isSelected) Color.White else Color.Black)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {

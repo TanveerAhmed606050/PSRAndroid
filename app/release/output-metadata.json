@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.pakscrap",
+  "applicationId": "com.pakscrap.android",
   "variantName": "release",
   "elements": [
     {

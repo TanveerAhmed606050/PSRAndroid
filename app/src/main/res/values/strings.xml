@@ -6,8 +6,10 @@
     <string name="become_premium_user">Become a premium</string>
     <string name="no_rate">No Rate</string>
     <string name="no_prime_user">No Premium User</string>
-    <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string>
-    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_app_id">ca-app-pub-3940256099942544~3347511713</string><!-- Test-->
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string><!-- Test-->
+<!--    <string name="banner_ad_app_id">ca-app-pub-1476088334275309~1757118967</string>-->
+<!--    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/9214589741</string>-->
     <string name="interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
     <string name="rewarded_ad_unit_id">ca-app-pub-3940256099942544/5224354917</string>
     <string name="from">Powered by</string>

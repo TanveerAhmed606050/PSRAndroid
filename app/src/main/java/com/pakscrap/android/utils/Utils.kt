@@ -15,7 +15,7 @@ import java.util.Locale
 object Utils {
     // Function to load cities from JSON file in assets
     fun isValidPhone(phoneNumber: String): String {
-        val phoneNumberPattern = Regex("^[+]?[0-9]{10}\$")
+        val phoneNumberPattern = Regex("^[+]?[0-9]{10,11}$")
         return if (phoneNumberPattern.matches(phoneNumber)) "" else "Enter valid phone number"
     }
 

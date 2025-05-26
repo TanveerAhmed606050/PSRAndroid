@@ -15,7 +15,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.pakscrap"
+        applicationId = "com.pakscrap.android"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -42,10 +42,10 @@ android {
         }
         signingConfigs {
             create("release") {
-                storeFile = file("E:\\pakscrap.keystore")
-                storePassword = "pakscrap"
-                keyAlias = "pakscrap"
-                keyPassword = "pakscrap"
+                storeFile = file("E:\\goldstonecreatives.keystore")
+                storePassword = "goldstonecreatives"
+                keyAlias = "goldstonecreatives"
+                keyPassword = "goldstonecreatives"
             }
         }
         buildTypes {
